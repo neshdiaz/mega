@@ -35,11 +35,10 @@ def activar_jugador(instance, created, **kwargs):
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador):
-    log_registrar('log.txt', 'NUEVO JUGADOR Patrocinador ' +
-                  str(nuevo_jugador.patrocinador) + ' Jugador: ' +
-                  str(nuevo_jugador))
-
-    # buscar lista y posición valida del patrocinador
+    log_registrar('log.txt', ' ')
+    log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) + ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
+    
+    # buscar lista y posicion valida del patrocinador
     nueva_ubicacion = {'lista': None,
                        'posicion': -1,
                        'patrocinador': None}
@@ -77,11 +76,12 @@ def asignar_jugador(nuevo_jugador):
         elif nueva_ubicacion['posicion'] == 3:
             #ciclo la lista en la nueva ubicacion
             usuario_que_paga = str(nuevo_jugador)
-            # ciclo la lista donde se ubicó la posicion libre
+            # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
-            #bloque de multiples asignaciones en posición de ciclaje
+
+            #bloque de multiples asignaciones en posicion de ciclaje
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
                 usuario_que_paga += ret_ciclado['jugador_ciclado']
@@ -90,7 +90,6 @@ def asignar_jugador(nuevo_jugador):
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-        # Encolar al jugador...
     return respuesta
 
 
@@ -132,7 +131,7 @@ def asignar_clon(clon):
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             if ret_ciclado['posicion'] == 3:
                 lista_nueva(ret_ciclado['lista'])
-            #bloque de multiples asignaciones en posición de ciclaje
+            #bloque de multiples asignaciones en posicion de ciclaje
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
                 usuario_que_paga += ret_ciclado['jugador_ciclado']
@@ -143,36 +142,27 @@ def asignar_clon(clon):
     return HttpResponse(reverse('core:home'))
 
 def buscar_ubicacion(patrocinador):
+        
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
 
     # if patrocinador is not None:
+    log_registrar('log.txt', 'BUSCANDO EN LISTAS DEL PATROCINADOR ')
     ubicacion = lista_buscar_padre(patrocinador)
-
-    if ubicacion['posicion'] != -1:
-        return ubicacion
-    else:
+    if ubicacion['posicion'] == -1:
+        log_registrar('log.txt', 'No hay posiciones libres en las listas del patrocinador ' + str(patrocinador))
+        log_registrar('log.txt', 'BUSCANDO EN  LISTAS DE LA DESCENDENCIA')
         ubicacion = lista_buscar_descendencia(patrocinador)
-        if ubicacion['posicion'] != -1:
-            return ubicacion
-        else:
+        if ubicacion['posicion'] == -1:
+            log_registrar('log.txt', 'No hay posiciones libres en las listas de la descendencia ')
+            log_registrar('log.txt', 'BUSCANDO EN LISTA MAS ANTIGUA')
             ubicacion = lista_buscar_mas_antigua()
-            if ubicacion['posicion'] != -1:
-                return ubicacion
-            else:
-                log_registrar('log.txt', 'no hay listas disponibles')
-                return ubicacion
+    return ubicacion
 
-  
-        
-
-
-
-
-# Busquedas de posición sobre las listas
+# Busquedas de posicion sobre las listas
 def lista_buscar_padre(patrocinador):
-    log_registrar('log.txt', 'Busqueda por padre')
+    log_registrar('log.txt', 'Buscando en las listas del patrocinador ' + str(patrocinador))
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
@@ -183,17 +173,20 @@ def lista_buscar_padre(patrocinador):
                               .order_by('created')
         if listas_padre_a.exists():
             for lista in listas_padre_a:
+                log_registrar('log.txt', 'Buscando en la lista: ' + str(lista))
                 posicion = posicion_nuevo_jugador(patrocinador, lista)
                 if posicion != -1:
                     ubicacion['lista'] = lista
                     ubicacion['posicion'] = posicion
                     ubicacion['patrocinador'] = patrocinador
+                    log_registrar('log.txt', 'Posicion ' + str(posicion)+ ' libre: en lista ' + str(lista))
                     break
+                else:
+                    log_registrar('log.txt', 'Sin posicion libre...')
     return ubicacion
 
 
 def lista_buscar_descendencia(patrocinador):
-    log_registrar('log.txt', 'Busqueda por descendencia')
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
@@ -204,15 +197,18 @@ def lista_buscar_descendencia(patrocinador):
 
     if patrocinador is not None:
         patrocinador = Jugador.objects.get(pk=patrocinador.id)
+        log_registrar('log.txt', 'Buscando en descendencia de : ' + str(patrocinador))
         if patrocinador.patrocinador is not None:
             abuelo = Jugador.objects.get(pk=patrocinador.patrocinador.id)
             while abuelo is not None and nueva_ubicacion['posicion'] == -1:
+                log_registrar('log.txt', 'Buscando en listas del descendiente : ' + str(abuelo))    
                 nueva_ubicacion = lista_buscar_padre(abuelo)
                 if nueva_ubicacion['posicion'] != -1:
                     ubicacion['posicion'] = nueva_ubicacion['posicion']
                     ubicacion['lista'] = nueva_ubicacion['lista']
                     ubicacion['patrocinador'] = nueva_ubicacion[
                         'patrocinador']
+                    log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+ ' libre: en lista ' + str(nueva_ubicacion['lista']))    
                 else:
                     if abuelo.patrocinador is not None:
                         patrocinador_abuelo = abuelo.patrocinador
@@ -223,43 +219,35 @@ def lista_buscar_descendencia(patrocinador):
 
 
 def lista_buscar_mas_antigua():
-    log_registrar('log.txt', 'Busqueda lista más antigua')
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
     listas_abiertas = Lista.objects.filter(estado='A')\
                                    .order_by('created')
     for lista in listas_abiertas:
+        log_registrar('log.txt', 'Buscando en lista ' + str(lista))
         # si la lista no tienen items es porque empezamos el juego
         if lista.items == 0:
             ubicacion['lista'] = lista
             ubicacion['posicion'] = 0
             ubicacion['patrocinador'] = None
-            return ubicacion
+            break
         else:
-            ubicacion['lista'] = lista
-            ubicacion['posicion'] = 0
-            ubicacion['patrocinador'] = None
             patrocinador = Jugador.objects.filter(juego__lista=lista,
                                                   juego__posicion=0)
-            patrocinador = patrocinador[0]
-            nueva_posicion = posicion_nuevo_jugador(patrocinador, lista)
+            nueva_posicion = posicion_nuevo_jugador(patrocinador[0], lista)
+            ubicacion['lista'] = lista
+            ubicacion['posicion'] = nueva_posicion
+            
             if nueva_posicion != -1:
-                ubicacion['lista'] = lista
-                ubicacion['posicion'] = nueva_posicion
-                ubicacion['patrocinador'] = None
+                log_registrar('log.txt', 'Posicion ' + str(nueva_posicion)+ ' libre: en lista ' + str(lista))
+                break
     return ubicacion
 
 
-
 def posicion_nuevo_jugador(padre, lista_validacion):
-    log_registrar('log.txt', 'Buscando posicion para el nuevo jugador')
     if padre is not None:
         jugador_padre = padre
-        log_registrar('log.txt', 'Validando usuario padre: ' +
-                      str(jugador_padre))
-        log_registrar('log.txt', 'Validando lista: ' + str(lista_validacion))
-
         posicion = -1
         casillas = [
             "vacia",
@@ -286,30 +274,26 @@ def posicion_nuevo_jugador(padre, lista_validacion):
     else:
         posicion = -1
 
-    if posicion == -1:
-        log_registrar('log.txt', 'No se encontró una posicion disponible en la\
-                      lista ' + str(lista_validacion))
-    else:
-        log_registrar('log.txt', 'Se ubicó la posicion ' + str(posicion) +
-                      ' libre en la lista ' + str(lista_validacion))
     return posicion
 
 
 # ciclaje de las listas
 
 def lista_ciclar(lista):
-    log_registrar('log.txt', 'CICLAJE')
     ciclado = {'lista': None, 'posicion': -1, 'jugador_ciclado': None}
 
     # jugador cabeza de lista que se va a ciclar
     jugador0 = Jugador.objects.get(juego__lista=lista.id, juego__posicion=0)
-    log_registrar('log.txt', 'Jugador a ciclar ' + str(jugador0))
+    
+    log_registrar('log.txt', 'CICLANDO A: ' + str(jugador0) + ' EN LISTA: ' + str(lista))
+    
     if jugador0.patrocinador is None:
         abuelo = None
     else:
         abuelo = jugador0.patrocinador
-    log_registrar('log.txt', ' id patrocinador del patrocinador ' +
-                  str(abuelo))
+    
+    log_registrar('log.txt', 'Buscando ubicacion en posicion del abuelo: ' + str(abuelo))
+    
     nueva_ubicacion = buscar_ubicacion(abuelo)
     if nueva_ubicacion['posicion'] == -1:
         log_registrar('log.txt', 'no existen posiciones para ciclar')
@@ -321,9 +305,9 @@ def lista_ciclar(lista):
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
         notificar_asignacion()
-        log_registrar('log.txt', 'Jugador ciclado ' + str(jugador0) +
-                      ' agregado a lista ' + str(nueva_ubicacion['lista']) +
-                      ' en posicion: ' + str(nueva_ubicacion['posicion']))
+        log_registrar('log.txt', 'Jugador ' + str(jugador0) +
+                      ' ciclado y agregado a lista ' + str(nueva_ubicacion['lista']) +
+                      ' en la posicion: ' + str(nueva_ubicacion['posicion']))
 
         lista_inc_item(nueva_ubicacion['lista'])
         jugador_inc_ciclo(jugador0)
@@ -582,7 +566,7 @@ def jugador_inc_cierre_lista(jugador):
 
 def log_registrar(nombre_archivo, texto):
     archivo = open(str(nombre_archivo), "a")
-    archivo.write(str(timezone.now()) + ' ' + texto + '\n')
+    archivo.write('' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+ ' ' + texto + '\n')
     archivo.close()
 
 
@@ -595,7 +579,7 @@ def notificar_asignacion():
 
 
 
-# Funciones de visualización para ajax
+# Funciones de visualizacion para ajax
 # A partir de aquí se definen las funciones que llamará ajax para
 # actualizar la página
 
