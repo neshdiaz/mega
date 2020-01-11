@@ -64,7 +64,7 @@ def asignar_jugador(nuevo_jugador):
         jugador_validar_bloqueos(nuevo_jugador.patrocinador)
         jugador_validar_pcs(nuevo_jugador.patrocinador)
         jugador_inc_activos_abuelo(nuevo_jugador.patrocinador, nueva_ubicacion['lista'].nivel)
- 
+
         respuesta = 'Jugador asignado correctamente'
         notificar_asignacion()
 
@@ -87,6 +87,7 @@ def asignar_jugador(nuevo_jugador):
                 usuario_que_paga += ret_ciclado['jugador_ciclado']
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
+                    
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
@@ -284,16 +285,16 @@ def lista_ciclar(lista):
 
     # jugador cabeza de lista que se va a ciclar
     jugador0 = Jugador.objects.get(juego__lista=lista.id, juego__posicion=0)
-    
+
     log_registrar('log.txt', 'CICLANDO A: ' + str(jugador0) + ' EN LISTA: ' + str(lista))
-    
+
     if jugador0.patrocinador is None:
         abuelo = None
     else:
         abuelo = jugador0.patrocinador
-    
+
     log_registrar('log.txt', 'Buscando ubicacion en posicion del abuelo: ' + str(abuelo))
-    
+
     nueva_ubicacion = buscar_ubicacion(abuelo)
     if nueva_ubicacion['posicion'] == -1:
         log_registrar('log.txt', 'no existen posiciones para ciclar')
@@ -642,7 +643,7 @@ def listas(request):
         lista_listas = Lista.objects.all().distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
             lst_listas.append(ele)
 
     else:
@@ -651,7 +652,7 @@ def listas(request):
             .distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel)}
+            ele = {"id": lista.id,"nivel": str(lista.nivel), "estado":(lista.estado)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)

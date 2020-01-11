@@ -135,7 +135,7 @@ function displayListas(listas_json){
         htmlListas += "  <div class = 'btn-group-vertical'>";
         listas_json.forEach(function(item, index){
             url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ");> Lista" + item.id + " " + item.nivel +" </button>";
+            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ");>" + "Lista " + item.id + " " + item.estado + '</button>';
         })
         htmlListas += "</div></div>";
         ContenedorListas.innerHTML = htmlListas;
@@ -207,7 +207,7 @@ function displayListaContent(lista_json){
     console.log("mostrando contenido de la lista");
     $("#j0").text(lista_json[0].user); 
     $("#j0").css({"color": lista_json[0].color});
-    
+        
     $("#j1").text(lista_json[1].user); 
     $("#j1").css({"color": lista_json[1].color}); 
 
