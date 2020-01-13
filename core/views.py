@@ -75,19 +75,34 @@ def asignar_jugador(nuevo_jugador):
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             #ciclo la lista en la nueva ubicacion
-            usuario_que_paga = str(nuevo_jugador)
+            usuario_que_paga = '(' + str(nuevo_jugador) + ', '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
+            usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+            ret_id = ret_ciclado['juego'].id
+            ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+            ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+            ultimo_ciclaje_juego.save()
+            ultimo_ciclaje_juego.refresh_from_db()
+            
             if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
-
+                
             #bloque de multiples asignaciones en posicion de ciclaje
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += ret_ciclado['jugador_ciclado']
+                usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+                ret_id = ret_ciclado['juego'].id
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
-                    
+            
+            usuario_que_paga += ')'
+            log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
+            
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
@@ -315,6 +330,8 @@ def lista_ciclar(lista):
         ciclado['lista'] = nueva_ubicacion['lista']
         ciclado['posicion'] = nueva_ubicacion['posicion']
         ciclado['jugador_ciclado'] = jugador0
+        ciclado['juego'] = nuevo_juego
+
     return ciclado
 
 
@@ -588,11 +605,11 @@ def notificar_asignacion():
 @requires_csrf_token
 def lista_content(request, id_lista=None):
 
-    dict_list = [{'user': '', 'color': 'white'},
-                 {'user': '', 'color': 'white'},
-                 {'user': '', 'color': 'white'},
-                 {'user': '', 'color': 'white'},
-                 {'user': '', 'color': 'white'},
+    dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
                  {'lista_id': '', 'estado': '', 'nivel': ''}]
 
     juegos_en_lista = Juego.objects.select_related('jugador', 'lista')\
@@ -622,12 +639,16 @@ def lista_content(request, id_lista=None):
                     juego.jugador.usuario.username
                 dict_list[juego.posicion_cerrado]['color'] = \
                     juego.color_cerrado
+                dict_list[juego.posicion]['cadena_ciclaje'] = \
+                    juego.cadena_ciclaje
         else:
             for juego in juegos_en_lista:
                 dict_list[juego.posicion]['user'] = \
                     juego.jugador.usuario.username
                 dict_list[juego.posicion]['color'] = \
                     juego.jugador.color
+                dict_list[juego.posicion]['cadena_ciclaje'] = \
+                    juego.cadena_ciclaje
 
         # posicion 5 para el encabezado de la lista
         dict_list[5]['lista_id'] = mi_lista.id
@@ -657,6 +678,32 @@ def listas(request):
 
     json_response = json.dumps(lst_listas)
     return HttpResponse(json_response)
+
+@requires_csrf_token
+def referidos(request):
+    if request.user.is_staff:
+        
+        
+        
+        lista_listas = Lista.objects.all().distinct()
+        lst_listas = []
+        for lista in lista_listas:
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
+            lst_listas.append(ele)
+
+    else:
+        lista_listas = Lista.objects\
+            .filter(jugador__usuario__username=request.user.username)\
+            .distinct()
+        lst_listas = []
+        for lista in lista_listas:
+            ele = {"id": lista.id,"nivel": str(lista.nivel), "estado":(lista.estado)}
+            lst_listas.append(ele)
+
+    json_response = json.dumps(lst_listas)
+    return HttpResponse(json_response)
+
+
 
 
 @requires_csrf_token

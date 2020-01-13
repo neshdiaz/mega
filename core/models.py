@@ -43,7 +43,7 @@ class Juego(models.Model):
     posicion = models.SmallIntegerField(default=-1)
     posicion_cerrado = models.SmallIntegerField(default=-1)
     color_cerrado = models.CharField(max_length=10, default='red')
-    cadena_ciclaje = models.TextField(default='') 
+    cadena_ciclaje = models.TextField(default='')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

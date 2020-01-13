@@ -205,19 +205,24 @@ function displayListaClones(clones_json){
 
 function displayListaContent(lista_json){
     console.log("mostrando contenido de la lista");
-    $("#j0").text(lista_json[0].user); 
+    texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
+    $("#j0").text(texto_usuario); 
     $("#j0").css({"color": lista_json[0].color});
         
-    $("#j1").text(lista_json[1].user); 
+    texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
+    $("#j1").text(texto_usuario); 
     $("#j1").css({"color": lista_json[1].color}); 
 
-    $("#j2").text(lista_json[2].user); 
+    texto_usuario = lista_json[2].user + ' ' +  lista_json[2].cadena_ciclaje
+    $("#j2").text(texto_usuario); 
     $("#j2").css({"color": lista_json[2].color}); 
 
-    $("#j3").text(lista_json[3].user); 
+    texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
+    $("#j3").text(texto_usuario); 
     $("#j3").css({"color": lista_json[3].color}); 
 
-    $("#j4").text(lista_json[4].user); 
+    texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
+    $("#j4").text(texto_usuario); 
     $("#j4").css({"color": lista_json[4].color}); 
 
     enc = 'Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado + ' ' + lista_json[5].nivel
