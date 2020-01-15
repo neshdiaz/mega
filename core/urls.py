@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from core import views
 
 app_name = 'core'
 
@@ -12,5 +12,6 @@ urlpatterns = [
          name='lista_content'),
 
     path('ajax/listas/', views.listas, name='listas'),
-    path('ajax/clones/', views.clones, name='clones')
+    path('ajax/clones/', views.clones, name='clones'),
+    path('ajax/referidos/', views.referidos, name='referidos')
 ]

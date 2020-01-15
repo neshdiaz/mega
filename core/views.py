@@ -681,26 +681,14 @@ def listas(request):
 
 @requires_csrf_token
 def referidos(request):
-    if request.user.is_staff:
-        
-        
-        
-        lista_listas = Lista.objects.all().distinct()
-        lst_listas = []
-        for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
-            lst_listas.append(ele)
+    lista_referidos = Jugador.objects.filter(patrocinador__usuario__username=request.user.username)\
+                                     .distinct()
+    lst_referidos = []
+    for referido in lista_referidos:
+        ele = {"usuario": referido.usuario.username}
+        lst_referidos.append(ele)
 
-    else:
-        lista_listas = Lista.objects\
-            .filter(jugador__usuario__username=request.user.username)\
-            .distinct()
-        lst_listas = []
-        for lista in lista_listas:
-            ele = {"id": lista.id,"nivel": str(lista.nivel), "estado":(lista.estado)}
-            lst_listas.append(ele)
-
-    json_response = json.dumps(lst_listas)
+    json_response = json.dumps(lst_referidos)
     return HttpResponse(json_response)
 
 

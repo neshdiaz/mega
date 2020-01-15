@@ -10,7 +10,8 @@ function init(){
     get_listas(url_listas);
     get_lista_content(url_lista_content, 1);
     relojInit(relojActual);
-    get_lista_clones(url_clones);   
+    get_lista_clones(url_clones);
+    get_lista_referidos(url_referidos);   
     websocket();
 }
 
@@ -81,6 +82,7 @@ function actualizar_pantalla(){
     get_listas(url_listas)
     get_lista_content(url_lista_content, lista_desplegada);
     get_lista_clones(url_clones);
+    get_lista_referidos(url_referidos);
     
 }
 
@@ -188,6 +190,28 @@ function get_lista_clones(url_lista_clones){
     });
 }
 
+function get_lista_referidos(url_lista_referidos){
+    $.ajax({
+        url: url_lista_referidos,
+        method: "post",
+        beforeSend: function (xhr, settings) {
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        },   
+        success: function(respuesta){
+            lista_json = JSON.parse(respuesta);
+            // actualizar el contenido del div
+            displayListaReferidos(lista_json);
+        }        
+    });
+}
+
 function displayListaClones(clones_json){
     if(clonesContainer){
         ContenedorClones = document.getElementById("clonesContainer");
@@ -200,6 +224,20 @@ function displayListaClones(clones_json){
         })
         htmlClones += "</div></div>";
         ContenedorClones.innerHTML = htmlClones
+    }
+}
+
+function displayListaReferidos(referidos_json){
+    if(referidosContainer){
+        ContenedorReferidos = document.getElementById("referidosContainer");
+        htmlReferidos = "";
+        htmlReferidos = "<ul>";
+        referidos_json.forEach(function(item, index){
+            url = url_referidos;
+            htmlReferidos += "    <li>" + item.usuario + "</li>" ;
+        })
+        htmlReferidos += "</ul>";
+        ContenedorReferidos.innerHTML = htmlReferidos
     }
 }
 
