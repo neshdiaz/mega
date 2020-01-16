@@ -242,6 +242,7 @@ function displayListaReferidos(referidos_json){
 }
 
 function displayListaContent(lista_json){
+    
     console.log("mostrando contenido de la lista");
     texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
     $("#j0").text(texto_usuario); 

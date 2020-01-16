@@ -125,7 +125,7 @@ def asignar_clon(clon):
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
-        log_registrar('log.txt', 'Jugador ' + str(clon) +
+        log_registrar('log.txt', 'Clon ' + str(clon) +
                       ' agregado a lista ' + str(nueva_ubicacion['lista']) +
                       ' en posicion: ' +
                       str(nueva_ubicacion['posicion']))
@@ -143,18 +143,37 @@ def asignar_clon(clon):
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             #ciclo la lista en la nueva ubicacion
-            usuario_que_paga = str(clon)
+            usuario_que_paga = '(' + str(clon) + ', '
+            # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
-            if ret_ciclado['posicion'] == 3:
+            usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+            ret_id = ret_ciclado['juego'].id
+            ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+            ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+            ultimo_ciclaje_juego.save()
+            ultimo_ciclaje_juego.refresh_from_db()
+            
+            if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
+                
             #bloque de multiples asignaciones en posicion de ciclaje
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += ret_ciclado['jugador_ciclado']
+                usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+                ret_id = ret_ciclado['juego'].id
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
+            
+            usuario_que_paga += ')'
+            log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
     else:
-        pass
+        respuesta = 'No se encontraron posiciones disponibles'
+        log_registrar('log.txt', 'No se encontraron posiciones disponibles')
+    
     return HttpResponse(reverse('core:home'))
 
 def buscar_ubicacion(patrocinador):
@@ -224,7 +243,8 @@ def lista_buscar_descendencia(patrocinador):
                     ubicacion['lista'] = nueva_ubicacion['lista']
                     ubicacion['patrocinador'] = nueva_ubicacion[
                         'patrocinador']
-                    log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+ ' libre: en lista ' + str(nueva_ubicacion['lista']))    
+                    log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'] ) +
+                                  ' libre: en lista ' + str(nueva_ubicacion['lista']))
                 else:
                     if abuelo.patrocinador is not None:
                         patrocinador_abuelo = abuelo.patrocinador
@@ -690,9 +710,6 @@ def referidos(request):
 
     json_response = json.dumps(lst_referidos)
     return HttpResponse(json_response)
-
-
-
 
 @requires_csrf_token
 def clones(request):
