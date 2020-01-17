@@ -370,7 +370,7 @@ def lista_nueva(lista):
     jugador1 = Jugador.objects.filter(juego__lista=lista,
                                       juego__posicion=3)
 
-    nuevo_juego0 = Juego(lista=nueva_lista_par,
+    nuevo_juego0 = Juego(lista=nueva_lista_par, 
                          jugador=jugador0[0],
                          posicion=0)
     nuevo_juego1 = Juego(lista=nueva_lista_par,
@@ -389,6 +389,7 @@ def lista_nueva(lista):
     lista_inc_ciclo(nueva_lista_par)
     lista_validar_bloqueo(nueva_lista_par)
     lista_validar_pc(nueva_lista_par)
+    nuevoCobrador = Jugador.objects.get()
 
     # Lista nueva IMPAR
 

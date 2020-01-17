@@ -103,3 +103,9 @@ class Clon(models.Model):
 
     class Meta:
         verbose_name_plural = 'Clones'
+
+class Cobrador(models.Model):
+    jugador = models.ForeignKey('jugador', blank=True, null=True,
+                                on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)       

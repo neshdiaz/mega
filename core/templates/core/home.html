@@ -10,7 +10,7 @@
     <div class="row">
       <div class="col-md-12">
         Este es tu enlace de referido:
-        <div class="input-group">
+        <div class="input-group share">
             <input id="txtEnlaceReferido" class="form-control" value="{{base_url}}{% url 'registration:registro_referido' request.user %}" name=""  readonly> 
             <span class= input-group-btn> 
               <button id="btnCopiar" class="btn btn-primary">Copiar</button>
@@ -25,8 +25,8 @@
     
     <div class="row">
 
-      <div class="col-md-6">
-        <div class="card w-100">
+      <div class="col-md-4">
+        <div class="card w-100 mt-3">
           <h6 class="card-header"> Mis Listas </h6>
           <div class="card-body scroll-list" style="height: 18rem;">
             <p class="card-text">
@@ -38,8 +38,8 @@
 
 <!--codigo actual para cargar los jugadores de la lista   -->    
 
-    <div class="col-md-6">
-      <div class="card w-100">
+    <div class="col-md-4">
+      <div class="card w-100 mt-3">
         <h6 class="card-header">
           <div id="encabezado_lista">
             Seleccione una lista para ver su contenido
@@ -114,10 +114,18 @@
       </div> 
     </div>       
 
+    <div class="col-md-4">
+      <div class="card w-100 mt-3">
+        <h6 class="card-header"> Mis Referidos </h6>
+        <div class="card-body scroll-list" style="height: 18rem;">
+          <p class="card-text">
+            <div id="referidosContainer"></div> 
+          </p>
+        </div></div>
+      </div>
 
-
-    <div class="col-md-12">
-      <div class="card w-100">
+    <div class="col-md-4">
+      <div class="card w-100 mt-3">
         <h6 class="card-header"> Mis Clones </h6>
         <div class="card-body scroll-list" style="height: 18rem;">
           <p class="card-text">
@@ -127,15 +135,6 @@
       </div>
     </div>
 
-    <div class="col-md-12">
-      <div class="card w-100">
-        <h6 class="card-header"> Mis Referidos </h6>
-        <div class="card-body scroll-list" style="height: 18rem;">
-          <p class="card-text">
-            <div id="referidosContainer"></div> 
-          </p>
-        </div></div>
-      </div>
     </div>
 
   </div>

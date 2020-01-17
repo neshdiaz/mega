@@ -1,5 +1,9 @@
+.share{
+    padding-bottom: 5px;
+}
+
 .container-fluid{
-    padding:0px;
+    padding:3px;
     padding-right: 10px;
 }
 
