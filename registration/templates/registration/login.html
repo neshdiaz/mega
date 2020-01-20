@@ -10,7 +10,10 @@
   <div class="row">
     <div class="col-md-3 mr-2"></div>
     <div class="col-md-6 p-4">
-      {{patrocinador}}
+      {% if 'register' in request.GET %}
+      <div class="alert alert-success" role="alert">Se ha registrado correctamente.</div>
+      {% endif %}
+
       <img class= "index-logo mx-auto p-1"  src="{% static "core/img/logo.png" %}">
       <h3>Por favor ingrese su nombre de usuario y contraseña.</h3><br>
       <form action="" method="post">{% csrf_token %}

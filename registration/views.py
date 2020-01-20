@@ -18,10 +18,9 @@ def registro_referido(request, patrocinador):
         referido_valid = False
     return render(request, 'registration/registro_referido.html',
                            {'patrocinador': patrocinador,
-                            'referido_valid': referido_valid
+                            'referido_valid': referido_valid    
                             }
                   )
-
 
 class login(LoginView):
     form_class = AuthenticationForm
@@ -46,7 +45,6 @@ class logged_out(LogoutView):
 
 class RegistroUsuario(CreateView):
     form_class = UserCreationForm2
-    success_url = reverse_lazy('login')
     template_name = 'registration/registro.html'
 
     def get_form(self, form_class=None):
@@ -63,6 +61,9 @@ class RegistroUsuario(CreateView):
 
         form.fields['patrocinador'].widget = forms.HiddenInput()
         return form
+
+    def get_success_url(self):
+        return reverse_lazy('login') + '?register'
 
     @transaction.atomic
     def form_valid(self, form):

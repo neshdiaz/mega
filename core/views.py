@@ -35,6 +35,7 @@ def activar_jugador(instance, created, **kwargs):
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador):
+    patrocinador = nuevo_jugador.patrocinador
     log_registrar('log.txt', ' ')
     log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) + ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
     
@@ -106,7 +107,7 @@ def asignar_jugador(nuevo_jugador):
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-    return respuesta
+    return patrocinador
 
 
 @transaction.atomic
