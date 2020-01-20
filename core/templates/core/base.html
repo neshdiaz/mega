@@ -43,21 +43,34 @@
               <span class= "separator"> MENU </span>
               
               <a class="nav-link active" 
-                href="{% url 'core:home'%}"><i class="fas fa-th">
+                href="{% url 'core:home'%}"><i class="fas fa-home">
               </i>Home</a>
               <a class="nav-link" href="{% url 'core:home' %}">
-                <i class="fas fa-list"></i>Tienda</a>
+                <i class="fas fa-store"></i>Tienda</a>
               <hr>
             </nav>
+          </div>
+          <!--Cuadro de Cobradores -->          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card w-100">
+                <div class="card-body">
+                  <h6>Ultimos cobradores</h6>
+                  <div id = "cobrando_container">Cobrando... </div>  
+                </div>
+              </div>
+            </div>  
           </div>
           
           <!-- </nav>/-->
         </div>
+        
+        
         <div class="col-sm-12 col-md-9 col-lg-9 col-xl-10"> <!-- lateral derecho-->
           {% block contenido %} {% endblock %}
         </div>
-      </div>  
-      
+      </div>
+            
       <div class="row">  <!-- Pie de pagina-->
         <div class="card w-100">
           <div class="card-body">
@@ -79,6 +92,7 @@
         url_clones = "{% url 'core:clones' %}";
         url_referidos = "{% url 'core:referidos' %}";
         url_activar_clon = "{% url 'core:activar_clon' %}";
+        url_lista_cobrando = "{% url 'core:cobrando' %}";
         init('{{hora_local}}');
       }  
     </script>

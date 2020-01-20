@@ -70,3 +70,7 @@
     font-weight: bold;
     color: red;
 }
+
+#encabezado_lista{
+    padding-left: 10px; 
+}

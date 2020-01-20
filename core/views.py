@@ -11,7 +11,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Lista, Jugador, Juego, Clon
+from .models import Lista, Jugador, Juego, Cobrador, Clon
 
 def index(request):
     return render(request, 'core/index.html')
@@ -389,8 +389,11 @@ def lista_nueva(lista):
     lista_inc_ciclo(nueva_lista_par)
     lista_validar_bloqueo(nueva_lista_par)
     lista_validar_pc(nueva_lista_par)
-    nuevoCobrador = Jugador.objects.get()
-
+    
+    cobrador_cabeza = Jugador.objects.get(juego__lista=nueva_lista_par,juego__posicion=0)
+    nuevo_cobrador = Cobrador(jugador=cobrador_cabeza)
+    nuevo_cobrador.save()
+    
     # Lista nueva IMPAR
 
     log_registrar('log.txt', 'LISTA NUEVA IMPAR')
@@ -417,6 +420,10 @@ def lista_nueva(lista):
     nuevo_juego0.refresh_from_db()
     nuevo_juego1.save()
     nuevo_juego1.refresh_from_db()
+
+    cobrador_cabeza = Jugador.objects.get(juego__lista=nueva_lista_impar,juego__posicion=0)
+    nuevo_cobrador = Cobrador(jugador=cobrador_cabeza)
+    nuevo_cobrador.save()
 
 
     log_registrar('log.txt', 'Jugador ' + str(jugador0[0]) +
@@ -710,6 +717,17 @@ def referidos(request):
         lst_referidos.append(ele)
 
     json_response = json.dumps(lst_referidos)
+    return HttpResponse(json_response)
+
+@requires_csrf_token
+def cobrando(request):
+    lista_cobrando = Cobrador.objects.all()
+    lst_cobrando = []
+    for cobrador in lista_cobrando:
+        ele = {"usuario": cobrador.jugador.usuario.username}
+        lst_cobrando.append(ele)
+
+    json_response = json.dumps(lst_cobrando)
     return HttpResponse(json_response)
 
 @requires_csrf_token

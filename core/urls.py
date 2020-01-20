@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('ajax/listas/', views.listas, name='listas'),
     path('ajax/clones/', views.clones, name='clones'),
-    path('ajax/referidos/', views.referidos, name='referidos')
+    path('ajax/referidos/', views.referidos, name='referidos'),
+    path('ajax/cobrando/', views.cobrando, name='cobrando')
 ]
