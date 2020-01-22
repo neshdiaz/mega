@@ -102,7 +102,8 @@ def asignar_jugador(nuevo_jugador):
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
             
-            usuario_que_paga += ')'
+            if usuario_que_paga.find(")") == -1:
+                usuario_que_paga += ')'
             log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
             
     else:
@@ -127,7 +128,7 @@ def asignar_clon(clon):
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
-        log_registrar('log.txt', 'Clon ' + str(clon) +
+        log_registrar('log.txt', 'Clon ' + str(clon.jugador) +
                       ' agregado a lista ' + str(nueva_ubicacion['lista']) +
                       ' en posicion: ' +
                       str(nueva_ubicacion['posicion']))
@@ -135,7 +136,7 @@ def asignar_clon(clon):
         # procesos post asignacion directa
         lista_inc_item(nueva_ubicacion['lista'])
 
-        respuesta = 'Jugador asignado correctamente'
+        respuesta = 'Clon asignado correctamente'
         notificar_asignacion()
 
         # Creacion de lista nueva
@@ -145,7 +146,7 @@ def asignar_clon(clon):
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             #ciclo la lista en la nueva ubicacion
-            usuario_que_paga = '(' + str(clon) + ', '
+            usuario_que_paga = '(' + str(clon.jugador) + ', '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
@@ -170,7 +171,8 @@ def asignar_clon(clon):
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
             
-            usuario_que_paga += ')'
+            if usuario_que_paga.find(")") == -1:
+                usuario_que_paga += ')'
             log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
     else:
         respuesta = 'No se encontraron posiciones disponibles'
