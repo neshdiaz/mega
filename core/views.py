@@ -113,7 +113,7 @@ def asignar_jugador(nuevo_jugador):
 
 @transaction.atomic
 def asignar_clon(clon):
-    log_registrar('log.txt', 'asgnando clon de ' + str(clon.jugador))
+    log_registrar('log.txt', 'asignando clon de ' + str(clon.jugador))
     nueva_ubicacion = {'lista': None,
                        'posicion': -1,
                        'patrocinador': None}
@@ -123,7 +123,7 @@ def asignar_clon(clon):
     if nueva_ubicacion['posicion'] != -1:
         # Creamos el juego para enlazar la lista con el nuevo jugador
         juego = Juego(lista=nueva_ubicacion['lista'],
-                      jugador=clon,
+                      jugador=clon.jugador,
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
