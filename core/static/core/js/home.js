@@ -262,7 +262,7 @@ function displayListaReferidos(referidos_json){
         htmlReferidos = "<ol>";
         referidos_json.forEach(function(item, index){
             url = url_referidos;
-            htmlReferidos += "    <li>" + item.usuario + "</li>" ;
+            htmlReferidos += "  <li style='color: " + item.color + "'>" + item.usuario + "</li>" ;
         })
         htmlReferidos += "</ol>";
         ContenedorReferidos.innerHTML = htmlReferidos

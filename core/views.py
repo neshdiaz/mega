@@ -24,7 +24,8 @@ def home(request, id_usuario=None, id_lista=None):
 
     return render(request, 'core/home.html', {
         'hora_local': hora_local,
-        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/"),
+        'log': log_mostrar('log.txt'),})
 
 
 @receiver(post_save, sender=Jugador)
@@ -65,7 +66,8 @@ def asignar_jugador(nuevo_jugador):
         jugador_validar_bloqueos(nuevo_jugador.patrocinador)
         jugador_validar_pcs(nuevo_jugador.patrocinador)
         jugador_inc_activos_abuelo(nuevo_jugador.patrocinador, nueva_ubicacion['lista'].nivel)
-
+        lista_nuevo_cobrador(nueva_ubicacion['lista'])
+        
         respuesta = 'Jugador asignado correctamente'
         notificar_asignacion()
 
@@ -221,6 +223,11 @@ def lista_buscar_padre(patrocinador):
                     log_registrar('log.txt', 'Sin posicion libre...')
     return ubicacion
 
+
+def lista_nuevo_cobrador(lista):
+    cobrador = Jugador.objects.get(juego__lista=lista, juego__posicion=0)
+    nuevo_cobrador = Cobrador(jugador=cobrador)
+    nuevo_cobrador.save()
 
 def lista_buscar_descendencia(patrocinador):
     ubicacion = {'lista': None,
@@ -390,11 +397,7 @@ def lista_nueva(lista):
     lista_inc_ciclo(nueva_lista_par)
     lista_validar_bloqueo(nueva_lista_par)
     lista_validar_pc(nueva_lista_par)
-    
-    cobrador_cabeza = Jugador.objects.get(juego__lista=nueva_lista_par,juego__posicion=0)
-    nuevo_cobrador = Cobrador(jugador=cobrador_cabeza)
-    nuevo_cobrador.save()
-    
+
     # Lista nueva IMPAR
 
     log_registrar('log.txt', 'LISTA NUEVA IMPAR')
@@ -422,9 +425,7 @@ def lista_nueva(lista):
     nuevo_juego1.save()
     nuevo_juego1.refresh_from_db()
 
-    cobrador_cabeza = Jugador.objects.get(juego__lista=nueva_lista_impar,juego__posicion=0)
-    nuevo_cobrador = Cobrador(jugador=cobrador_cabeza)
-    nuevo_cobrador.save()
+    
 
 
     log_registrar('log.txt', 'Jugador ' + str(jugador0[0]) +
@@ -616,7 +617,6 @@ def log_registrar(nombre_archivo, texto):
     archivo.write('' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+ ' ' + texto + '\n')
     archivo.close()
 
-
 def notificar_asignacion():
     layer = get_channel_layer()
     async_to_sync(layer.group_send)('handler_notifications', {
@@ -714,7 +714,8 @@ def referidos(request):
                                      .distinct()
     lst_referidos = []
     for referido in lista_referidos:
-        ele = {"usuario": referido.usuario.username}
+        ele = {"usuario": referido.usuario.username,
+               'color': referido.color}
         lst_referidos.append(ele)
 
     json_response = json.dumps(lst_referidos)
@@ -722,7 +723,7 @@ def referidos(request):
 
 @requires_csrf_token
 def cobrando(request):
-    lista_cobrando = Cobrador.objects.all()
+    lista_cobrando = Cobrador.objects.all()[:10]
     lst_cobrando = []
     for cobrador in lista_cobrando:
         ele = {"usuario": cobrador.jugador.usuario.username}
