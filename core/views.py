@@ -24,8 +24,7 @@ def home(request, id_usuario=None, id_lista=None):
 
     return render(request, 'core/home.html', {
         'hora_local': hora_local,
-        'base_url': request.build_absolute_uri('/')[:-1].strip("/"),
-        'log': log_mostrar('log.txt'),})
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
 
 
 @receiver(post_save, sender=Jugador)
