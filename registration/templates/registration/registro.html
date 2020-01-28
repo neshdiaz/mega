@@ -11,8 +11,14 @@
     <div class="col-md-2"></div>
     <div class="col-md-8 p-4">
       <img class= "index-logo p-3"  src="{% static "core/img/logowc.png" %}" alt="">
-      <h2>Registro sin patrocinador</h2>
-      <h6>Entrarás al sistema como un usuario independiente, si eres referido de otro usuario por favor solicítale su enlace de referido para entra en su red.</h6>
+      
+      {% if request.POST.patrocinador%}
+        <h3>Registro patrocinado por <span style="color: red;">{{request.POST.patrocinador}}</span> </h3>
+      {% else %}    
+        <h3>Registro sin patrocinador</h3>
+        <h6>Entrarás al sistema como un usuario independiente, si eres referido de otro usuario por favor solicítale su enlace de referido para entra en su red.</h6>
+      {% endif %}
+       
       <div id="mensajes"></div>
       <form action="" method="post">{% csrf_token %}  
         {{ form.as_p }}

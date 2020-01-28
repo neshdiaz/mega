@@ -97,7 +97,7 @@ def asignar_jugador(nuevo_jugador):
                 usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
                 lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
-                # guardo en BD
+                # guardo en BD  
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
                 ultimo_ciclaje_juego.save()
