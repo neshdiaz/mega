@@ -10,9 +10,11 @@
   <div class="row">
     <div class="col-md-2"></div>
     <div class="col-md-8 p-4">
-      <img class= "index-logo p-3"  src="{% static "core/img/logo.png" %}" alt="">
-      <h3>Regístrese para poder utilizar la plataforma.</h3>
-      <form action="" method="post">{% csrf_token %}
+      <img class= "index-logo p-3"  src="{% static "core/img/logowc.png" %}" alt="">
+      <h2>Registro sin patrocinador</h2>
+      <h6>Entrarás al sistema como un usuario independiente, si eres referido de otro usuario por favor solicítale su enlace de referido para entra en su red.</h6>
+      <div id="mensajes"></div>
+      <form action="" method="post">{% csrf_token %}  
         {{ form.as_p }}
         <input type="hidden", value="1">
         <button class="btn btn-success" type="submit" >Registrarse</button>
@@ -21,5 +23,8 @@
       <div class="col-md-2">
       </div>
   </div>
-</div>  
+</div>
+<script lang="text/javascript">
+   url_consulta_usuario = "{% url 'core:consulta_usuario' %}";
+</script>
 {% endblock %}

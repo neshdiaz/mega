@@ -75,7 +75,7 @@ function websocket(){
       if (message == "Nuevo jugador en lista"){
         setTimeout("actualizar_pantalla()", 1000);
       }
-      document.querySelector('#chat-log').innerHTML += (message + '\n');
+      // document.querySelector('#chat-log').innerHTML += (message + '\n');
     }
 }
 
@@ -173,7 +173,7 @@ function displayListaContent(lista_json){
     texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
     $("#j0").text(texto_usuario); 
     $("#j0").css({"color": lista_json[0].color});
-    
+       
     texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
     $("#j1").text(texto_usuario); 
     $("#j1").css({"color": lista_json[1].color}); 
@@ -187,8 +187,9 @@ function displayListaContent(lista_json){
     $("#j3").css({"color": lista_json[3].color}); 
 
     texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
-    $("#j4").text(texto_usuario); 
-    $("#j4").css({"color": lista_json[4].color}); 
+    $("#j4").text(texto_usuario);
+    $("#j4").css({"color": lista_json[4].color});
+
     
     $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
     enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado //+ ' ' + lista_json[5].nivel

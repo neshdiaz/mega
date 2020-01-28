@@ -11,7 +11,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Lista, Jugador, Juego, Cobrador, Clon
+from .models import Lista, Jugador, Juego, Cobrador, Clon, User
 
 def index(request):
     return render(request, 'core/index.html')
@@ -76,11 +76,12 @@ def asignar_jugador(nuevo_jugador):
 
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
-            #ciclo la lista en la nueva ubicacion
+            # ciclo la lista en la nueva ubicacion
             usuario_que_paga = '(' + str(nuevo_jugador) + ', '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+            lista_nuevo_cobrador(nueva_ubicacion['lista'])
             ret_id = ret_ciclado['juego'].id
             ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
             ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
@@ -90,11 +91,13 @@ def asignar_jugador(nuevo_jugador):
             if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
                 
-            #bloque de multiples asignaciones en posicion de ciclaje
+            # bloque de multiples asignaciones en posicion de ciclaje
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
                 usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+                lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
+                # guardo en BD
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
                 ultimo_ciclaje_juego.save()
@@ -150,6 +153,7 @@ def asignar_clon(clon):
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+            lista_nuevo_cobrador(nueva_ubicacion['lista'])
             ret_id = ret_ciclado['juego'].id
             ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
             ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
@@ -163,6 +167,7 @@ def asignar_clon(clon):
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
                 usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
+                lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
@@ -631,6 +636,15 @@ def notificar_asignacion():
 # A partir de aquí se definen las funciones que llamará ajax para
 # actualizar la página
 
+@requires_csrf_token
+def consulta_usuario(request, n_usuario=None):
+    nombre_usuario = User.objects.filter(username=n_usuario)
+    if nombre_usuario.exists():
+        resp = "True"
+    else:
+        resp = "False"
+    json_response = json.dumps(resp)
+    return HttpResponse(json_response)
 
 @requires_csrf_token
 def lista_content(request, id_lista=None):
@@ -656,13 +670,8 @@ def lista_content(request, id_lista=None):
 
     validado = False
     if request.user.is_staff:
-        validado = True
-
-    for juego in juegos_en_lista:
-        if request.user.username == juego.jugador.usuario.username:
-            validado = True
-    # conformamos un dicionario con los datos de la lista
-    if validado:
+        # conformamos un dicionario con los datos de la lista
+        
         if estado_lista == 'CERRADA':
             for juego in juegos_en_lista:
                 dict_list[juego.posicion_cerrado]['user'] = \
@@ -671,6 +680,8 @@ def lista_content(request, id_lista=None):
                     juego.color_cerrado
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
+                
+
         else:
             for juego in juegos_en_lista:
                 dict_list[juego.posicion]['user'] = \
@@ -679,11 +690,41 @@ def lista_content(request, id_lista=None):
                     juego.jugador.color
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
+                
 
         # posicion 5 para el encabezado de la lista
         dict_list[5]['lista_id'] = mi_lista.id
         dict_list[5]['estado'] = estado_lista
         dict_list[5]['nivel'] = str(nivel)
+    
+    else:
+        for juego in juegos_en_lista:
+            if request.user.username == juego.jugador.usuario.username:
+                validado = True
+        # conformamos un dicionario con los datos de la lista
+        if validado:
+            if estado_lista == 'CERRADA':
+                for juego in juegos_en_lista:
+                    dict_list[juego.posicion_cerrado]['user'] = \
+                        juego.jugador.usuario.username
+                    dict_list[juego.posicion_cerrado]['color'] = \
+                        juego.color_cerrado
+                    dict_list[juego.posicion]['cadena_ciclaje'] = \
+                        juego.cadena_ciclaje
+            else:
+                for juego in juegos_en_lista:
+                    dict_list[juego.posicion]['user'] = \
+                        juego.jugador.usuario.username
+                    dict_list[juego.posicion]['color'] = \
+                        juego.jugador.color
+                    dict_list[juego.posicion]['cadena_ciclaje'] = \
+                        juego.cadena_ciclaje
+
+            # posicion 5 para el encabezado de la lista
+            dict_list[5]['lista_id'] = mi_lista.id
+            dict_list[5]['estado'] = estado_lista
+            dict_list[5]['nivel'] = str(nivel)
+
     json_response = json.dumps(dict_list)
     return HttpResponse(json_response)
 
