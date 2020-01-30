@@ -134,8 +134,7 @@ function get_listas(url_listas){
 }
 
 function displayListas(listas_json){
-    console.log("mostrando las listas");
-    if(listasContainer){
+    if($("#listasContainer").length > 0){
         ContenedorListas = document.getElementById("listasContainer");
         htmlListas = "";
         htmlListas += "<div class ='btn-group role='group'>";
@@ -174,39 +173,41 @@ function get_lista_content(url_lista_content, id){
 }
 
 function displayListaContent(lista_json){
-    texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
-    pat = lista_json[0].patrocinador;
-    $("#j0").text(texto_usuario); 
-    $("#j0").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
-    $("#j0").css({"color": lista_json[0].color});
-       
-    texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
-    pat = lista_json[1].patrocinador;
-    $("#j1").text(texto_usuario); 
-    $("#j1").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
-    $("#j1").css({"color": lista_json[1].color}); 
-    
-    texto_usuario = lista_json[2].user + ' ' +  lista_json[2].cadena_ciclaje
-    pat = lista_json[2].patrocinador;
-    $("#j2").text(texto_usuario); 
-    $("#j2").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
-    $("#j2").css({"color": lista_json[2].color}); 
-    
-    texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
-    pat = lista_json[3].patrocinador;
-    $("#j3").text(texto_usuario); 
-    $("#j3").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
-    $("#j3").css({"color": lista_json[3].color}); 
+    if($("#lista_content").length > 0){
+        texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
+        pat = lista_json[0].patrocinador;
+        $("#j0").text(texto_usuario); 
+        $("#j0").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j0").css({"color": lista_json[0].color});
+        
+        texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
+        pat = lista_json[1].patrocinador;
+        $("#j1").text(texto_usuario); 
+        $("#j1").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j1").css({"color": lista_json[1].color}); 
+        
+        texto_usuario = lista_json[2].user + ' ' +  lista_json[2].cadena_ciclaje
+        pat = lista_json[2].patrocinador;
+        $("#j2").text(texto_usuario); 
+        $("#j2").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j2").css({"color": lista_json[2].color}); 
+        
+        texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
+        pat = lista_json[3].patrocinador;
+        $("#j3").text(texto_usuario); 
+        $("#j3").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j3").css({"color": lista_json[3].color}); 
 
-    texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
-    pat = lista_json[4].patrocinador;
-    $("#j4").text(texto_usuario);
-    $("#j4").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
-    $("#j4").css({"color": lista_json[4].color});
-    
-    $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
-    enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado //+ ' ' + lista_json[5].nivel
-    $("#encabezado_lista").text(enc);
+        texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
+        pat = lista_json[4].patrocinador;
+        $("#j4").text(texto_usuario);
+        $("#j4").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j4").css({"color": lista_json[4].color});
+        
+        $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
+        enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado //+ ' ' + lista_json[5].nivel
+        $("#encabezado_lista").text(enc);
+    }
     
 }
 
@@ -233,7 +234,7 @@ function get_lista_clones(url_lista_clones){
 }
 
 function displayListaClones(clones_json){
-    if(clonesContainer){
+    if($("#clonesContainer").length > 0){
         ContenedorClones = document.getElementById("clonesContainer");
         htmlClones = "";
         htmlClones += "<div class ='btn-group role='group'>";
@@ -270,7 +271,7 @@ function get_lista_referidos(url_lista_referidos){
 }
 
 function displayListaReferidos(referidos_json){
-    if(referidosContainer){
+    if($("#referidosContainer").length > 0 ){
         ContenedorReferidos = document.getElementById("referidosContainer");
         htmlReferidos = "";
         htmlReferidos = "<ol>";
@@ -306,7 +307,7 @@ function get_lista_cobrando(url_lista_cobrando){
 }
 
 function displayListaCobrando(cobrando_json){
-    if($cobrando_container){
+    if($("#cobrando_container").length > 0){
         ContenedorCobrando = document.getElementById("cobrando_container");
         htmlCobrando = "";
         htmlCobrando = "<ul>";
