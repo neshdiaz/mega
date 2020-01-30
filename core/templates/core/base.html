@@ -15,49 +15,52 @@
   
   <body>
     <div id="chat-log"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <!-- barra de navegación Superior  -->
-      <a class="navbar-brand" href="#"><img src="{% static "core/img/logowcbw.png" %}" alt=""></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#"><span class="sr-only">(current)</span></a>
-          </li>       
-        </ul>
-        <ul class="navbar-nav">
-          {% if request.user.is_authenticated %}
-            <li><a class="nav-link" href="{% url 'registration:logged_out' %}">Salir</a></li> 
-          {% endif %}
-        </ul>
-      </div>
-    </nav>
+      <nav class="navbar navbar-dark navbar-expand-lg sticky-top bg-dark"> <!-- barra de navegación Superior  -->
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#"><img src="{% static "core/img/logowcbw.png" %}" alt=""></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:home'%}"><i class="fas fa-home"></i>Home</a>
+              </li>
+              <li>
+                <a class="nav-link" href="{% url 'core:mis_referidos' %}"><i class="fas fa-people-carry"></i>Mis Referidos</a>
+              </li>
+              <li>
+                <a class="nav-link" href="{% url 'core:mis_clones' %}"><i class="fas fa-users"></i>Mis Clones</a>
+              </li>
+              <li>
+                <a class="nav-link" href="{% url 'core:mi_tienda' %}"><i class="fas fa-store"></i>Tienda</a>
+              </li>
+              <li>
+                <a class="nav-link" href="{% url 'core:mis_niveles' %}"><i class="fas fa-sort-amount-up"></i>Niveles</a>
+              </li>
+              <li>
+                <a class="nav-link" href="{% url 'core:mis_finanzas' %}"><i class="fas fa-coins"></i>Finanzas</a>
+              </li>
+              <li>
+                {% if request.user.is_authenticated %}
+                  <a class="nav-link" href="{% url 'registration:logged_out' %}"><i class="fas fa-sign-out-alt"></i> Salir</a>
+                {% endif %}        
+              </li>                   
+            </ul>
+
+
+            
+           
+          </div>
+          </div>
+          </div>
+        </nav>
+      </div>  
+    
 
     <div class="container-fluid"> <!-- barra de navegación lateral izquierda y contenido drecha --> 
       <div class="row">
         <div class="col-sm-12 col-md-3 col-lg-3 col-xl-2 ">
-          <!--barra lateral de navegacion -->          
-          <div class= "nav-simple"> 
-            <nav class="nav flex-column">
-              <span class= "separator"> MENU </span>
-              
-              <a class="nav-link active" 
-                href="{% url 'core:home'%}"><i class="fas fa-home">
-              </i>Home</a>
-              
-              <a class="nav-link" href="{% url 'core:mis_referidos' %}">
-                <i class="fas fa-people-carry"></i>Mis Referidos</a>
-              <a class="nav-link" href="{% url 'core:mis_clones' %}">
-                <i class="fas fa-users"></i>Mis Clones</a>
-              <a class="nav-link" href="{% url 'core:mi_tienda' %}">
-                  <i class="fas fa-store"></i>Tienda</a>
-              <a class="nav-link" href="{% url 'core:mis_niveles' %}">
-                  <i class="fas fa-sort-amount-up"></i>Niveles</a>
-              <a class="nav-link" href="{% url 'core:mis_finanzas' %}">
-                <i class="fas fa-coins"></i>Finanzas</a>
-            </nav>
-          </div>
           <!--Cuadro de Cobradores -->          
           <div class="row">
             <div class="col-md-12">
@@ -87,6 +90,7 @@
         </div>
       </div>
 
+     
     </div>
     
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
