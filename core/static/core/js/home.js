@@ -5,6 +5,10 @@ url_listas = "";
 url_lista_content = "";
 mis_listas = [];
 
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 function init(){
     compartirReferido(); 
     get_listas(url_listas);
@@ -171,25 +175,34 @@ function get_lista_content(url_lista_content, id){
 
 function displayListaContent(lista_json){
     texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
+    pat = lista_json[0].patrocinador;
     $("#j0").text(texto_usuario); 
+    $("#j0").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
     $("#j0").css({"color": lista_json[0].color});
        
     texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
+    pat = lista_json[1].patrocinador;
     $("#j1").text(texto_usuario); 
+    $("#j1").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
     $("#j1").css({"color": lista_json[1].color}); 
-
+    
     texto_usuario = lista_json[2].user + ' ' +  lista_json[2].cadena_ciclaje
+    pat = lista_json[2].patrocinador;
     $("#j2").text(texto_usuario); 
+    $("#j2").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
     $("#j2").css({"color": lista_json[2].color}); 
-
+    
     texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
+    pat = lista_json[3].patrocinador;
     $("#j3").text(texto_usuario); 
+    $("#j3").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
     $("#j3").css({"color": lista_json[3].color}); 
 
     texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
+    pat = lista_json[4].patrocinador;
     $("#j4").text(texto_usuario);
+    $("#j4").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
     $("#j4").css({"color": lista_json[4].color});
-
     
     $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
     enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado //+ ' ' + lista_json[5].nivel
@@ -263,7 +276,7 @@ function displayListaReferidos(referidos_json){
         htmlReferidos = "<ol>";
         referidos_json.forEach(function(item, index){
             url = url_referidos;
-            htmlReferidos += "  <li style='color: " + item.color + "'>" + item.usuario + "</li>" ;
+            htmlReferidos += "  <li style='color: " + item.color + "'>" + item.usuario + "</li>";
         })
         htmlReferidos += "</ol>";
         ContenedorReferidos.innerHTML = htmlReferidos

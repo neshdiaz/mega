@@ -4,7 +4,14 @@ from core import views
 app_name = 'core'
 
 urlpatterns = [
+    
     path('home/', views.home, name='home'),
+    path('referidos/', views.mis_referidos, name='mis_referidos'),
+    path('clones/', views.mis_clones, name='mis_clones'),
+    path('tienda/', views.mi_tienda, name='mi_tienda'),
+    path('niveles/', views.mis_niveles, name='mis_niveles'),
+    path('finanzas/', views.mis_finanzas, name='mis_finanzas'),
+
     path('home/activar_clon/<int:clon_id>/', views.activar_clon, name='activar_clon'),
     path('home/activar_clon/', views.activar_clon, name='activar_clon'),
     path('ajax/lista_content/', views.lista_content, name='lista_content'),

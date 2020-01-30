@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+
+{% block contenido %}
+  <h3> Bienvenido {{ request.user }}</h3>
+  
+  <h2>MIS NIVELES</h2>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        Este es tu enlace de referido:
+        <div class="input-group share">
+            <input id="txtEnlaceReferido" class="form-control" value="{{base_url}}{% url 'registration:registro_referido' request.user %}" name=""  readonly> 
+            <span class= input-group-btn> 
+              <button id="btnCopiar" class="btn btn-primary">Copiar</button>
+              <button id = "btnWhatsapp">
+                <img height="30px" src="{% static "core/img/wa.png" %}" alt="Compartir en whatsapp">  
+              </button>              
+            </span>
+          </div>
+      </div>  
+    </div>
+  </div>
+
+</div>    
+{% endblock %}  

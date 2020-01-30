@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+
+{% block contenido %}
+  <h3> Bienvenido {{ request.user }}</h3>
+  
+  
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        Este es tu enlace de referido:
+        <div class="input-group share">
+            <input id="txtEnlaceReferido" class="form-control" value="{{base_url}}{% url 'registration:registro_referido' request.user %}" name=""  readonly> 
+            <span class= input-group-btn> 
+              <button id="btnCopiar" class="btn btn-primary">Copiar</button>
+              <button id = "btnWhatsapp">
+                <img height="30px" src="{% static "core/img/wa.png" %}" alt="Compartir en whatsapp">  
+              </button>              
+            </span>
+          </div>
+      </div>  
+    </div>
+    
+    
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card w-100 mt-3">
+          <h6 class="card-header"><i class="fas fa-people-carry"></i> Mis Referidos </h6>
+          <div class="card-body scroll-list" style="height: 18rem;">
+            <p class="card-text">
+              <div id="referidosContainer"></div> 
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>    
+{% endblock %}  

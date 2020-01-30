@@ -45,9 +45,17 @@
               <a class="nav-link active" 
                 href="{% url 'core:home'%}"><i class="fas fa-home">
               </i>Home</a>
-              <a class="nav-link" href="{% url 'core:home' %}">
-                <i class="fas fa-store"></i>Tienda</a>
-              <hr>
+              
+              <a class="nav-link" href="{% url 'core:mis_referidos' %}">
+                <i class="fas fa-people-carry"></i>Mis Referidos</a>
+              <a class="nav-link" href="{% url 'core:mis_clones' %}">
+                <i class="fas fa-users"></i>Mis Clones</a>
+              <a class="nav-link" href="{% url 'core:mi_tienda' %}">
+                  <i class="fas fa-store"></i>Tienda</a>
+              <a class="nav-link" href="{% url 'core:mis_niveles' %}">
+                  <i class="fas fa-sort-amount-up"></i>Niveles</a>
+              <a class="nav-link" href="{% url 'core:mis_finanzas' %}">
+                <i class="fas fa-coins"></i>Finanzas</a>
             </nav>
           </div>
           <!--Cuadro de Cobradores -->          
@@ -74,14 +82,7 @@
       <div class="row">  <!-- Pie de pagina-->
         <div class="card w-100">
           <div class="card-body">
-            <p class="card-text text-center">© 2019 MEGACICLON</p>                   
-          </div>
-        </div>
-      </div>
-
-      <div class="row">  <!-- Log-->
-        <div class="card w-100">
-          <div class="card-body">
+            <p class="card-text text-center">© 2019 WORLDCYCLE</p>                   
           </div>
         </div>
       </div>

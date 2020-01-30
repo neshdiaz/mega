@@ -19,6 +19,42 @@ def index(request):
 
 @login_required
 @requires_csrf_token
+def mis_referidos(request) :
+
+    return render(request, 'core/mis_referidos.html', {
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
+@login_required
+@requires_csrf_token
+def mis_clones(request):
+
+    return render(request, 'core/mis_clones.html', {
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
+@login_required
+@requires_csrf_token
+def mi_tienda(request) :
+
+    return render(request, 'core/mi_tienda.html', {
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
+@login_required
+@requires_csrf_token
+def mis_niveles(request) :
+
+    return render(request, 'core/mis_niveles.html', {
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
+
+@login_required
+@requires_csrf_token
+def mis_finanzas(request) :
+
+    return render(request, 'core/mis_finanzas.html', {
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
+@login_required
+@requires_csrf_token
 def home(request, id_usuario=None, id_lista=None):
     hora_local = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -38,7 +74,7 @@ def asignar_jugador(nuevo_jugador):
     patrocinador = nuevo_jugador.patrocinador
     log_registrar('log.txt', ' ')
     log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) + ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
-    
+
     # buscar lista y posicion valida del patrocinador
     nueva_ubicacion = {'lista': None,
                        'posicion': -1,
@@ -649,11 +685,11 @@ def consulta_usuario(request, n_usuario=None):
 @requires_csrf_token
 def lista_content(request, id_lista=None):
 
-    dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':''},
+    dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
                  {'lista_id': '', 'estado': '', 'nivel': ''}]
 
     juegos_en_lista = Juego.objects.select_related('jugador', 'lista')\
@@ -681,6 +717,10 @@ def lista_content(request, id_lista=None):
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
                 
+                if juego.jugador.patrocinador is not None:
+                    dict_list[juego.posicion]['patrocinador'] = \
+                        juego.jugador.patrocinador.usuario.username
+                
 
         else:
             for juego in juegos_en_lista:
@@ -690,6 +730,9 @@ def lista_content(request, id_lista=None):
                     juego.jugador.color
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
+                if juego.jugador.patrocinador is not None:
+                    dict_list[juego.posicion]['patrocinador'] = \
+                        juego.jugador.patrocinador.usuario.username
                 
 
         # posicion 5 para el encabezado de la lista
@@ -711,6 +754,9 @@ def lista_content(request, id_lista=None):
                         juego.color_cerrado
                     dict_list[juego.posicion]['cadena_ciclaje'] = \
                         juego.cadena_ciclaje
+                    if juego.jugador.patrocinador is not None:
+                        dict_list[juego.posicion]['patrocinador'] = \
+                        juego.jugador.patrocinador.usuario.username
             else:
                 for juego in juegos_en_lista:
                     dict_list[juego.posicion]['user'] = \
@@ -719,6 +765,9 @@ def lista_content(request, id_lista=None):
                         juego.jugador.color
                     dict_list[juego.posicion]['cadena_ciclaje'] = \
                         juego.cadena_ciclaje
+                    if juego.jugador.patrocinador is not None:
+                        dict_list[juego.posicion]['patrocinador'] = \
+                        juego.jugador.patrocinador.usuario.username
 
             # posicion 5 para el encabezado de la lista
             dict_list[5]['lista_id'] = mi_lista.id
@@ -757,7 +806,10 @@ def referidos(request):
     lst_referidos = []
     for referido in lista_referidos:
         ele = {"usuario": referido.usuario.username,
-               'color': referido.color}
+               'color': referido.color,
+               'n_referidos': referido.n_referidos,
+               'n_referidos_activados': referido.n_referidos_activados}
+
         lst_referidos.append(ele)
 
     json_response = json.dumps(lst_referidos)

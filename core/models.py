@@ -68,7 +68,7 @@ class Jugador(models.Model):
                                      on_delete=models.CASCADE)
     whatsapp = models.CharField(max_length=10, blank=True, null=True)
     celular = models.CharField(max_length=10, blank=True, null=True)
-
+    
     def __str__(self):
         return str(self.usuario)
 
