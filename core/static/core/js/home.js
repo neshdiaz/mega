@@ -306,7 +306,7 @@ function get_lista_cobrando(url_lista_cobrando){
 }
 
 function displayListaCobrando(cobrando_json){
-    if(cobrando_container){
+    if($cobrando_container){
         ContenedorCobrando = document.getElementById("cobrando_container");
         htmlCobrando = "";
         htmlCobrando = "<ul>";
