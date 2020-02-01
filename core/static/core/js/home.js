@@ -177,25 +177,25 @@ function displayListaContent(lista_json){
         texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
         pat = lista_json[0].patrocinador;
         $("#j0").text(texto_usuario); 
-        $("#j0").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j0").html('<div>'+ texto_usuario +'</div>');
         $("#j0").css({"color": lista_json[0].color});
         
         texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
         pat = lista_json[1].patrocinador;
         $("#j1").text(texto_usuario); 
-        $("#j1").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j1").html('<div>'+ texto_usuario +'</div>');
         $("#j1").css({"color": lista_json[1].color}); 
         
         texto_usuario = lista_json[2].user + ' ' +  lista_json[2].cadena_ciclaje
         pat = lista_json[2].patrocinador;
         $("#j2").text(texto_usuario); 
-        $("#j2").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j2").html('<div>'+ texto_usuario +'</div>');
         $("#j2").css({"color": lista_json[2].color}); 
         
         texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
         pat = lista_json[3].patrocinador;
         $("#j3").text(texto_usuario); 
-        $("#j3").html('<div data-toggle="tooltip" title="Patrocinador: '+ pat +'">'+ texto_usuario +'</div>');
+        $("#j3").html('<div>'+ texto_usuario +'</div>');
         $("#j3").css({"color": lista_json[3].color}); 
 
         texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
@@ -272,15 +272,16 @@ function get_lista_referidos(url_lista_referidos){
 
 function displayListaReferidos(referidos_json){
     if($("#referidosContainer").length > 0 ){
-        ContenedorReferidos = document.getElementById("referidosContainer");
-        htmlReferidos = "";
-        htmlReferidos = "<ol>";
+        ul = $("<ul>");
+        boton=$("<button>");
         referidos_json.forEach(function(item, index){
-            url = url_referidos;
-            htmlReferidos += "  <li style='color: " + item.color + "'>" + item.usuario + "</li>";
+            boton.preventDefault;
+            htmlBoton =  "<button class='btn btn-primary' onclick=get_listas('" + url_listas + item.usuario + "');>" + item.usuario + "</button>";
+            boton.append(htmlBoton);
+            $("#referidosContainer").append(boton);
+            console.log(item.usuario);
         })
-        htmlReferidos += "</ol>";
-        ContenedorReferidos.innerHTML = htmlReferidos
+
     }
 }
 

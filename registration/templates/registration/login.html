@@ -14,7 +14,7 @@
       <div class="alert alert-success" role="alert">Se ha registrado correctamente.</div>
       {% endif %}
 
-      <img class= "index-logo mx-auto p-1"  src="{% static "core/img/logowc.png" %}">
+      <img class= "index-logo mx-auto p-1 img-fluid"  src="{% static "core/img/logowc.png" %}">
       <h3>Por favor ingrese su nombre de usuario y contraseña.</h3><br>
       <form action="" method="post">{% csrf_token %}
         {% if form.non_field_errors %}

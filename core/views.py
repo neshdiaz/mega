@@ -669,12 +669,12 @@ def notificar_asignacion():
 
 
 # Funciones de visualizacion para ajax
-# A partir de aquí se definen las funciones que llamará ajax para
+    # A partir de aquí se definen las funciones que llamará ajax para
+    nombre_usuario = User.objects.filter(username=n_usuario)
 # actualizar la página
 
 @requires_csrf_token
 def consulta_usuario(request, n_usuario=None):
-    nombre_usuario = User.objects.filter(username=n_usuario)
     if nombre_usuario.exists():
         resp = "True"
     else:
@@ -779,8 +779,13 @@ def lista_content(request, id_lista=None):
 
 
 @requires_csrf_token
-def listas(request):
-    if request.user.is_staff:
+def listas(request, usr=None):
+    if usr is None:
+        usuario = User.objects.get(username=request.user.username)
+    else:
+        usuario = User.objects.get(username=usr)
+
+    if usuario.is_staff:
         lista_listas = Lista.objects.all().distinct()
         lst_listas = []
         for lista in lista_listas:
@@ -789,19 +794,25 @@ def listas(request):
 
     else:
         lista_listas = Lista.objects\
-            .filter(jugador__usuario__username=request.user.username)\
+            .filter(jugador__usuario__username=usuario.username)\
             .distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id,"nivel": str(lista.nivel), "estado":(lista.estado)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)
     return HttpResponse(json_response)
 
 @requires_csrf_token
-def referidos(request):
-    lista_referidos = Jugador.objects.filter(patrocinador__usuario__username=request.user.username)\
+def referidos(request, n_usuario=None):
+    usr = None
+    if n_usuario is None:
+        usr = User.objects.get(username=request.user.username)
+    else:
+        usr = User.objects.get(username=n_usuario)
+    
+    lista_referidos = Jugador.objects.filter(patrocinador__usuario__username=usr.username)\
                                      .distinct()
     lst_referidos = []
     for referido in lista_referidos:

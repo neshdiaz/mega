@@ -19,7 +19,10 @@ urlpatterns = [
          name='lista_content'),
 
     path('ajax/listas/', views.listas, name='listas'),
+    path('ajax/listas/<str:usr>', views.listas, name='listas'),
+    
     path('ajax/clones/', views.clones, name='clones'),
+    path('ajax/referidos/<str:n_usuario>/', views.referidos, name='referidos'),
     path('ajax/referidos/', views.referidos, name='referidos'),
     path('ajax/cobrando/', views.cobrando, name='cobrando'),
     path('ajax/consulta_usuario/<str:n_usuario>/', views.consulta_usuario, name='consulta_usuario'),

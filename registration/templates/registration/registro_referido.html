@@ -5,11 +5,11 @@
     <div class="row">
       <div class="col-md-5 p-0">
         <div class="card index-card mb-0">
-          <img class= "index-logo mx-auto pt-2"  src="{% static "core/img/logowc.png" %}" alt="">
+          <img class= "index-logo mx-auto pt-2 img-fluid"  src="{% static "core/img/logowc.png" %}" alt="">
           <div class="card-body">
             <br>
             {% if referido_valid %}
-            <h6>Has accedido con el enlace de referido del usuario:  <h3 style="color:red"> {{ patrocinador }}</h3>
+            <h6>Has accedido con el enlace de referido del usuario:  <strong style="font-size: 28 px; color:rgb(0, 114, 55)"> {{ patrocinador }}</strong>
                   entrarás como parte de su lista, en la primera posición libre disponible.</h6>
             {% else %}
               <h6>Este Usuario <strong> NO EXISTE </strong> por favor verifique su enlace de referido, o <strong> CONTINUARÁ CON EL REGISTRO SIN PATROCINADOR"</strong></h6>

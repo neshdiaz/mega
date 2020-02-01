@@ -22,15 +22,15 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
-          <ul class="navbar-nav mr-auto">
+          <ul class="navbar-nav ml-auto">
             <li class="nav-item">
               <a class="nav-link" href="{% url 'core:home'%}"><i class="fas fa-home"></i>Home</a>
             </li>
             <li>
-              <a class="nav-link" href="{% url 'core:mis_referidos' %}"><i class="fas fa-people-carry"></i>Mis Referidos</a>
+              <a class="nav-link" href="{% url 'core:mis_referidos' %}"><i class="fas fa-people-carry"></i>Referidos</a>
             </li>
             <li>
-              <a class="nav-link" href="{% url 'core:mis_clones' %}"><i class="fas fa-users"></i>Mis Clones</a>
+              <a class="nav-link" href="{% url 'core:mis_clones' %}"><i class="fas fa-users"></i>Clones</a>
             </li>
             <li>
               <a class="nav-link" href="{% url 'core:mi_tienda' %}"><i class="fas fa-store"></i>Tienda</a>
@@ -101,6 +101,7 @@
     <script src="{% static "core/js/home.js" %}"></script>
     <script type=text/javascript>
       window.onload = function preInit(){
+        //ajax urls
         url_lista_content = "{% url 'core:lista_content' %}";
         url_listas = "{% url 'core:listas' %}";
         url_clones = "{% url 'core:clones' %}";
