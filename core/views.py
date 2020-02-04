@@ -669,12 +669,12 @@ def notificar_asignacion():
 
 
 # Funciones de visualizacion para ajax
-    # A partir de aquí se definen las funciones que llamará ajax para
-    nombre_usuario = User.objects.filter(username=n_usuario)
+# A partir de aquí se definen las funciones que llamará ajax para
 # actualizar la página
 
 @requires_csrf_token
 def consulta_usuario(request, n_usuario=None):
+    nombre_usuario = User.objects.filter(username=n_usuario)
     if nombre_usuario.exists():
         resp = "True"
     else:
