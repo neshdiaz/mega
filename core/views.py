@@ -13,13 +13,15 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import Lista, Jugador, Juego, Cobrador, Clon, User
 
+
+@requires_csrf_token
 def index(request):
     return render(request, 'core/index.html')
 
 
 @login_required
 @requires_csrf_token
-def mis_referidos(request) :
+def mis_referidos(request):
 
     return render(request, 'core/mis_referidos.html', {
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
@@ -27,20 +29,19 @@ def mis_referidos(request) :
 @login_required
 @requires_csrf_token
 def mis_clones(request):
-
     return render(request, 'core/mis_clones.html', {
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
 
 @login_required
 @requires_csrf_token
-def mi_tienda(request) :
+def mi_tienda(request):
 
     return render(request, 'core/mi_tienda.html', {
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
 
 @login_required
 @requires_csrf_token
-def mis_niveles(request) :
+def mis_niveles(request):
 
     return render(request, 'core/mis_niveles.html', {
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
@@ -48,7 +49,7 @@ def mis_niveles(request) :
 
 @login_required
 @requires_csrf_token
-def mis_finanzas(request) :
+def mis_finanzas(request):
 
     return render(request, 'core/mis_finanzas.html', {
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
@@ -73,7 +74,8 @@ def activar_jugador(instance, created, **kwargs):
 def asignar_jugador(nuevo_jugador):
     patrocinador = nuevo_jugador.patrocinador
     log_registrar('log.txt', ' ')
-    log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) + ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
+    log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) +
+                  ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
 
     # buscar lista y posicion valida del patrocinador
     nueva_ubicacion = {'lista': None,
@@ -102,49 +104,71 @@ def asignar_jugador(nuevo_jugador):
         jugador_validar_pcs(nuevo_jugador.patrocinador)
         jugador_inc_activos_abuelo(nuevo_jugador.patrocinador, nueva_ubicacion['lista'].nivel)
         lista_nuevo_cobrador(nueva_ubicacion['lista'])
-        
+
         respuesta = 'Jugador asignado correctamente'
         notificar_asignacion()
 
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
             lista_nueva(nueva_ubicacion['lista'])
-
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             # ciclo la lista en la nueva ubicacion
+            # empieza el ciclaje
             usuario_que_paga = '(' + str(nuevo_jugador) + ', '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
-            usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
-            lista_nuevo_cobrador(nueva_ubicacion['lista'])
+            usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
             ret_id = ret_ciclado['juego'].id
+            # guardo en BD
             ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
             ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
             ultimo_ciclaje_juego.save()
             ultimo_ciclaje_juego.refresh_from_db()
-            
-            if ret_ciclado['posicion'] == 4:
-                lista_nueva(ret_ciclado['lista'])
-                
-            # bloque de multiples asignaciones en posicion de ciclaje
-            while ret_ciclado['posicion'] == 3:
-                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
-                lista_nuevo_cobrador(ret_ciclado['lista'])
-                ret_id = ret_ciclado['juego'].id
-                # guardo en BD  
+
+
+            lista_nuevo_cobrador(ret_ciclado['lista'])
+            ret_id = ret_ciclado['juego'].id
+
+            # si cae en 3 y despues en posicion diferente de ciclaje
+            # guardo y cierro la cadena con )
+            if ret_ciclado['posicion'] != 3:
+                usuario_que_paga += ')'
+                # guardo en BD
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
                 ultimo_ciclaje_juego.save()
                 ultimo_ciclaje_juego.refresh_from_db()
+
+            if ret_ciclado['posicion'] == 4:
+                lista_nueva(ret_ciclado['lista'])
+
+            # bloque de multiples asignaciones en posicion de ciclaje
+            # 2 o mas ciclajes
+            while ret_ciclado['posicion'] == 3:
+                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
+                usuario_que_paga += ', ' + str(ret_ciclado['jugador_ciclado'])
+                lista_nuevo_cobrador(ret_ciclado['lista'])
+                ret_id = ret_ciclado['juego'].id
+
+                # guardo en BD
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
+
+                # si cae en 3 y despues en posicion diferente de ciclaje
+                # guardo y cierro la cadena con )            
+                if ret_ciclado['posicion'] != 3:
+                    usuario_que_paga += ')'
+                    # guardo en BD
+                    ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                    ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                    ultimo_ciclaje_juego.save()
+                    ultimo_ciclaje_juego.refresh_from_db()
+
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
-            
-            if usuario_que_paga.find(")") == -1:
-                usuario_que_paga += ')'
-            log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
-            
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
@@ -181,48 +205,70 @@ def asignar_clon(clon):
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
             lista_nueva(nueva_ubicacion['lista'])
-
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
-            #ciclo la lista en la nueva ubicacion
-            usuario_que_paga = '(' + str(clon.jugador) + ', '
+            # ciclo la lista en la nueva ubicacion
+            # empieza el ciclaje
+            usuario_que_paga = '(' + str(clon) + ', '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
-            usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
-            lista_nuevo_cobrador(nueva_ubicacion['lista'])
+            usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
             ret_id = ret_ciclado['juego'].id
+            # guardo en BD
             ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
             ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
             ultimo_ciclaje_juego.save()
             ultimo_ciclaje_juego.refresh_from_db()
-            
-            if ret_ciclado['posicion'] == 4:
-                lista_nueva(ret_ciclado['lista'])
-                
-            #bloque de multiples asignaciones en posicion de ciclaje
-            while ret_ciclado['posicion'] == 3:
-                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += str(ret_ciclado['jugador_ciclado']) + ', '
-                lista_nuevo_cobrador(ret_ciclado['lista'])
-                ret_id = ret_ciclado['juego'].id
+
+
+            lista_nuevo_cobrador(ret_ciclado['lista'])
+            ret_id = ret_ciclado['juego'].id
+
+            # si cae en 3 y despues en posicion diferente de ciclaje
+            # guardo y cierro la cadena con )
+            if ret_ciclado['posicion'] != 3:
+                usuario_que_paga += ')'
+                # guardo en BD
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
                 ultimo_ciclaje_juego.save()
                 ultimo_ciclaje_juego.refresh_from_db()
+
+            if ret_ciclado['posicion'] == 4:
+                lista_nueva(ret_ciclado['lista'])
+
+            # bloque de multiples asignaciones en posicion de ciclaje
+            # 2 o mas ciclajes
+            while ret_ciclado['posicion'] == 3:
+                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
+                usuario_que_paga += ', ' + str(ret_ciclado['jugador_ciclado'])
+                lista_nuevo_cobrador(ret_ciclado['lista'])
+                ret_id = ret_ciclado['juego'].id
+
+                # guardo en BD
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
+
+                # si cae en 3 y despues en posicion diferente de ciclaje
+                # guardo y cierro la cadena con )            
+                if ret_ciclado['posicion'] != 3:
+                    usuario_que_paga += ')'
+                    # guardo en BD
+                    ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                    ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                    ultimo_ciclaje_juego.save()
+                    ultimo_ciclaje_juego.refresh_from_db()
+
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
-            
-            if usuario_que_paga.find(")") == -1:
-                usuario_que_paga += ')'
-            log_registrar('log.txt', 'Cadena de ciclaje ' + str(usuario_que_paga))
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-    
     return HttpResponse(reverse('core:home'))
 
 def buscar_ubicacion(patrocinador):
-        
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
@@ -231,7 +277,8 @@ def buscar_ubicacion(patrocinador):
     log_registrar('log.txt', 'BUSCANDO EN LISTAS DEL PATROCINADOR ')
     ubicacion = lista_buscar_padre(patrocinador)
     if ubicacion['posicion'] == -1:
-        log_registrar('log.txt', 'No hay posiciones libres en las listas del patrocinador ' + str(patrocinador))
+        log_registrar('log.txt', 'No hay posiciones libres en las listas del patrocinador ' +
+                      str(patrocinador))
         log_registrar('log.txt', 'BUSCANDO EN  LISTAS DE LA DESCENDENCIA')
         ubicacion = lista_buscar_descendencia(patrocinador)
         if ubicacion['posicion'] == -1:
@@ -259,7 +306,8 @@ def lista_buscar_padre(patrocinador):
                     ubicacion['lista'] = lista
                     ubicacion['posicion'] = posicion
                     ubicacion['patrocinador'] = patrocinador
-                    log_registrar('log.txt', 'Posicion ' + str(posicion)+ ' libre: en lista ' + str(lista))
+                    log_registrar('log.txt', 'Posicion ' + str(posicion) +
+                                  ' libre: en lista ' + str(lista))
                     break
                 else:
                     log_registrar('log.txt', 'Sin posicion libre...')
@@ -286,14 +334,14 @@ def lista_buscar_descendencia(patrocinador):
         if patrocinador.patrocinador is not None:
             abuelo = Jugador.objects.get(pk=patrocinador.patrocinador.id)
             while abuelo is not None and nueva_ubicacion['posicion'] == -1:
-                log_registrar('log.txt', 'Buscando en listas del descendiente : ' + str(abuelo))    
+                log_registrar('log.txt', 'Buscando en listas del descendiente : ' + str(abuelo))
                 nueva_ubicacion = lista_buscar_padre(abuelo)
                 if nueva_ubicacion['posicion'] != -1:
                     ubicacion['posicion'] = nueva_ubicacion['posicion']
                     ubicacion['lista'] = nueva_ubicacion['lista']
                     ubicacion['patrocinador'] = nueva_ubicacion[
                         'patrocinador']
-                    log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'] ) +
+                    log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+
                                   ' libre: en lista ' + str(nueva_ubicacion['lista']))
                 else:
                     if abuelo.patrocinador is not None:
@@ -324,9 +372,10 @@ def lista_buscar_mas_antigua():
             nueva_posicion = posicion_nuevo_jugador(patrocinador[0], lista)
             ubicacion['lista'] = lista
             ubicacion['posicion'] = nueva_posicion
-            
+
             if nueva_posicion != -1:
-                log_registrar('log.txt', 'Posicion ' + str(nueva_posicion)+ ' libre: en lista ' + str(lista))
+                log_registrar('log.txt', 'Posicion ' + str(nueva_posicion)+
+                              ' libre: en lista ' + str(lista))
                 break
     return ubicacion
 
@@ -420,7 +469,7 @@ def lista_nueva(lista):
     jugador1 = Jugador.objects.filter(juego__lista=lista,
                                       juego__posicion=3)
 
-    nuevo_juego0 = Juego(lista=nueva_lista_par, 
+    nuevo_juego0 = Juego(lista=nueva_lista_par,
                          jugador=jugador0[0],
                          posicion=0)
     nuevo_juego1 = Juego(lista=nueva_lista_par,
@@ -466,9 +515,6 @@ def lista_nueva(lista):
     nuevo_juego0.refresh_from_db()
     nuevo_juego1.save()
     nuevo_juego1.refresh_from_db()
-
-    
-
 
     log_registrar('log.txt', 'Jugador ' + str(jugador0[0]) +
                   ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 0')
@@ -685,11 +731,16 @@ def consulta_usuario(request, n_usuario=None):
 @requires_csrf_token
 def lista_content(request, id_lista=None):
 
-    dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
-                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'', 'n_referidos':'', 'n_referidos_activados':''},
+    dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
+                  'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
+                  'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
+                  'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
+                  'n_referidos':'', 'n_referidos_activados':''},
+                 {'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
+                  'n_referidos':'', 'n_referidos_activados':''},
                  {'lista_id': '', 'estado': '', 'nivel': ''}]
 
     juegos_en_lista = Juego.objects.select_related('jugador', 'lista')\
@@ -707,7 +758,7 @@ def lista_content(request, id_lista=None):
     validado = False
     if request.user.is_staff:
         # conformamos un dicionario con los datos de la lista
-        
+
         if estado_lista == 'CERRADA':
             for juego in juegos_en_lista:
                 dict_list[juego.posicion_cerrado]['user'] = \
@@ -716,11 +767,11 @@ def lista_content(request, id_lista=None):
                     juego.color_cerrado
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
-                
+
                 if juego.jugador.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
                         juego.jugador.patrocinador.usuario.username
-                
+
 
         else:
             for juego in juegos_en_lista:
@@ -733,13 +784,13 @@ def lista_content(request, id_lista=None):
                 if juego.jugador.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
                         juego.jugador.patrocinador.usuario.username
-                
+
 
         # posicion 5 para el encabezado de la lista
         dict_list[5]['lista_id'] = mi_lista.id
         dict_list[5]['estado'] = estado_lista
         dict_list[5]['nivel'] = str(nivel)
-    
+
     else:
         for juego in juegos_en_lista:
             if request.user.username == juego.jugador.usuario.username:
@@ -811,7 +862,7 @@ def referidos(request, n_usuario=None):
         usr = User.objects.get(username=request.user.username)
     else:
         usr = User.objects.get(username=n_usuario)
-    
+
     lista_referidos = Jugador.objects.filter(patrocinador__usuario__username=usr.username)\
                                      .distinct()
     lst_referidos = []

@@ -40,11 +40,11 @@ function consulta_username(url, username){
         success: function(respuesta){
             json = JSON.parse(respuesta);
             if (json=='True'){
-                $('#mensajes').html("<div class='alert alert-danger'>" + username + " YA EXISTE en el sistema, intenta con uno diferente.</div>'");
+                $('#mensajes').html("<div class='alert alert-danger'>" + username + " YA EXISTE en el sistema, intenta con uno diferente.</div>");
                 
             }
             else{
-                $('#mensajes').html("<div></div>'");
+                $('#mensajes').html("<div></div>");
             }
         }        
     });

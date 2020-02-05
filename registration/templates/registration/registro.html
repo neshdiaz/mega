@@ -13,9 +13,9 @@
       <img class= "index-logo p-3 img-fluid"  src="{% static "core/img/logowc.png" %}" alt="">
       
       {% if request.POST.patrocinador%}
-        <h3>Registro patrocinado por <span style="color: red;">{{request.POST.patrocinador}}</span> </h3>
+        <h3  style="color: red;">Registro patrocinado por {{request.POST.patrocinador}}</h3>
       {% else %}    
-        <h3>Registro sin patrocinador</h3>
+        <h3  style="color: red;">REGISTRO SIN PATROCINADOR</h3>
         <h6>Entrarás al sistema como un usuario independiente, si eres referido de otro usuario por favor solicítale su enlace de referido para entra en su red.</h6>
       {% endif %}
        
