@@ -115,7 +115,7 @@ def asignar_jugador(nuevo_jugador):
         elif nueva_ubicacion['posicion'] == 3:
             # ciclo la lista en la nueva ubicacion
             # empieza el ciclaje
-            usuario_que_paga = '(' + str(nuevo_jugador) + ', '
+            usuario_que_paga = '(' + str(nuevo_jugador) + '-> '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
@@ -147,7 +147,7 @@ def asignar_jugador(nuevo_jugador):
             # 2 o mas ciclajes
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += ', ' + str(ret_ciclado['jugador_ciclado'])
+                usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
                 lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
 
@@ -209,7 +209,7 @@ def asignar_clon(clon):
         elif nueva_ubicacion['posicion'] == 3:
             # ciclo la lista en la nueva ubicacion
             # empieza el ciclaje
-            usuario_que_paga = '(' + str(clon) + ', '
+            usuario_que_paga = '(' + str(clon) + '-> '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
@@ -241,7 +241,7 @@ def asignar_clon(clon):
             # 2 o mas ciclajes
             while ret_ciclado['posicion'] == 3:
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += ', ' + str(ret_ciclado['jugador_ciclado'])
+                usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
                 lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
 
