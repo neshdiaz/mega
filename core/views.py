@@ -728,8 +728,9 @@ def consulta_usuario(request, n_usuario=None):
     json_response = json.dumps(resp)
     return HttpResponse(json_response)
 
+@login_required
 @requires_csrf_token
-def lista_content(request, id_lista=None):
+def lista_content(request, id_lista=None, usr_referido=None):
 
     dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
                   'n_referidos':'', 'n_referidos_activados':''},
@@ -792,9 +793,33 @@ def lista_content(request, id_lista=None):
         dict_list[5]['nivel'] = str(nivel)
 
     else:
+        if usr_referido is None:
+            lst = Lista.objects.get(pk=id_lista)
+            # patrocinador logueado
+            pat = Jugador.objects.get(usuario__username=request.user.username)
+            # si el usuario logeado esta en la lista solicitada validamos
+            if Lista.objects.filter(jugador=pat, pk=lst.id).exists():
+                validado = True
+        else:
+            
+            # solicita datos de un referido del usuario logueado
+            lst = Lista.objects.get(pk=id_lista)
+            ref = Jugador.objects.filter(patrocinador__usuario__username=usr_referido)
+            if Lista.objects.filter(jugador=ref, pk=lst.id).exists():
+                validado = True
+            console.log("validado: ", validado)
+        ''' validacion anterior
         for juego in juegos_en_lista:
             if request.user.username == juego.jugador.usuario.username:
                 validado = True
+                
+            pat = Jugador.objects.get(usuario__username=request.user.username)
+            ref = Jugador.objects.filter(patrocinador=pat)
+            if juego.jugador in ref:
+                validado = True
+        '''
+        
+        
         # conformamos un dicionario con los datos de la lista
         if validado:
             if estado_lista == 'CERRADA':
@@ -849,7 +874,7 @@ def listas(request, usr=None):
             .distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)

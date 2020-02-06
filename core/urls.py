@@ -14,8 +14,11 @@ urlpatterns = [
 
     path('home/activar_clon/<int:clon_id>/', views.activar_clon, name='activar_clon'),
     path('home/activar_clon/', views.activar_clon, name='activar_clon'),
+    
     path('ajax/lista_content/', views.lista_content, name='lista_content'),
     path('ajax/lista_content/<int:id_lista>/', views.lista_content,
+         name='lista_content'),
+    path('ajax/lista_content/<int:id_lista>/<str:n_usuario>/', views.lista_content,
          name='lista_content'),
 
     path('ajax/listas/', views.listas, name='listas'),
