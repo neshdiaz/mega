@@ -730,7 +730,7 @@ def consulta_usuario(request, n_usuario=None):
 
 @login_required
 @requires_csrf_token
-def lista_content(request, id_lista=None, usr_referido=None):
+def lista_content(request, id_lista=None, n_usuario=None):
 
     dict_list = [{'user': '', 'color': 'white', 'cadena_ciclaje':'', 'patrocinador':'',
                   'n_referidos':'', 'n_referidos_activados':''},
@@ -793,21 +793,24 @@ def lista_content(request, id_lista=None, usr_referido=None):
         dict_list[5]['nivel'] = str(nivel)
 
     else:
-        if usr_referido is None:
+        if n_usuario == request.user.username:
             lst = Lista.objects.get(pk=id_lista)
+            
             # patrocinador logueado
             pat = Jugador.objects.get(usuario__username=request.user.username)
             # si el usuario logeado esta en la lista solicitada validamos
-            if Lista.objects.filter(jugador=pat, pk=lst.id).exists():
+            lst_id = lst.id
+            if Lista.objects.filter(jugador=pat, pk=lst_id).exists():
                 validado = True
         else:
-            
             # solicita datos de un referido del usuario logueado
             lst = Lista.objects.get(pk=id_lista)
-            ref = Jugador.objects.filter(patrocinador__usuario__username=usr_referido)
-            if Lista.objects.filter(jugador=ref, pk=lst.id).exists():
+            lst_id = lst.id
+            jug = Jugador.objects.get(usuario__username=n_usuario)
+            pat = jug.patrocinador
+            if pat.usuario.username == request.user.username:
                 validado = True
-            console.log("validado: ", validado)
+        print(validado)
         ''' validacion anterior
         for juego in juegos_en_lista:
             if request.user.username == juego.jugador.usuario.username:

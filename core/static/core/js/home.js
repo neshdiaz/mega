@@ -12,7 +12,7 @@ $(document).ready(function(){
 function init(){
     compartirReferido(); 
     get_listas(url_listas);
-    get_lista_content(url_lista_content, 1);
+    //get_lista_content(url_lista_content);
     relojInit(relojActual);
     get_lista_clones(url_clones);
     get_lista_referidos(url_referidos);   
@@ -110,10 +110,17 @@ function getCookie(name) {
 }
 
 // ajax para cargar las listas del usuario
-function get_listas(url_listas){
+function get_listas(url_listas, id, usuario){
+    ur = url_listas;
+    if (id !=undefined){
+        ur += "/" + id;
+    }
+    if (usuario != undefined){
+        ur += "/" + usuario;
+    }
     var csrftoken = getCookie('csrftoken');
     $.ajax({
-        url: url_listas,
+        url: ur,
         method: "post",
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
@@ -149,9 +156,11 @@ function displayListas(listas_json){
 }
 
 // ajax para cargar los datos de la lista
-function get_lista_content(url_lista_content, id){
+function get_lista_content(url_lista_content, id, usr){
+    console.log(usr);
+    ur = url_lista_content + id + "/"+ usr + "/";
     $.ajax({
-        url: url_lista_content + id + "/",
+        url: ur,
         method: "post",
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
@@ -279,7 +288,6 @@ function displayListaReferidos(referidos_json){
             htmlBoton =  "<button class='btn btn-primary' onclick=get_listas('" + url_listas + item.usuario + "');>" + item.usuario + "</button>";
             boton.append(htmlBoton);
             $("#referidosContainer").append(boton);
-            console.log(item.usuario);
         })
 
     }
