@@ -810,19 +810,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
             pat = jug.patrocinador
             if pat.usuario.username == request.user.username:
                 validado = True
-        print(validado)
-        ''' validacion anterior
-        for juego in juegos_en_lista:
-            if request.user.username == juego.jugador.usuario.username:
-                validado = True
-                
-            pat = Jugador.objects.get(usuario__username=request.user.username)
-            ref = Jugador.objects.filter(patrocinador=pat)
-            if juego.jugador in ref:
-                validado = True
-        '''
-        
-        
+      
         # conformamos un dicionario con los datos de la lista
         if validado:
             if estado_lista == 'CERRADA':
@@ -859,6 +847,32 @@ def lista_content(request, id_lista=None, n_usuario=None):
 
 @requires_csrf_token
 def listas(request, usr=None):
+    if usr is None:
+        usuario = User.objects.get(username=request.user.username)
+    else:
+        usuario = User.objects.get(username=usr)
+
+    if usuario.is_staff:
+        lista_listas = Lista.objects.all().distinct()
+        lst_listas = []
+        for lista in lista_listas:
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
+            lst_listas.append(ele)
+
+    else:
+        lista_listas = Lista.objects\
+            .filter(jugador__usuario__username=usuario.username)\
+            .distinct()
+        lst_listas = []
+        for lista in lista_listas:
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
+            lst_listas.append(ele)
+
+    json_response = json.dumps(lst_listas)
+    return HttpResponse(json_response)
+
+@requires_csrf_token
+def listasReferido(request, usr=None):
     if usr is None:
         usuario = User.objects.get(username=request.user.username)
     else:

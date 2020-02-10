@@ -85,6 +85,7 @@ function websocket(){
 
 function actualizar_pantalla(){
     get_listas(url_listas)
+    get_listas_referido(url_listas_referido)
     get_lista_content(url_lista_content, lista_desplegada);
     get_lista_clones(url_clones);
     get_lista_referidos(url_referidos);
@@ -155,9 +156,54 @@ function displayListas(listas_json){
     }
 }
 
+// ajax para cargar las listas del referido
+function get_listas_referido(url_listas_referido, id, usuario){
+    ur = url_listas_referido;
+    if (id !=undefined){
+        ur += "/" + id;
+    }
+    if (usuario != undefined){
+        ur += "/" + usuario;
+    }
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+        url: ur,
+        method: "post",
+        beforeSend: function (xhr, settings) {
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        },   
+        success: function(respuesta){
+            listas_json = JSON.parse(respuesta);
+            //actualizar el contenido del div        
+            displayListasReferido(listas_json);
+        }        
+    });
+}
+
+function displayListasReferido(listas_json){
+    if($("#listasReferidoContainer").length > 0){
+        ContenedorListasReferido = document.getElementById("listasReferidoContainer");
+        htmlListas = "";
+        htmlListas += "<div class ='btn-group role='group'>";
+        htmlListas += "  <div class = 'btn-group-vertical'>";
+        listas_json.forEach(function(item, index){
+            url = url_lista_content;
+            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + " " + item.estado + "</button>";
+        })
+        htmlListas += "</div></div>";
+        ContenedorListasReferido.innerHTML = htmlListas;
+    }
+}
+
 // ajax para cargar los datos de la lista
 function get_lista_content(url_lista_content, id, usr){
-    console.log(usr);
     ur = url_lista_content + id + "/"+ usr + "/";
     $.ajax({
         url: ur,
@@ -281,14 +327,16 @@ function get_lista_referidos(url_lista_referidos){
 
 function displayListaReferidos(referidos_json){
     if($("#referidosContainer").length > 0 ){
-        ul = $("<ul>");
-        boton=$("<button>");
+        grupo = $("<div class ='btn-group role='group'>")
+        vertical = $("<div class = 'btn-group-vertical'>")
         referidos_json.forEach(function(item, index){
+                       
+            boton=$("<button style='background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + url_listas + item.usuario + "');>" + item.usuario + "</button>");
             boton.preventDefault;
-            htmlBoton =  "<button class='btn btn-primary' onclick=get_listas('" + url_listas + item.usuario + "');>" + item.usuario + "</button>";
-            boton.append(htmlBoton);
-            $("#referidosContainer").append(boton);
+            vertical.append(boton)
         })
+        grupo.append(vertical);
+        $("#referidosContainer").append(grupo);
 
     }
 }

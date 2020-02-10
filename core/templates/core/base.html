@@ -33,13 +33,13 @@
               <a class="nav-link" href="{% url 'core:mis_clones' %}"><i class="fas fa-users"></i>Clones</a>
             </li>
             <li>
-              <a class="nav-link" href="{% url 'core:mi_tienda' %}"><i class="fas fa-store"></i>Tienda</a>
-            </li>
-            <li>
               <a class="nav-link" href="{% url 'core:mis_niveles' %}"><i class="fas fa-sort-amount-up"></i>Niveles</a>
             </li>
             <li>
               <a class="nav-link" href="{% url 'core:mis_finanzas' %}"><i class="fas fa-coins"></i>Finanzas</a>
+            </li>
+            <li>
+              <a class="nav-link" href="{% url 'core:mi_tienda' %}"><i class="fas fa-store"></i>Tienda</a>
             </li>
             <li>
               {% if request.user.is_authenticated %}
@@ -104,6 +104,7 @@
         //ajax urls
         url_lista_content = "{% url 'core:lista_content' %}";
         url_listas = "{% url 'core:listas' %}";
+        url_listas_referido = "{% url 'core:listasReferido' %}";
         url_clones = "{% url 'core:clones' %}";
         url_referidos = "{% url 'core:referidos' %}";
         url_activar_clon = "{% url 'core:activar_clon' %}";
