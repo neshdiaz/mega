@@ -856,7 +856,7 @@ def listas(request, usr=None):
         lista_listas = Lista.objects.all().distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display())}
             lst_listas.append(ele)
 
     else:
@@ -865,7 +865,7 @@ def listas(request, usr=None):
             .distinct()
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)

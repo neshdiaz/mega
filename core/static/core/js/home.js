@@ -149,7 +149,7 @@ function displayListas(listas_json){
         htmlListas += "  <div class = 'btn-group-vertical'>";
         listas_json.forEach(function(item, index){
             url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + " " + item.estado + "</button>";
+            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " <small></button>";
         })
         htmlListas += "</div></div>";
         ContenedorListas.innerHTML = htmlListas;
