@@ -327,6 +327,7 @@ function get_lista_referidos(url_lista_referidos){
 
 function displayListaReferidos(referidos_json){
     if($("#referidosContainer").length > 0 ){
+        $("#referidosContainer").html("");
         grupo = $("<div class ='btn-group role='group'>")
         vertical = $("<div class = 'btn-group-vertical'>")
         referidos_json.forEach(function(item, index){
