@@ -332,7 +332,8 @@ function displayListaReferidos(referidos_json){
         vertical = $("<div class = 'btn-group-vertical'>")
         referidos_json.forEach(function(item, index){
                        
-            boton=$("<button style='background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + url_listas + item.usuario + "');>" + item.usuario + "</button>");
+            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + 
+            url_listas + item.usuario + "');>" + item.usuario + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
             boton.preventDefault;
             vertical.append(boton)
         })
