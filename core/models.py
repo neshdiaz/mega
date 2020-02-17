@@ -39,7 +39,7 @@ class Lista(models.Model):
 class Juego(models.Model):
     lista = models.ForeignKey(Lista, on_delete=models.CASCADE)
     jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
-
+    nivel = models.ManyToManyField('Nivel', through='NivelJuego', through_fields=('juego', 'nivel'))
     posicion = models.SmallIntegerField(default=-1)
     posicion_cerrado = models.SmallIntegerField(default=-1)
     color_cerrado = models.CharField(max_length=10, default='red')
@@ -76,6 +76,8 @@ class Jugador(models.Model):
         verbose_name_plural = 'Jugadores'
 
 
+
+
 class Nivel(models.Model):
     indice = models.SmallIntegerField(default=1, unique=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=50000)
@@ -86,6 +88,22 @@ class Nivel(models.Model):
     class Meta:
         verbose_name_plural = 'Niveles'
 
+
+class NivelJuego(models.Model):
+    ESTADO_CHOICES = (
+        ('P', 'PENDIENTE ACTIVAR'),
+        ('A', 'ACTIVO'),
+    )
+
+    juego = models.ForeignKey(Juego, on_delete=models.CASCADE)
+    nivel = models.ForeignKey(Nivel, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
+                              default='P')
+    def __str__(self):
+        return "Juego " + str(self.juego) + "Nivel " + str(self.nivel)
+
+    class Meta:
+        verbose_name_plural = 'NivelesJuegos'
 
 class Clon(models.Model):
     ESTADO_CHOICES = (
