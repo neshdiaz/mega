@@ -133,7 +133,6 @@ class Jugador(models.Model):
 
 
 class Nivel(models.Model):
-    indice = models.SmallIntegerField(default=1, unique=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=50000)
 
     def __str__(self):
