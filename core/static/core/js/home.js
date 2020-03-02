@@ -90,6 +90,7 @@ function actualizar_pantalla(){
     get_lista_clones(url_clones);
     get_lista_referidos(url_referidos);
     get_lista_cobrando(url_lista_cobrando);
+    get_lista_niveles(url_lista_niveles);
     
 }
 
@@ -147,7 +148,9 @@ function displayListas(listas_json){
         htmlListas = "";
         htmlListas += "<div class ='btn-group role='group'>";
         htmlListas += "  <div class = 'btn-group-vertical'>";
+        $( ".messages" ).html("<div class='alert alert-primary' role='alert'>No estas jugando en ningun nivel, entra en el menu de niveles para empezar...</div>")
         listas_json.forEach(function(item, index){
+            $( ".messages" ).html("");
             url = url_lista_content;
             htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small></button>";
         })
@@ -378,3 +381,46 @@ function displayListaCobrando(cobrando_json){
         ContenedorCobrando.innerHTML = htmlCobrando
     }
 }
+
+/*
+ function get_listaNiveles(url_lista_niveles){
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+        url: ur,
+        method: "post",
+        beforeSend: function (xhr, settings) {
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        },   
+        success: function(respuesta){
+            listas_json = JSON.parse(respuesta);
+            //actualizar el contenido del div        
+            displayListaNiveles(listas_json);
+        }        
+    });
+}
+
+function displayListas(listas_json){
+    if($("#listaNiveles").length > 0){
+        ContenedorListas = document.getElementById("listaNiveles");
+        htmlListas = "";
+        htmlListas += "<div class='container-fluid'>'";
+        htmlListas += "  <div class = 'btn-group-vertical'>";
+        
+        
+        
+        listas_json.forEach(function(item, index){
+            url = url_lista_content;
+            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small></button>";
+        })
+        htmlListas += "</div></div>";
+        ContenedorListas.innerHTML = htmlListas;
+    }
+}
+*/

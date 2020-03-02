@@ -1,6 +1,61 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Configuracion(models.Model):
+    nombre = models.CharField(default='', max_length=20)
+    lista_max_items = models.SmallIntegerField(default=5)
+    lista_cycle_position = models.SmallIntegerField(default=4)
+    porcent_plataforma = models.SmallIntegerField(default=20)
+    porcent_patrocinador_directo = models.SmallIntegerField(default=20)
+    porcent_segunda_generacion = models.SmallIntegerField(default=3)
+    porcent_tercera_generacion = models.SmallIntegerField(default=7)
+    porcent_posicion_cobro = models.SmallIntegerField(default=50)
+    monto_minimo_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=100)
+    comision_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    tope_cobros = models.SmallIntegerField(default=6)
+
+    def __str__(self):
+        return "Configuracion" + str(self.nombre)
+
+    class Meta:
+        verbose_name_plural = 'Configuraciones'
+
+class Cuenta(models.Model):
+    jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
+    saldo_activaciones = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    saldo_acumulado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    ganancias_totales = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Cuenta " + str(self.id) + " " + str(self.jugador)
+
+    class Meta:
+        verbose_name_plural = 'Cuentas'
+        ordering = ['created']
+
+class Movimientos(models.Model):
+    TIPO_CHOICES = (
+        ('A', 'ABONO POR ACTIVACION'),
+        ('C', 'ABONO POR CARGUE')
+    )
+    cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
+                            default='A')
+    descripcion = models.CharField(default='', max_length=20, blank=True, null=True)
+    valor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name_plural = 'Movimientos'
+        ordering = ['created']
 
 class Lista(models.Model):
     ESTADO_CHOICES = (
@@ -11,9 +66,8 @@ class Lista(models.Model):
     alias = models.CharField(default='', max_length=20, blank=True, null=True)
     nivel = models.ForeignKey('Nivel', blank=True, null=True,
                               on_delete=models.CASCADE)
-    max_items = models.SmallIntegerField(default=5)
+
     items = models.SmallIntegerField(default=0)
-    cycle_position = models.SmallIntegerField(default=4)
     ciclo = models.BigIntegerField(default=0)
     jugador = models.ManyToManyField('Jugador', default='', blank=True,
                                      through='Juego',
@@ -23,7 +77,6 @@ class Lista(models.Model):
                                     blank=True)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='A')
-    nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE, default=1)
     pc = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -39,7 +92,6 @@ class Lista(models.Model):
 class Juego(models.Model):
     lista = models.ForeignKey(Lista, on_delete=models.CASCADE)
     jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
-    nivel = models.ManyToManyField('Nivel', through='NivelJuego', through_fields=('juego', 'nivel'))
     posicion = models.SmallIntegerField(default=-1)
     posicion_cerrado = models.SmallIntegerField(default=-1)
     color_cerrado = models.CharField(max_length=10, default='red')
@@ -60,6 +112,10 @@ class Jugador(models.Model):
     nuevo = models.BooleanField(default=True)
     usuario = models.OneToOneField(User,
                                    on_delete=models.CASCADE)
+    nivel = models.ManyToManyField('Nivel', default='', blank=True,
+                                   through='JugadorNivel',
+                                   through_fields=('jugador', 'nivel'))
+
     n_referidos = models.SmallIntegerField(default=0)
     n_referidos_activados = models.SmallIntegerField(default=0)
     color = models.CharField(max_length=10, default='red')
@@ -68,7 +124,7 @@ class Jugador(models.Model):
                                      on_delete=models.CASCADE)
     whatsapp = models.CharField(max_length=10, blank=True, null=True)
     celular = models.CharField(max_length=10, blank=True, null=True)
-    
+
     def __str__(self):
         return str(self.usuario)
 
@@ -76,44 +132,49 @@ class Jugador(models.Model):
         verbose_name_plural = 'Jugadores'
 
 
-
-
 class Nivel(models.Model):
     indice = models.SmallIntegerField(default=1, unique=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=50000)
 
     def __str__(self):
-        return "Nivel " + str(self.monto)
+        return "Nivel " + str(self.id)
 
     class Meta:
         verbose_name_plural = 'Niveles'
 
 
-class NivelJuego(models.Model):
+class JugadorNivel(models.Model):
     ESTADO_CHOICES = (
-        ('P', 'PENDIENTE ACTIVAR'),
+        ('P', 'PENDIENTE DE ACTIVAR'),
         ('A', 'ACTIVO'),
+        ('B', 'BLOQUEADO'),
     )
 
-    juego = models.ForeignKey(Juego, on_delete=models.CASCADE)
-    nivel = models.ForeignKey(Nivel, on_delete=models.CASCADE)
+    jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
+    nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
     def __str__(self):
-        return "Juego " + str(self.juego) + "Nivel " + str(self.nivel)
+        return "Jugador " + str(self.jugador) + " " + str(self.nivel)
 
     class Meta:
-        verbose_name_plural = 'NivelesJuegos'
+        verbose_name_plural = 'Jugador Niveles'
 
 class Clon(models.Model):
     ESTADO_CHOICES = (
         ('P', 'PENDIENTE ACTIVAR'),
         ('A', 'ACTIVO'),
     )
+    TIPO_CHOICES = (
+        ('R', 'POR REFERIDOS'),
+        ('C', 'POR CICLOS'),
+    )
     jugador = models.ForeignKey('jugador', blank=True, null=True,
                                 on_delete=models.CASCADE)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
+    tipo = models.CharField(max_length=1, choices=ESTADO_CHOICES,
+                              default='R')
     nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE, default=1)
 
     def __str__(self):
@@ -133,4 +194,4 @@ class Cobrador(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cobradores'
-        ordering = ['-created']    
+        ordering = ['-created']

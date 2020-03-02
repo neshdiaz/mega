@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from registration.forms import UserCreationForm2
 from django import forms
 from django.db import transaction
-from core.models import Jugador
+from core.models import Jugador, Nivel, JugadorNivel, Cuenta
 
 
 def registro_referido(request, patrocinador):
@@ -82,5 +82,15 @@ class RegistroUsuario(CreateView):
             patrocinador = Jugador.objects.get(
                 usuario=user_patrocinador)
             j = Jugador(usuario=user, patrocinador=patrocinador)
+
+        # guardo el jugador
         j.save()
+        j.refresh_from_db()
+        # Creo los niveles...
+        niveles_creados = Nivel.objects.all()
+        for nivel in niveles_creados:
+            jug_niv = JugadorNivel(jugador=j, nivel=nivel, estado='P')
+            jug_niv.save()
+        nueva_cuenta = Cuenta(jugador=j)
+        nueva_cuenta.save()
         return super().form_valid(form)

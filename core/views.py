@@ -11,7 +11,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Lista, Jugador, Juego, Cobrador, Clon, User
+from .models import Lista, Jugador, Juego, Cobrador, Clon, User, JugadorNivel, Nivel, Cuenta, Configuracion
 
 
 @requires_csrf_token
@@ -42,17 +42,25 @@ def mi_tienda(request):
 @login_required
 @requires_csrf_token
 def mis_niveles(request):
+    
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    niveles = list(JugadorNivel.objects.filter(jugador=jugador))
 
-    return render(request, 'core/mis_niveles.html', {
-        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+    return render(request, 'core/mis_niveles.html', 
+                  {'niveles_jugador': niveles,
+                   'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
 
 
 @login_required
 @requires_csrf_token
 def mis_finanzas(request):
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    cuenta_jugador = Cuenta.objects.get(jugador=jugador)
 
     return render(request, 'core/mis_finanzas.html', {
-        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/"),
+        'cuenta': cuenta_jugador
+        })
 
 @login_required
 @requires_csrf_token
@@ -64,14 +72,14 @@ def home(request, id_usuario=None, id_lista=None):
         'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
 
 
-@receiver(post_save, sender=Jugador)
-def activar_jugador(instance, created, **kwargs):
-    if created:
-        asignar_jugador(instance)
+# @receiver(post_save, sender=Jugador)
+#def activar_jugador(instance, created, **kwargs):
+#    if created:
+#        asignar_jugador(instance)
 
 
 @transaction.atomic
-def asignar_jugador(nuevo_jugador):
+def asignar_jugador(nuevo_jugador, nivel_lista):
     patrocinador = nuevo_jugador.patrocinador
     log_registrar('log.txt', ' ')
     log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) +
@@ -82,7 +90,7 @@ def asignar_jugador(nuevo_jugador):
                        'posicion': -1,
                        'patrocinador': None}
 
-    nueva_ubicacion = buscar_ubicacion(nuevo_jugador.patrocinador)
+    nueva_ubicacion = buscar_ubicacion(nuevo_jugador.patrocinador, nivel_lista)
 
     if nueva_ubicacion['posicion'] != -1:
         # Creamos el juego para enlazar la lista con el nuevo jugador
@@ -91,6 +99,11 @@ def asignar_jugador(nuevo_jugador):
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
+
+        
+        jugador_crear_nivel(nuevo_jugador, nueva_ubicacion['lista'].nivel)
+
+        
         log_registrar('log.txt', 'Jugador ' + str(nuevo_jugador) +
                       ' agregado a lista ' + str(nueva_ubicacion['lista']) +
                       ' en posicion: ' +
@@ -176,7 +189,7 @@ def asignar_jugador(nuevo_jugador):
 
 
 @transaction.atomic
-def asignar_clon(clon):
+def asignar_clon(clon, nivel_lista):
     log_registrar('log.txt', 'asignando clon de ' + str(clon.jugador))
     nueva_ubicacion = {'lista': None,
                        'posicion': -1,
@@ -191,6 +204,9 @@ def asignar_clon(clon):
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
+
+
+
         log_registrar('log.txt', 'Clon ' + str(clon.jugador) +
                       ' agregado a lista ' + str(nueva_ubicacion['lista']) +
                       ' en posicion: ' +
@@ -268,27 +284,27 @@ def asignar_clon(clon):
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
     return HttpResponse(reverse('core:home'))
 
-def buscar_ubicacion(patrocinador):
+def buscar_ubicacion(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
 
     # if patrocinador is not None:
     log_registrar('log.txt', 'BUSCANDO EN LISTAS DEL PATROCINADOR ')
-    ubicacion = lista_buscar_padre(patrocinador)
+    ubicacion = lista_buscar_padre(patrocinador, nivel_lista)
     if ubicacion['posicion'] == -1:
         log_registrar('log.txt', 'No hay posiciones libres en las listas del patrocinador ' +
                       str(patrocinador))
         log_registrar('log.txt', 'BUSCANDO EN  LISTAS DE LA DESCENDENCIA')
-        ubicacion = lista_buscar_descendencia(patrocinador)
+        ubicacion = lista_buscar_descendencia(patrocinador, nivel_lista)
         if ubicacion['posicion'] == -1:
             log_registrar('log.txt', 'No hay posiciones libres en las listas de la descendencia ')
             log_registrar('log.txt', 'BUSCANDO EN LISTA MAS ANTIGUA')
-            ubicacion = lista_buscar_mas_antigua()
+            ubicacion = lista_buscar_mas_antigua(nivel_lista)
     return ubicacion
 
 # Busquedas de posicion sobre las listas
-def lista_buscar_padre(patrocinador):
+def lista_buscar_padre(patrocinador, nivel_lista):
     log_registrar('log.txt', 'Buscando en las listas del patrocinador ' + str(patrocinador))
     ubicacion = {'lista': None,
                  'posicion': -1,
@@ -296,7 +312,7 @@ def lista_buscar_padre(patrocinador):
     if patrocinador is not None:
         listas_padre_a = Lista.objects\
                               .filter(juego__jugador_id=patrocinador.id)\
-                              .filter(estado='A')\
+                              .filter(estado='A', nivel = nivel_lista)\
                               .order_by('created')
         if listas_padre_a.exists():
             for lista in listas_padre_a:
@@ -319,7 +335,7 @@ def lista_nuevo_cobrador(lista):
     nuevo_cobrador = Cobrador(jugador=cobrador)
     nuevo_cobrador.save()
 
-def lista_buscar_descendencia(patrocinador):
+def lista_buscar_descendencia(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
@@ -335,7 +351,7 @@ def lista_buscar_descendencia(patrocinador):
             abuelo = Jugador.objects.get(pk=patrocinador.patrocinador.id)
             while abuelo is not None and nueva_ubicacion['posicion'] == -1:
                 log_registrar('log.txt', 'Buscando en listas del descendiente : ' + str(abuelo))
-                nueva_ubicacion = lista_buscar_padre(abuelo)
+                nueva_ubicacion = lista_buscar_padre(abuelo, nivel_lista)
                 if nueva_ubicacion['posicion'] != -1:
                     ubicacion['posicion'] = nueva_ubicacion['posicion']
                     ubicacion['lista'] = nueva_ubicacion['lista']
@@ -352,11 +368,11 @@ def lista_buscar_descendencia(patrocinador):
     return ubicacion
 
 
-def lista_buscar_mas_antigua():
+def lista_buscar_mas_antigua(nivel_lista):
     ubicacion = {'lista': None,
                  'posicion': -1,
                  'patrocinador': None}
-    listas_abiertas = Lista.objects.filter(estado='A')\
+    listas_abiertas = Lista.objects.filter(estado='A', nivel=nivel_lista)\
                                    .order_by('created')
     for lista in listas_abiertas:
         log_registrar('log.txt', 'Buscando en lista ' + str(lista))
@@ -429,7 +445,7 @@ def lista_ciclar(lista):
 
     log_registrar('log.txt', 'Buscando ubicacion en posicion del abuelo: ' + str(abuelo))
 
-    nueva_ubicacion = buscar_ubicacion(abuelo)
+    nueva_ubicacion = buscar_ubicacion(abuelo, lista.nivel)
     if nueva_ubicacion['posicion'] == -1:
         log_registrar('log.txt', 'no existen posiciones para ciclar')
     else:
@@ -439,6 +455,9 @@ def lista_ciclar(lista):
 
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
+
+ 
+
         notificar_asignacion()
         log_registrar('log.txt', 'Jugador ' + str(jugador0) +
                       ' ciclado y agregado a lista ' + str(nueva_ubicacion['lista']) +
@@ -588,6 +607,26 @@ def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
                 nuevo_clon.refresh_from_db()
     except AttributeError:
         print('Sin patrocinador, Posible creacion de usuario System')
+
+def jugador_crear_nivel(jug, niv):
+
+    # validar si el jugador ya tiene niveles creados de lo contrario crear el primero
+    validar_nivel = JugadorNivel.objects.filter(jugador=jug, nivel=niv)
+    if validar_nivel.exists():
+        todos_niveles = Nivel.objecst.all()
+        ultimo_nivel = todos_niveles.last()
+        if jug.nivel == ultimo_nivel:
+            pass
+        else:
+            
+            jugador_nivel = JugadorNivel(jugador=jug, nivel=niv)
+            jugador_nivel.save()
+            jugador_nivel.refresh_from_db()
+    else:
+        jugador_nivel = JugadorNivel(jugador=jug, nivel=niv, estado='P')
+        jugador_nivel.save()
+        jugador_nivel.refresh_from_db()
+
 
 # Inicio del bloque de funciones validaciones pc y bloqueo
 
@@ -918,6 +957,16 @@ def referidos(request, n_usuario=None):
 
     json_response = json.dumps(lst_referidos)
     return HttpResponse(json_response)
+
+
+@requires_csrf_token
+def listaNiveles(request):
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    niveles_jugador = JugadorNiveles.objects.filter(jugador=jugador)
+    json_response = json.dumps(niveles_jugador)
+
+    return HttpResponse(json_response)    
+
 
 @requires_csrf_token
 def cobrando(request):

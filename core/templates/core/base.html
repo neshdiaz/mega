@@ -50,12 +50,11 @@
         </div> <!-- Fin Submenu-->
       </div>
     </nav> <!-- Fin Menu-->
-    
-    <h3> Bienvenido {{ request.user }}</h3>
+    <div class="messages"></div>
+    <h4> Bienvenido {{ request.user }}</h4>
     <div class="container-fluid"> <!--Enlace de referido -->
       <div class="row">
-        <div class="col-md-12">
-          Este es tu enlace de referido:
+        <div class="col-md-12">Este es tu enlace de referido:
           <div class="input-group share">
             <input id="txtEnlaceReferido" class="form-control" value="{{base_url}}{% url 'registration:registro_referido' request.user %}" name=""  readonly> 
             <span class= input-group-btn> 

@@ -27,10 +27,13 @@ urlpatterns = [
     path('ajax/listas_referido/<str:usr>', views.listasReferido, name='listasReferido'),
     path('ajax/listas_referido/', views.listasReferido, name='listasReferido'),
     
+    path('ajax/lista_niveles/', views.listaNiveles, name='listaNiveles'),
+
     path('ajax/clones/', views.clones, name='clones'),
     path('ajax/referidos/<str:n_usuario>/', views.referidos, name='referidos'),
     path('ajax/referidos/', views.referidos, name='referidos'),
     path('ajax/cobrando/', views.cobrando, name='cobrando'),
     path('ajax/consulta_usuario/<str:n_usuario>/', views.consulta_usuario, name='consulta_usuario'),
     path('ajax/consulta_usuario/', views.consulta_usuario, name='consulta_usuario')
+
 ]
