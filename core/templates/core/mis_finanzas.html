@@ -6,24 +6,24 @@
   
   <h2>Mis Finanzas</h2>
   
-  <h4>Saldo total {{cuenta.}}</h4>
+  <h4>Saldo total {{cuenta.saldo_total}}</h4>
   <div class="container-fluid" >
     <table class="table">
       <tbody>
         <tr>
           <th scope="row">1</th>
           <td>Saldo disponible</td>
-          <td>{{cuenta.saldo_acumulado}}</td>
+          <td>{{cuenta.saldo_disponible}}</td>
         </tr>
         <tr>
           <th scope="row">2</th>
           <td>Saldo de Activación</td>
-          <td>{{cuenta.saldo_activaciones}}</td>
+          <td>{{cuenta.saldo_activacion}}</td>
         </tr>
         <tr>
           <th scope="row">3</th>
           <td>Beneficios totales</td>
-          <td>{{cuenta.ganancias_totales}}</td>
+          <td>{{cuenta.beneficios_totales}}</td>
         </tr>
       </tbody>
     </table>
@@ -35,18 +35,92 @@
     <div class="row">
       <div class = "col-md-4 text-center p-5">
         <img width="25%" class = "img-fluid img-thumbnail" src="{% static "core/img/cash-payment.png" %}" alt="">
-        <button type="button" class=" btn-lg btn btn-primary mt-5">Cargar</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCargar">
+          Cargar
+        </button>
       </div>
       <div class = "col-md-4 text-center p-5">
         <img width="25%" class = "img-fluid img-thumbnail"  src="{% static "core/img/mobile-transfer.png" %}" alt="">
-        <button type="button" class="btn btn-lg btn-primary mt-5">Transferir</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTransferir">
+          Transferir
+        </button>
       </div>
       <div class = "col-md-4 text-center p-5">
         <img width="25%" class = "img-fluid img-thumbnail"  src="{% static "core/img/cajero-automatico.png" %}" alt="">
-        <button type="button" class="btn btn-lg btn-primary mt-5">Retiros</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalRetirar">
+          Retirar 
+        </button>
       </div>   
     </div>
   </div>
+
+
+  <!-- Modal Cargar-->
+  <div class="modal fade" id="modalCargar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Cargar Fondos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Puede cargar saldo desde su cuenta Bitcoin, digite el monto en dólares:
+          <input id = "monto" class="form-control" type="text">
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button onclick="boton_cargar_saldo()" type="button" class="btn btn-primary">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
   
+   <!-- Modal Transferir-->
+   <div class="modal fade" id="modalTransferir" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Transferir Fondos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Puede transferir saldo desde su cuenta entre usuarios WorldCycle (utilizable solo para activaciones)...
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+ <!-- Modal Retirar-->
+ <div class="modal fade" id="modalRetirar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Retirar Fondos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Puede retirar su saldo disponible hacia su cuenta Bitcoin...
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}  
 

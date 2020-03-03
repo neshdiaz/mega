@@ -16,6 +16,9 @@ urlpatterns = [
     path('home/activar_clon/', views.activar_clon, name='activar_clon'),
 
     path('home/activar_nivel/<int:nivel_id>/', views.activar_nivel, name='activar_nivel'),
+
+    path('home/cargar_saldo/<int:monto>/', views.cargar_saldo, name='cargar_saldo'),
+    path('home/cargar_saldo/', views.cargar_saldo, name='cargar_saldo'),
     
     path('ajax/lista_content/', views.lista_content, name='lista_content'),
     path('ajax/lista_content/<int:id_lista>/', views.lista_content,

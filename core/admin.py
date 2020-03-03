@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Lista, Jugador, Juego, Nivel, Clon, Cobrador, JugadorNivel, \
-    Cuenta, Movimientos, Configuracion
+    Cuenta, Movimiento, Configuracion
 
 admin.site.register(Lista)
 admin.site.register(Jugador)
@@ -10,5 +10,5 @@ admin.site.register(Clon)
 admin.site.register(Cobrador)
 admin.site.register(JugadorNivel)
 admin.site.register(Cuenta)
-admin.site.register(Movimientos)
+admin.site.register(Movimiento)
 admin.site.register(Configuracion)

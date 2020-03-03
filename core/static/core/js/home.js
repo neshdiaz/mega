@@ -382,45 +382,7 @@ function displayListaCobrando(cobrando_json){
     }
 }
 
-/*
- function get_listaNiveles(url_lista_niveles){
-    var csrftoken = getCookie('csrftoken');
-    $.ajax({
-        url: ur,
-        method: "post",
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            listas_json = JSON.parse(respuesta);
-            //actualizar el contenido del div        
-            displayListaNiveles(listas_json);
-        }        
-    });
+function boton_cargar_saldo(){
+    monto_carga = $("#monto").val()
+    $("#boton_carga_saldo").onclick( window.location.href = url_base + url_cargar_saldo + monto_carga)
 }
-
-function displayListas(listas_json){
-    if($("#listaNiveles").length > 0){
-        ContenedorListas = document.getElementById("listaNiveles");
-        htmlListas = "";
-        htmlListas += "<div class='container-fluid'>'";
-        htmlListas += "  <div class = 'btn-group-vertical'>";
-        
-        
-        
-        listas_json.forEach(function(item, index){
-            url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small></button>";
-        })
-        htmlListas += "</div></div>";
-        ContenedorListas.innerHTML = htmlListas;
-    }
-}
-*/

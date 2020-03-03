@@ -11,7 +11,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Lista, Jugador, Juego, Cobrador, Clon, User, JugadorNivel, Nivel, Cuenta, Configuracion
+from .models import Lista, Jugador, Juego, Cobrador, Clon, User, JugadorNivel, Nivel, Cuenta, Configuracion, Movimiento
 
 
 @requires_csrf_token
@@ -945,7 +945,7 @@ def referidos(request, n_usuario=None):
 @requires_csrf_token
 def listaNiveles(request):
     jugador = Jugador.objects.get(usuario__username=request.user.username)
-    niveles_jugador = JugadorNiveles.objects.filter(jugador=jugador)
+    niveles_jugador = JugadorNivel.objects.filter(jugador=jugador)
     json_response = json.dumps(niveles_jugador)
 
     return HttpResponse(json_response)    
@@ -1000,3 +1000,17 @@ def activar_nivel(request, nivel_id):
     nivel_a_activar.save()
     asignar_jugador(jugador, nivel_a_activar.nivel)
     return redirect(reverse('core:mis_niveles'))
+
+@requires_csrf_token
+def cargar_saldo(request, monto):
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    cuenta = Cuenta.objects.get(jugador=jugador)
+    nuevo_movimiento = Movimiento(cuenta=cuenta,
+                                  tipo='C',
+                                  descripcion='Cargue de saldo por usuario',
+                                  valor=monto)
+    nuevo_movimiento.save()
+    cuenta.saldo_disponible = F('saldo_disponible') + monto
+    cuenta.saldo_total = F('saldo_total') + monto
+    cuenta.save()
+    return redirect(reverse('core:mis_finanzas'))

@@ -22,9 +22,10 @@ class Configuracion(models.Model):
 
 class Cuenta(models.Model):
     jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
-    saldo_activaciones = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    saldo_acumulado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    ganancias_totales = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    saldo_activacion = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    saldo_disponible = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    saldo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    beneficios_totales = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -36,7 +37,7 @@ class Cuenta(models.Model):
         verbose_name_plural = 'Cuentas'
         ordering = ['created']
 
-class Movimientos(models.Model):
+class Movimiento(models.Model):
     TIPO_CHOICES = (
         ('A', 'ABONO POR ACTIVACION'),
         ('C', 'ABONO POR CARGUE')
@@ -44,7 +45,7 @@ class Movimientos(models.Model):
     cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
                             default='A')
-    descripcion = models.CharField(default='', max_length=20, blank=True, null=True)
+    descripcion = models.CharField(default='', max_length=50, blank=True, null=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -133,7 +134,7 @@ class Jugador(models.Model):
 
 
 class Nivel(models.Model):
-    monto = models.DecimalField(max_digits=10, decimal_places=2, default=50000)
+    monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return "Nivel " + str(self.id)
