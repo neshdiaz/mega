@@ -115,3 +115,5 @@ def run():
         nuevo_jugador_nivel = JugadorNivel(jugador=jugador2, nivel=lista.nivel, estado='A')
         nuevo_jugador_nivel.save()
         nuevo_jugador_nivel.refresh_from_db()
+
+
