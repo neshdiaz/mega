@@ -101,7 +101,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         juego.refresh_from_db()
 
         
-        jugador_crear_nivel(nuevo_jugador, nueva_ubicacion['lista'].nivel)
+
 
         
         log_registrar('log.txt', 'Jugador ' + str(nuevo_jugador) +
@@ -195,7 +195,7 @@ def asignar_clon(clon, nivel_lista):
                        'posicion': -1,
                        'patrocinador': None}
 
-    nueva_ubicacion = lista_buscar_mas_antigua()
+    nueva_ubicacion = lista_buscar_mas_antigua(nivel_lista)
 
     if nueva_ubicacion['posicion'] != -1:
         # Creamos el juego para enlazar la lista con el nuevo jugador
@@ -555,7 +555,7 @@ def lista_inc_item(lista):
     lista.items = F('items') + 1
     lista.save()
     lista.refresh_from_db()
-    if lista.items >= lista.max_items:
+    if lista.items >= 5:
         lista.estado = 'C'
         lista.save()
         lista.refresh_from_db()
@@ -608,24 +608,7 @@ def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
     except AttributeError:
         print('Sin patrocinador, Posible creacion de usuario System')
 
-def jugador_crear_nivel(jug, niv):
 
-    # validar si el jugador ya tiene niveles creados de lo contrario crear el primero
-    validar_nivel = JugadorNivel.objects.filter(jugador=jug, nivel=niv)
-    if validar_nivel.exists():
-        todos_niveles = Nivel.objecst.all()
-        ultimo_nivel = todos_niveles.last()
-        if jug.nivel == ultimo_nivel:
-            pass
-        else:
-            
-            jugador_nivel = JugadorNivel(jugador=jug, nivel=niv)
-            jugador_nivel.save()
-            jugador_nivel.refresh_from_db()
-    else:
-        jugador_nivel = JugadorNivel(jugador=jug, nivel=niv, estado='P')
-        jugador_nivel.save()
-        jugador_nivel.refresh_from_db()
 
 
 # Inicio del bloque de funciones validaciones pc y bloqueo
@@ -998,12 +981,22 @@ def clones(request):
 
 
 @requires_csrf_token
-def activar_clon(request, clon_id=None):
+def activar_clon(request, clon_id=None, nivel_lista=None):
     if clon_id is not None:
         clon = Clon.objects.get(pk=clon_id)
         if clon.estado == 'P':
             clon.estado = 'A'
             clon.save()
             clon.refresh_from_db()
-            asignar_clon(clon)
+            asignar_clon(clon, nivel_lista)
     return redirect(reverse('core:home'))
+
+
+@requires_csrf_token
+def activar_nivel(request, nivel_id):
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    nivel_a_activar = JugadorNivel.objects.get(pk=nivel_id)
+    nivel_a_activar.estado = 'A'
+    nivel_a_activar.save()
+    asignar_jugador(jugador, nivel_a_activar.nivel)
+    return redirect(reverse('core:mis_niveles'))

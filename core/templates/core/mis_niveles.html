@@ -29,9 +29,9 @@
           <td>{{nivel.nivel}}</td>
           <td>{{nivel.nivel.monto}}</td>
           <td>{{nivel.estado}}</td>
-          <td><button class="btn btn-success" disabled>Activar</button></td>
+          <td><button onclick="window.location.href = ('{{base_url}}{% url 'core:activar_nivel' nivel.id %}')" class="btn btn-success">Activar</button></td>
           </tr>
-
+          
           {% endfor %}
           
       </tbody>
