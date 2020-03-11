@@ -43,7 +43,8 @@ def run():
     for nivel in todos_los_niveles:
         lista_nueva = Lista(alias='Primera lista', 
                             nivel=nivel,
-                            estado='A')
+                            estado='A',
+                            items=3)
         lista_nueva.save()
 
     # Creamos usuarios de primera y segunda linea
@@ -64,15 +65,15 @@ def run():
     user2.refresh_from_db()
 
     # Creamos jugadores
-    jugador0 = Jugador(usuario=sistema, n_referidos=2, color='green')
+    jugador0 = Jugador(usuario=sistema,)
     jugador0.save()
     jugador0.refresh_from_db()
     
-    jugador1 = Jugador(usuario=user1, patrocinador=jugador0)
+    jugador1 = Jugador(usuario=user1, promotor=jugador0)
     jugador1.save()
     jugador1.refresh_from_db()
 
-    jugador2 = Jugador(usuario=user2, patrocinador=jugador0)
+    jugador2 = Jugador(usuario=user2, promotor=jugador0)
     jugador2.save()
     jugador2.refresh_from_db()
 
@@ -93,7 +94,8 @@ def run():
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
 
-        nuevo_jugador_nivel = JugadorNivel(jugador=jugador0, nivel=lista.nivel, estado='A')
+        nuevo_jugador_nivel = JugadorNivel(jugador=jugador0, nivel=lista.nivel, estado='A', 
+                                           patrocinador=None, color='green', n_referidos=2)
         nuevo_jugador_nivel.save()
         nuevo_jugador_nivel.refresh_from_db()
         
@@ -102,7 +104,8 @@ def run():
                             posicion=1)
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
-        nuevo_jugador_nivel = JugadorNivel(jugador=jugador1, nivel=lista.nivel, estado='A')
+        nuevo_jugador_nivel = JugadorNivel(jugador=jugador1, nivel=lista.nivel, estado='A',
+                                           patrocinador=jugador0)
         nuevo_jugador_nivel.save()
         nuevo_jugador_nivel.refresh_from_db()
 
@@ -112,8 +115,7 @@ def run():
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
 
-        nuevo_jugador_nivel = JugadorNivel(jugador=jugador2, nivel=lista.nivel, estado='A')
+        nuevo_jugador_nivel = JugadorNivel(jugador=jugador2, nivel=lista.nivel, estado='A',
+                                           patrocinador=jugador0)
         nuevo_jugador_nivel.save()
         nuevo_jugador_nivel.refresh_from_db()
-
-

@@ -69,7 +69,6 @@ class Lista(models.Model):
                               on_delete=models.CASCADE)
 
     items = models.SmallIntegerField(default=0)
-    ciclo = models.BigIntegerField(default=0)
     jugador = models.ManyToManyField('Jugador', default='', blank=True,
                                      through='Juego',
                                      through_fields=('lista', 'jugador'))
@@ -113,16 +112,11 @@ class Jugador(models.Model):
     nuevo = models.BooleanField(default=True)
     usuario = models.OneToOneField(User,
                                    on_delete=models.CASCADE)
+    promotor = models.ForeignKey('Jugador', blank=True, null=True,
+                                 on_delete=models.CASCADE, related_name='jugador_promotor')
     nivel = models.ManyToManyField('Nivel', default='', blank=True,
                                    through='JugadorNivel',
                                    through_fields=('jugador', 'nivel'))
-
-    n_referidos = models.SmallIntegerField(default=0)
-    n_referidos_activados = models.SmallIntegerField(default=0)
-    color = models.CharField(max_length=10, default='red')
-    ciclo = models.BigIntegerField(default=0)
-    patrocinador = models.ForeignKey('self', blank=True, null=True,
-                                     on_delete=models.CASCADE)
     whatsapp = models.CharField(max_length=10, blank=True, null=True)
     celular = models.CharField(max_length=10, blank=True, null=True)
 
@@ -152,13 +146,20 @@ class JugadorNivel(models.Model):
 
     jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
     nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE)
+    patrocinador = models.ForeignKey('Jugador', blank=True, null=True,
+                                     on_delete=models.CASCADE, related_name='patrocinador')
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
+    
+    n_referidos = models.SmallIntegerField(default=0)
+    n_referidos_activados = models.SmallIntegerField(default=0)
+    color = models.CharField(max_length=10, default='red')
+    ciclo = models.BigIntegerField(default=0)
     def __str__(self):
         return "Jugador " + str(self.jugador) + " " + str(self.nivel)
 
     class Meta:
-        verbose_name_plural = 'Jugador Niveles'
+        verbose_name_plural = 'Jugador Niveles'       
 
 class Clon(models.Model):
     ESTADO_CHOICES = (
@@ -174,7 +175,7 @@ class Clon(models.Model):
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
     tipo = models.CharField(max_length=1, choices=ESTADO_CHOICES,
-                              default='R')
+                            default='R')
     nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE, default=1)
 
     def __str__(self):

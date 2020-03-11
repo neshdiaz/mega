@@ -4,6 +4,8 @@ primera_carga = false;
 url_listas = "";
 url_lista_content = "";
 mis_listas = [];
+filtro_estado = "A"
+filtro_nivel = 1
 
 $(document).ready(function(){
   $('[data-toggle="tooltip"]').tooltip();
@@ -20,6 +22,16 @@ function init(){
     websocket();
 }
 
+function cambiarNivel(nivel){
+    Filtro_nivel = nivel;
+    console.log($("#inlineFormCustomSelect2").val())
+}
+
+function cambiarEstado(estado){
+    Filtro_estado = estado;
+    console.log($("#inlineFormCustomSelect").val())
+}
+
 function compartirReferido(){
     btn = document.getElementById("btnWhatsapp");  
     btn = document.getElementById("btnCopiar");  
@@ -33,6 +45,7 @@ function compartirReferido(){
         window.location.href = redir
     }
 }
+
 
 function relojInit(HoraActual){
     relojActual = new Date(HoraActual);
@@ -84,13 +97,13 @@ function websocket(){
 }
 
 function actualizar_pantalla(){
-    get_listas(url_listas)
-    get_listas_referido(url_listas_referido)
-    get_lista_content(url_lista_content, lista_desplegada);
-    get_lista_clones(url_clones);
-    get_lista_referidos(url_referidos);
-    get_lista_cobrando(url_lista_cobrando);
-    get_lista_niveles(url_lista_niveles);
+    get_listas()
+    get_listas_referido()
+    get_lista_content();
+    get_lista_clones();
+    get_lista_referidos();
+    get_lista_cobrando();
+    get_lista_niveles();
     
 }
 
@@ -112,18 +125,15 @@ function getCookie(name) {
 }
 
 // ajax para cargar las listas del usuario
-function get_listas(url_listas, id, usuario){
-    ur = url_listas;
-    if (id !=undefined){
-        ur += "/" + id;
-    }
-    if (usuario != undefined){
-        ur += "/" + usuario;
-    }
+function get_listas(f_){
     var csrftoken = getCookie('csrftoken');
     $.ajax({
-        url: ur,
+        url: url_listas,
         method: "post",
+        data:{
+            nivel: 1,
+            estado: "A"
+        },
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
             function csrfSafeMethod(method) {
@@ -162,7 +172,7 @@ function displayListas(listas_json){
 // ajax para cargar las listas del referido
 function get_listas_referido(url_listas_referido, id, usuario){
     ur = url_listas_referido;
-    if (id !=undefined){
+    if (id !=undefined){    
         ur += "/" + id;
     }
     if (usuario != undefined){
@@ -336,7 +346,7 @@ function displayListaReferidos(referidos_json){
         referidos_json.forEach(function(item, index){
                        
             boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + 
-            url_listas + item.usuario + "');>" + item.usuario + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
+            url_listas + item.usuario + "');>" + item.usuario + " en nivel " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
             boton.preventDefault;
             vertical.append(boton)
         })

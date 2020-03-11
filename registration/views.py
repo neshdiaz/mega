@@ -18,7 +18,7 @@ def registro_referido(request, patrocinador):
         referido_valid = False
     return render(request, 'registration/registro_referido.html',
                            {'patrocinador': patrocinador,
-                            'referido_valid': referido_valid    
+                            'referido_valid': referido_valid
                             }
                   )
 
@@ -71,17 +71,11 @@ class RegistroUsuario(CreateView):
         self.object.refresh_from_db()
         user = User.objects.get(username=form['username'].data)
         if str(form['patrocinador'].data) == '':
-            pat = Jugador.objects.filter(usuario__username='System')
-            if pat.exists():
-                j = Jugador(usuario=user, patrocinador=pat[0])
-            else:
-                j = Jugador(usuario=user)
+            pat = Jugador.objects.get(usuario__username='System')   
+            j = Jugador(usuario=user, promotor=pat)
         else:
-            user_patrocinador = User.objects.get(
-                username=form['patrocinador'].data)
-            patrocinador = Jugador.objects.get(
-                usuario=user_patrocinador)
-            j = Jugador(usuario=user, patrocinador=patrocinador)
+            pat = Jugador.objects.get(usuario__username=form['patrocinador'].data)
+            j = Jugador(usuario=user, promotor=pat)
 
         # guardo el jugador
         j.save()
@@ -89,7 +83,7 @@ class RegistroUsuario(CreateView):
         # Creo los niveles...
         niveles_creados = Nivel.objects.all()
         for nivel in niveles_creados:
-            jug_niv = JugadorNivel(jugador=j, nivel=nivel, estado='P')
+            jug_niv = JugadorNivel(jugador=j, nivel=nivel, estado='P', patrocinador=pat)
             jug_niv.save()
         nueva_cuenta = Cuenta(jugador=j)
         nueva_cuenta.save()

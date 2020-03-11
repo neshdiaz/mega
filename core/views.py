@@ -80,17 +80,18 @@ def home(request, id_usuario=None, id_lista=None):
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador, nivel_lista):
-    patrocinador = nuevo_jugador.patrocinador
+    jugador_nivel = JugadorNivel.objects.get(jugador=nuevo_jugador, nivel=nivel_lista)
+    patrocinador = jugador_nivel.patrocinador
     log_registrar('log.txt', ' ')
     log_registrar('log.txt', 'Entra NUEVO JUGADOR: ' + str(nuevo_jugador) +
-                  ' Patrocinado por: ' + str(nuevo_jugador.patrocinador))
+                  ' Patrocinado por: ' + str(patrocinador))
 
     # buscar lista y posicion valida del patrocinador
     nueva_ubicacion = {'lista': None,
                        'posicion': -1,
                        'patrocinador': None}
 
-    nueva_ubicacion = buscar_ubicacion(nuevo_jugador.patrocinador, nivel_lista)
+    nueva_ubicacion = buscar_ubicacion(patrocinador, nivel_lista)
 
     if nueva_ubicacion['posicion'] != -1:
         # Creamos el juego para enlazar la lista con el nuevo jugador
@@ -112,10 +113,10 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         # procesos post asignacion directa
         lista_inc_item(nueva_ubicacion['lista'])
 
-        jugador_inc_referidos(nuevo_jugador.patrocinador)
-        jugador_validar_bloqueos(nuevo_jugador.patrocinador)
-        jugador_validar_pcs(nuevo_jugador.patrocinador)
-        jugador_inc_activos_abuelo(nuevo_jugador.patrocinador, nueva_ubicacion['lista'].nivel)
+        jugador_inc_referidos(patrocinador, nueva_ubicacion['lista'].nivel)
+        jugador_validar_bloqueos(patrocinador, nueva_ubicacion['lista'].nivel)
+        jugador_validar_pcs(patrocinador, nueva_ubicacion['lista'].nivel)
+        jugador_inc_activos_abuelo(patrocinador, nueva_ubicacion['lista'].nivel)
         lista_nuevo_cobrador(nueva_ubicacion['lista'])
 
         respuesta = 'Jugador asignado correctamente'
@@ -123,7 +124,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
 
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
-            lista_nueva(nueva_ubicacion['lista'])
+            lista_nueva(nueva_ubicacion['lista'])   
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             # ciclo la lista en la nueva ubicacion
@@ -311,9 +312,10 @@ def lista_buscar_padre(patrocinador, nivel_lista):
                  'patrocinador': None}
     if patrocinador is not None:
         listas_padre_a = Lista.objects\
-                              .filter(juego__jugador_id=patrocinador.id)\
-                              .filter(estado='A', nivel = nivel_lista)\
+                              .filter(juego__jugador=patrocinador)\
+                              .filter(estado='A', nivel=nivel_lista)\
                               .order_by('created')
+        # listas_padre_a = 
         if listas_padre_a.exists():
             for lista in listas_padre_a:
                 log_registrar('log.txt', 'Buscando en la lista: ' + str(lista))
@@ -335,6 +337,7 @@ def lista_nuevo_cobrador(lista):
     nuevo_cobrador = Cobrador(jugador=cobrador)
     nuevo_cobrador.save()
 
+
 def lista_buscar_descendencia(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
                  'posicion': -1,
@@ -345,10 +348,15 @@ def lista_buscar_descendencia(patrocinador, nivel_lista):
                        'patrocinador': None}
 
     if patrocinador is not None:
-        patrocinador = Jugador.objects.get(pk=patrocinador.id)
         log_registrar('log.txt', 'Buscando en descendencia de : ' + str(patrocinador))
-        if patrocinador.patrocinador is not None:
-            abuelo = Jugador.objects.get(pk=patrocinador.patrocinador.id)
+        jugador_nivel_patrocinador = JugadorNivel.objects.get(jugador=patrocinador, nivel=nivel_lista)
+        
+        
+        
+        if jugador_nivel_patrocinador.patrocinador is not None:
+
+            abuelo = jugador_nivel_patrocinador.jugador
+            jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
             while abuelo is not None and nueva_ubicacion['posicion'] == -1:
                 log_registrar('log.txt', 'Buscando en listas del descendiente : ' + str(abuelo))
                 nueva_ubicacion = lista_buscar_padre(abuelo, nivel_lista)
@@ -360,8 +368,9 @@ def lista_buscar_descendencia(patrocinador, nivel_lista):
                     log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+
                                   ' libre: en lista ' + str(nueva_ubicacion['lista']))
                 else:
-                    if abuelo.patrocinador is not None:
-                        patrocinador_abuelo = abuelo.patrocinador
+                    if jugador_nivel_abuelo.patrocinador is not None:
+                        jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
+                        patrocinador_abuelo = jugador_nivel_abuelo.patrocinador
                         abuelo = Jugador.objects.get(pk=patrocinador_abuelo.id)
                     else:
                         abuelo = None
@@ -438,10 +447,13 @@ def lista_ciclar(lista):
 
     log_registrar('log.txt', 'CICLANDO A: ' + str(jugador0) + ' EN LISTA: ' + str(lista))
 
-    if jugador0.patrocinador is None:
+    patrocinador = JugadorNivel.objects.get(jugador=jugador0, nivel=lista.nivel).jugador
+    
+    
+    if patrocinador is None:
         abuelo = None
     else:
-        abuelo = jugador0.patrocinador
+        abuelo = patrocinador
 
     log_registrar('log.txt', 'Buscando ubicacion en posicion del abuelo: ' + str(abuelo))
 
@@ -536,8 +548,7 @@ def lista_nueva(lista):
     nuevo_juego1.refresh_from_db()
 
     log_registrar('log.txt', 'Jugador ' + str(jugador0[0]) +
-                  ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 0')
-    log_registrar('log.txt', 'Jugador ' + str(jugador1[0]) +
+                  ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 0' +
                   ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 1')
     lista_inc_ciclo(nueva_lista_impar)
     lista_validar_bloqueo(nueva_lista_impar)
@@ -564,8 +575,9 @@ def lista_inc_item(lista):
 def lista_guardar_cierre(lista):
     juegos_lista = Juego.objects.select_related('jugador').filter(lista=lista)
     for juego in juegos_lista:
+        jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=lista.nivel)
         juego.posicion_cerrado = juego.posicion
-        juego.color_cerrado = juego.jugador.color
+        juego.color_cerrado = jugador_nivel.color
         juego.save()
         juego.refresh_from_db()
 
@@ -576,37 +588,39 @@ def lista_inc_ciclo(lista):
     lista.refresh_from_db()
 
 
-def jugador_inc_referidos(patrocinador):
-    if patrocinador is not None:
-        patrocinador.n_referidos = F('n_referidos') + 1
-        patrocinador.save()
-        patrocinador.refresh_from_db()
-        if patrocinador.n_referidos == 0:
-            patrocinador.color = 'red'
-        elif patrocinador.n_referidos == 1:
-            patrocinador.color = '#d6d007'
-        elif patrocinador.n_referidos >= 2:
-            patrocinador.color = 'green'
-        patrocinador.save()
-        patrocinador.refresh_from_db()
+def jugador_inc_referidos(patrocinador, nivel_lista):
+    jugador_nivel = JugadorNivel.objects.get(jugador=patrocinador, nivel=nivel_lista)
+    if jugador_nivel is not None:
+        jugador_nivel.n_referidos = F('n_referidos') + 1
+        jugador_nivel.save()
+        jugador_nivel.refresh_from_db()
+        if jugador_nivel.n_referidos == 0:
+           jugador_nivel.color = 'red'
+        elif jugador_nivel.n_referidos == 1:
+            jugador_nivel.color = '#d6d007'
+        elif jugador_nivel.n_referidos >= 2:
+            jugador_nivel.color = 'green'
+        jugador_nivel.save()
+        jugador_nivel.refresh_from_db()
 
 
 def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
-    try:
-        abuelo = patrocinador.patrocinador
-        if patrocinador.n_referidos == 2:
-            abuelo.n_referidos_activados = F('n_referidos_activados') + 1
-            abuelo.save()
-            abuelo.refresh_from_db()
-            if abuelo.n_referidos_activados % 2 == 0 and \
-                abuelo.n_referidos_activados != 0:
-                nuevo_clon = Clon(jugador=abuelo,
-                                  estado='P',
-                                  nivel=nivel_lista)
-                nuevo_clon.save()
-                nuevo_clon.refresh_from_db()
-    except AttributeError:
-        print('Sin patrocinador, Posible creacion de usuario System')
+    jugador_nivel_patrocinador = JugadorNivel.objects.get(jugador=patrocinador, nivel=nivel_lista)
+    abuelo = jugador_nivel_patrocinador.patrocinador
+    jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
+    
+    if jugador_nivel_patrocinador.n_referidos == 2:
+        jugador_nivel_abuelo.n_referidos_activados = F('n_referidos_activados') + 1
+        jugador_nivel_abuelo.save()
+        jugador_nivel_abuelo.refresh_from_db()
+        if jugador_nivel_abuelo.n_referidos_activados % 2 == 0 and \
+            jugador_nivel_abuelo.n_referidos_activados != 0:
+            nuevo_clon = Clon(jugador=abuelo,
+                              estado='P',
+                              nivel=nivel_lista)
+            nuevo_clon.save()
+            nuevo_clon.refresh_from_db()
+
 
 
 
@@ -626,86 +640,105 @@ def lista_desbloquear(lista):
 def lista_validar_bloqueo(lista):
     juegos = Juego.objects.select_related('lista', 'jugador')\
                           .filter(lista=lista)
-    if juegos[0].jugador.color == 'green' or\
-        juegos[1].jugador.color == 'green':
+    
+    color0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel).color
+    color1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel).color
+    
+    if color0 == 'green' or\
+        color1 == 'green':
         lista_desbloquear(lista)
 
 
 # Validamos todas las listas del patrocinador bloqueadas para activarlas
-def jugador_validar_bloqueos(patrocinador):
+def jugador_validar_bloqueos(patrocinador, nivel_lista):
     if patrocinador is not None:
         listas_patrocinador = Lista.objects \
                                    .filter(jugador=patrocinador)\
-                                   .filter(estado='B')\
+                                   .filter(estado='B', nivel=nivel_lista)\
                                    .exclude(estado='C')
 
         for lista in listas_patrocinador:
             juegos = Juego.objects.select_related('jugador', 'lista') \
                                   .filter(lista=lista)
-            if juegos[0].jugador.color == 'green' or \
-                    juegos[1].jugador.color == 'green':
+            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
+            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
+
+            if jugador_nivel_0.color == 'green' or \
+                    jugador_nivel_1.color == 'green':
                 lista_desbloquear(lista)
 
 
 # Buscamos todas las listas del patrocinador para generar el premio castigo
-def jugador_validar_pcs(patrocinador):
+def jugador_validar_pcs(patrocinador, nivel_lista):
     if patrocinador is not None:
         listas_patrocinador = Lista.objects \
                                    .filter(jugador=patrocinador)\
                                    .exclude(estado='C')\
-                                   .filter(pc=False)
+                                   .filter(pc=False, nivel=nivel_lista)
 
         for lista in listas_patrocinador:
             juegos = Juego.objects.select_related('jugador', 'lista')\
                                   .filter(lista=lista)
             # validamos si hay 2 o más jugadores en el juego
             # de lo contrario estaríamos arrancando el juego
-            if juegos.count() >= 2 and juegos[0].jugador.color != 'green':
+            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
+            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
+            
+            if jugador_nivel_0.color != 'green':
                 # recorremos la lista para buscar algun verde que suba de posicion
                 # en caso de que la cabeza no este en verde
-                if juegos[1].jugador.color == 'green':
-                    obj_asc = Juego.objects.get(pk=juegos[1].id)
-                    obj_desc = Juego.objects.get(pk=juegos[0].id)
-                    obj_asc.posicion = 0
-                    obj_asc.save()
-                    obj_asc.refresh_from_db()
-                    obj_desc.posicion = 1
-                    obj_desc.save()
-                    obj_desc.refresh_from_db()
+                if jugador_nivel_1 == 'green':
+                    jugador_nivel_1.posicion = 0
+                    jugador_nivel_1.save()
+                    jugador_nivel_1.refresh_from_db()
+
+                    jugador_nivel_0.posicion = 1
+                    jugador_nivel_0.save()
+                    jugador_nivel_0.refresh_from_db()
+
                     lista.pc = True
                     lista.save()
                     lista.refresh_from_db()
                     log_registrar('log.txt', 'jugador ' +
-                                  str(juegos[1].jugador.usuario) +
-                                  ' en posicion 2 se activa en verde ')
+                                    str(juegos[1].jugador.usuario) +
+                                    ' en posicion 2 se activa en verde ')
+                
 
 #  Validamos lista para generar el premio castigo
 def lista_validar_pc(lista):
 
-    juegos = Juego.objects.select_related('lista', 'jugador')\
-                          .filter(lista=lista)\
+    juegos = Juego.objects.filter(lista=lista)\
                           .exclude(lista__estado='C')\
                           .filter(lista__pc=False)
 
-    if juegos.count() >= 2 and juegos[0].jugador.color != 'green':
+    jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
+    jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
+    
+    if jugador_nivel_0.color != 'green':
         # recorremos la lista para buscar algun verde que suba de posicion
         # en caso de que la cabeza no este en verde
-        if juegos[1].jugador.color == 'green':
-            obj_asc = Juego.objects.get(pk=juegos[1].id)
-            obj_desc = Juego.objects.get(pk=juegos[0].id)
+        if jugador_nivel_1.color == 'green':
+            jugador_nivel_1.posicion = 0
+            jugador_nivel_1.save()
+            jugador_nivel_1.refresh_from_db()
 
-            obj_asc.posicion = 0
-            obj_asc.save()
-            obj_asc.refresh_from_db()
-            obj_desc.posicion = 1
-            obj_desc.save()
-            obj_desc.refresh_from_db()
+            jugador_nivel_0.posicion = 1
+            jugador_nivel_0.save()
+            jugador_nivel_0.refresh_from_db()
 
             lista.pc = True
             lista.save()
             lista.refresh_from_db()
             log_registrar('log.txt', 'Premio castigo en lista ' +
                           str(lista))
+
+            lista.pc = True
+            lista.save()
+            lista.refresh_from_db()
+            log_registrar('log.txt', 'Premio castigo en lista ' +
+                          str(lista))
+
+        
 
 
 # Fin del bloque de funciones validaciones pc y bloqueo
@@ -714,7 +747,7 @@ def jugador_inc_ciclo(jugador):
     jugador.ciclo = F('ciclo') + 1
     jugador.save()
     jugador.refresh_from_db()
-
+    
 
 def jugador_inc_cierre_lista(jugador):
     jugador.cierre_lista = F('cierre_lista') + 1
@@ -794,19 +827,19 @@ def lista_content(request, id_lista=None, n_usuario=None):
                 if juego.jugador.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
                         juego.jugador.patrocinador.usuario.username
-
-
+        # Lista abierta
         else:
             for juego in juegos_en_lista:
+                jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=mi_lista.nivel)
                 dict_list[juego.posicion]['user'] = \
                     juego.jugador.usuario.username
                 dict_list[juego.posicion]['color'] = \
-                    juego.jugador.color
+                    jugador_nivel.color
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
-                if juego.jugador.patrocinador is not None:
+                if jugador_nivel.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
-                        juego.jugador.patrocinador.usuario.username
+                        jugador_nivel.patrocinador.usuario.username
 
 
         # posicion 5 para el encabezado de la lista
@@ -837,31 +870,34 @@ def lista_content(request, id_lista=None, n_usuario=None):
         if validado:
             if estado_lista == 'CERRADA':
                 for juego in juegos_en_lista:
+                    jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=mi_lista.nivel)
                     dict_list[juego.posicion_cerrado]['user'] = \
                         juego.jugador.usuario.username
                     dict_list[juego.posicion_cerrado]['color'] = \
                         juego.color_cerrado
                     dict_list[juego.posicion]['cadena_ciclaje'] = \
                         juego.cadena_ciclaje
-                    if juego.jugador.patrocinador is not None:
+                    if jugador_nivel.patrocinador is not None:
                         dict_list[juego.posicion]['patrocinador'] = \
-                        juego.jugador.patrocinador.usuario.username
+                        jugador_nivel.patrocinador.usuario.username
             else:
-                for juego in juegos_en_lista:
-                    dict_list[juego.posicion]['user'] = \
-                        juego.jugador.usuario.username
-                    dict_list[juego.posicion]['color'] = \
-                        juego.jugador.color
-                    dict_list[juego.posicion]['cadena_ciclaje'] = \
-                        juego.cadena_ciclaje
-                    if juego.jugador.patrocinador is not None:
-                        dict_list[juego.posicion]['patrocinador'] = \
-                        juego.jugador.patrocinador.usuario.username
+               for juego in juegos_en_lista:
+                jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=mi_lista.nivel)
+                dict_list[juego.posicion]['user'] = \
+                    juego.jugador.usuario.username
+                dict_list[juego.posicion]['color'] = \
+                    jugador_nivel.color
+                dict_list[juego.posicion]['cadena_ciclaje'] = \
+                    juego.cadena_ciclaje
+                if jugador_nivel.patrocinador is not None:
+                    dict_list[juego.posicion]['patrocinador'] = \
+                        jugador_nivel.patrocinador.usuario.username
 
-            # posicion 5 para el encabezado de la lista
-            dict_list[5]['lista_id'] = mi_lista.id
-            dict_list[5]['estado'] = estado_lista
-            dict_list[5]['nivel'] = str(nivel)
+
+        # posicion 5 para el encabezado de la lista
+        dict_list[5]['lista_id'] = mi_lista.id
+        dict_list[5]['estado'] = estado_lista
+        dict_list[5]['nivel'] = str(nivel)
 
     json_response = json.dumps(dict_list)
     return HttpResponse(json_response)
@@ -869,6 +905,9 @@ def lista_content(request, id_lista=None, n_usuario=None):
 
 @requires_csrf_token
 def listas(request, usr=None):
+    filtro_estado = request.POST.get('filtro_estado', 'A')
+    filtro_nivel = request.POST.get('filtro_nivel', 1)
+
     if usr is None:
         usuario = User.objects.get(username=request.user.username)
     else:
@@ -927,14 +966,21 @@ def referidos(request, n_usuario=None):
     else:
         usr = User.objects.get(username=n_usuario)
 
-    lista_referidos = Jugador.objects.filter(patrocinador__usuario__username=usr.username)\
-                                     .distinct()
+    
+    lista_referidos = JugadorNivel.objects.filter(patrocinador__usuario__username=usr.username)\
+                                    .filter(estado='A')\
+                                    .distinct()
+
+    
+
     lst_referidos = []
     for referido in lista_referidos:
-        ele = {"usuario": referido.usuario.username,
+
+        ele = {'usuario': referido.jugador.usuario.username,
                'color': referido.color,
                'n_referidos': referido.n_referidos,
-               'n_referidos_activados': referido.n_referidos_activados}
+               'n_referidos_activados': referido.n_referidos_activados,
+               'nivel':referido.nivel.id}
 
         lst_referidos.append(ele)
 
@@ -991,13 +1037,14 @@ def activar_clon(request, clon_id=None, nivel_lista=None):
             asignar_clon(clon, nivel_lista)
     return redirect(reverse('core:home'))
 
-
+@transaction.atomic
 @requires_csrf_token
 def activar_nivel(request, nivel_id):
     jugador = Jugador.objects.get(usuario__username=request.user.username)
     nivel_a_activar = JugadorNivel.objects.get(pk=nivel_id)
     nivel_a_activar.estado = 'A'
     nivel_a_activar.save()
+    nivel_a_activar.refresh_from_db()
     asignar_jugador(jugador, nivel_a_activar.nivel)
     return redirect(reverse('core:mis_niveles'))
 

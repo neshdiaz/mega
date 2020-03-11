@@ -7,7 +7,70 @@
       
       <div class="col-md-4"> <!-- Columna de listas -->
         <div class="card w-100 mt-3">
-          <h6 class="card-header"><i class="fas fa-list-alt"></i> Mis Listas </h6>
+          <h6 class="card-header"><i class="fas fa-list-alt"></i> Mis Listas 
+            <div class="container">
+              <div class = "row">
+
+                <div class="col-3 mt-2">
+                  <h6>Filtrar por:</h6>
+
+                </div>
+
+                <div class="col-4">
+                  <div class="dropdown">
+                    <form>
+                      <div class="form-row align-items-center">
+                        <div class="col-auto my-1">
+                          <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+                          <select class="custom-select mr-sm-2" id="inlineFormCustomSelect"  onclick="cambiarEstado()">
+                            <option selected>Estado</option>
+                            <option value="A">Abiertas</option>
+                            <option value="C">Cerradas</option>
+                            <option value="B">Bloqueadas</option>
+                          </select>
+                        </div>
+
+                      </div>
+                    </form>
+                    
+                    
+                  </div>
+                </div>
+                
+                <div class="col-5">
+                  <form>
+                    <div class="form-row align-items-center">
+                      <div class="col-auto my-1">
+                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" onclick="cambiarNivel()">
+                          <option selected>Nivel</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                          <option value="13">13</option>
+                          <option value="14">14</option>
+                          <option value="15">15</option>
+                        </select>
+                      </div>
+                    </div>
+                  </form>
+                </div>  
+
+              </div>  
+            </div>  
+
+            
+          
+          </h6>
           <div class="card-body scroll-list" style="height: 18rem;">
             <p class="card-text">
               <div id ="listasContainer"></div>
