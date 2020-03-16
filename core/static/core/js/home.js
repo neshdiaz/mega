@@ -4,16 +4,23 @@ primera_carga = false;
 url_listas = "";
 url_lista_content = "";
 mis_listas = [];
-filtro_estado = "A"
-filtro_nivel = 1
+var Filtro_estado = "Todos"
+var Filtro_nivel = "Todos"
+
+var Filtro_estado_ref = "Todos"
+var Filtro_nivel_ref = "Todos"
 
 $(document).ready(function(){
-  $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
+    Filtro_estado = "Todos"
+    Filtro_nivel = "Todos"
+    Filtro_estado_ref = "Todos"
+    Filtro_nivel_ref = "Todos"
 });
 
 function init(){
     compartirReferido(); 
-    get_listas(url_listas);
+    get_listas();
     //get_lista_content(url_lista_content);
     relojInit(relojActual);
     get_lista_clones(url_clones);
@@ -22,15 +29,44 @@ function init(){
     websocket();
 }
 
-function cambiarNivel(nivel){
-    Filtro_nivel = nivel;
-    console.log($("#inlineFormCustomSelect2").val())
+function borrar_filtros(){
+    $("#inlineFormCustomSelect").val('Todos');
+    $("#inlineFormCustomSelect2").val('Todos');
+    Filtro_estado = "Todos"
+    Filtro_nivel = "Todos"
+    get_listas();
 }
 
-function cambiarEstado(estado){
-    Filtro_estado = estado;
-    console.log($("#inlineFormCustomSelect").val())
+function borrar_filtros_ref(){
+    $("#inlineFormCustomSelectRef").val('Todos');
+    $("#inlineFormCustomSelect2Ref").val('Todos');
+    Filtro_estado_ref = "Todos"
+    Filtro_nivel_ref = "Todos"
+    get_lista_referidos();
 }
+
+function cambiarEstado(){
+   Filtro_estado = $("#inlineFormCustomSelect").val();
+   get_listas(); 
+}
+function cambiarNivel(){
+    Filtro_nivel = $("#inlineFormCustomSelect2").val();
+    get_listas();
+}
+
+function cambiarEstadoRef(){
+    Filtro_estado_ref = $("#inlineFormCustomSelectRef").val();
+    console.log("nivelRef" + Filtro_estado_ref)
+    get_lista_referidos(); 
+}
+
+function cambiarNivelRef(){
+    Filtro_nivel_ref = $("#inlineFormCustomSelect2Ref").val();
+    console.log("nivelRef" + Filtro_nivel_ref)
+    get_lista_referidos();
+        
+}
+
 
 function compartirReferido(){
     btn = document.getElementById("btnWhatsapp");  
@@ -125,14 +161,14 @@ function getCookie(name) {
 }
 
 // ajax para cargar las listas del usuario
-function get_listas(f_){
+function get_listas(){
     var csrftoken = getCookie('csrftoken');
     $.ajax({
         url: url_listas,
         method: "post",
         data:{
-            nivel: 1,
-            estado: "A"
+            nivel: Filtro_nivel,
+            estado: Filtro_estado
         },
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
@@ -182,6 +218,10 @@ function get_listas_referido(url_listas_referido, id, usuario){
     $.ajax({
         url: ur,
         method: "post",
+        data:{
+            nivel: Filtro_nivel,
+            estado: Filtro_estado
+        },
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
             function csrfSafeMethod(method) {
@@ -320,6 +360,10 @@ function get_lista_referidos(url_lista_referidos){
     $.ajax({
         url: url_lista_referidos,
         method: "post",
+        data:{
+            nivel: Filtro_nivel_ref,
+            estado: Filtro_estado_ref
+        },
         beforeSend: function (xhr, settings) {
             var csrftoken = getCookie('csrftoken');
             function csrfSafeMethod(method) {
@@ -343,6 +387,7 @@ function displayListaReferidos(referidos_json){
         $("#referidosContainer").html("");
         grupo = $("<div class ='btn-group role='group'>")
         vertical = $("<div class = 'btn-group-vertical'>")
+        /*
         referidos_json.forEach(function(item, index){
                        
             boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + 
@@ -350,8 +395,9 @@ function displayListaReferidos(referidos_json){
             boton.preventDefault;
             vertical.append(boton)
         })
+
         grupo.append(vertical);
-        $("#referidosContainer").append(grupo);
+        $("#referidosContainer").append(grupo);*/
 
     }
 }
