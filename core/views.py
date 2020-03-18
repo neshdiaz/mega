@@ -606,19 +606,20 @@ def jugador_inc_referidos(patrocinador, nivel_lista):
 def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
     jugador_nivel_patrocinador = JugadorNivel.objects.get(jugador=patrocinador, nivel=nivel_lista)
     abuelo = jugador_nivel_patrocinador.patrocinador
-    jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
-    
-    if jugador_nivel_patrocinador.n_referidos == 2:
-        jugador_nivel_abuelo.n_referidos_activados = F('n_referidos_activados') + 1
-        jugador_nivel_abuelo.save()
-        jugador_nivel_abuelo.refresh_from_db()
-        if jugador_nivel_abuelo.n_referidos_activados % 2 == 0 and \
-            jugador_nivel_abuelo.n_referidos_activados != 0:
-            nuevo_clon = Clon(jugador=abuelo,
-                              estado='P',
-                              nivel=nivel_lista)
-            nuevo_clon.save()
-            nuevo_clon.refresh_from_db()
+    if abuelo  is not None:
+        jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
+        
+        if jugador_nivel_patrocinador.n_referidos == 2:
+            jugador_nivel_abuelo.n_referidos_activados = F('n_referidos_activados') + 1
+            jugador_nivel_abuelo.save()
+            jugador_nivel_abuelo.refresh_from_db()
+            if jugador_nivel_abuelo.n_referidos_activados % 2 == 0 and \
+                jugador_nivel_abuelo.n_referidos_activados != 0:
+                nuevo_clon = Clon(jugador=abuelo,
+                                estado='P',
+                                nivel=nivel_lista)
+                nuevo_clon.save()
+                nuevo_clon.refresh_from_db()
 
 
 
