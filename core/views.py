@@ -8,11 +8,10 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import Lista, Jugador, Juego, Cobrador, Clon, User, JugadorNivel, Nivel, Cuenta, Configuracion, Movimiento
-
 
 @requires_csrf_token
 def index(request):
@@ -853,7 +852,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
             lst = Lista.objects.get(pk=id_lista)
             
             # patrocinador logueado
-            pat = Jugador.objects.get(usuario__username=request.user.username)
+            pat = JugadorNivel.objects.get(jugador__usuario__username=request.user.username, nivel=lst.nivel).jugador
             # si el usuario logeado esta en la lista solicitada validamos
             lst_id = lst.id
             if Lista.objects.filter(jugador=pat, pk=lst_id).exists():
@@ -861,9 +860,10 @@ def lista_content(request, id_lista=None, n_usuario=None):
         else:
             # solicita datos de un referido del usuario logueado
             lst = Lista.objects.get(pk=id_lista)
-            lst_id = lst.id
             jug = Jugador.objects.get(usuario__username=n_usuario)
-            pat = jug.patrocinador
+            niv = lst.nivel
+            jugador_nivel = JugadorNivel.objects.get(jugador=jug, nivel=niv)
+            pat = jugador_nivel.patrocinador
             if pat.usuario.username == request.user.username:
                 validado = True
       
@@ -955,22 +955,28 @@ def listas(request, usr=None):
     return HttpResponse(json_response)
 
 @requires_csrf_token
-def listasReferido(request, usr=None):
+def listasReferido(request):
     filtro_estado = request.POST.get('estado')
-    
-    
-    if usr is None:
-        usuario = User.objects.get(username=request.user.username)
-    else:
-        usuario = User.objects.get(username=usr)
+    filtro_nivel = request.POST.get('nivel')
+    usr = request.POST.get('referido') 
+    usuario = User.objects.get(username=usr)
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all().distinct()
         lst_listas = []
-        for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display())}
-            lst_listas.append(ele)
+        
+        # aplicamos los filtros
+        if filtro_estado != 'Todos':
+            lista_listas = lista_listas.filter(estado=filtro_estado)
+        
+        if filtro_nivel != 'Todos':
+            lista_listas = lista_listas.filter(nivel=filtro_nivel)
 
+        
+        lst_listas = []
+        for lista in lista_listas:
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
+            lst_listas.append(ele)
     else:
         lista_listas = Lista.objects\
             .filter(jugador__usuario__username=usuario.username)\
@@ -979,6 +985,9 @@ def listasReferido(request, usr=None):
         # aplicamos los filtros
         if filtro_estado != 'Todos':
             lista_listas = lista_listas.filter(estado=filtro_estado)
+
+        if filtro_nivel != 'Todos':
+            lista_listas = lista_listas.filter(nivel=filtro_nivel)
         
         lst_listas = []
         for lista in lista_listas:
@@ -989,9 +998,9 @@ def listasReferido(request, usr=None):
     return HttpResponse(json_response)
 
 @requires_csrf_token
-def referidos(request, n_usuario=None):
+def listaReferidos(request, n_usuario=None):
     filtro_nivel = request.POST.get('nivel')
-    print("Filtro Nivel" + filtro_nivel)
+    filtro_estado = request.POST.get('estado')
     
     usr = None
     if n_usuario is None:
@@ -1005,6 +1014,9 @@ def referidos(request, n_usuario=None):
                                     .distinct()
     if filtro_nivel != 'Todos':
         lista_referidos = lista_referidos.filter(nivel=int(filtro_nivel))
+
+    if filtro_estado != 'Todos':
+        lista_referidos = lista_referidos.filter(estado=filtro_estado)
     
     lst_referidos = []
     for referido in lista_referidos:
@@ -1017,9 +1029,9 @@ def referidos(request, n_usuario=None):
 
         lst_referidos.append(ele)
 
-    json_response = json.dumps(lst_referidos)
-    print(json_response)
-    return HttpResponse(json.dumps({"primero":"primero","segundo":"segundo"}))
+    response = json.dumps(lst_referidos)
+    
+    return JsonResponse(response, safe=False)
 
 
 @requires_csrf_token

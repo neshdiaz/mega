@@ -4,8 +4,10 @@ primera_carga = false;
 url_listas = "";
 url_lista_content = "";
 mis_listas = [];
+var referido_activo = "";
 var Filtro_estado = "Todos"
 var Filtro_nivel = "Todos"
+
 
 var Filtro_estado_ref = "Todos"
 var Filtro_nivel_ref = "Todos"
@@ -24,7 +26,7 @@ function init(){
     //get_lista_content(url_lista_content);
     relojInit(relojActual);
     get_lista_clones(url_clones);
-    get_lista_referidos(url_referidos);   
+    get_lista_referidos();   
     get_lista_cobrando(url_lista_cobrando);   
     websocket();
 }
@@ -56,14 +58,18 @@ function cambiarNivel(){
 
 function cambiarEstadoRef(){
     Filtro_estado_ref = $("#inlineFormCustomSelectRef").val();
-    console.log("nivelRef" + Filtro_estado_ref)
-    get_lista_referidos(); 
+    get_lista_referidos(referido_activo); 
+    $('#listasReferidoContainer').html("");
+    $('#encabezado_lista').html("");
 }
 
 function cambiarNivelRef(){
     Filtro_nivel_ref = $("#inlineFormCustomSelect2Ref").val();
-    console.log("nivelRef" + Filtro_nivel_ref)
-    get_lista_referidos();
+    get_lista_referidos(referido_activo);
+    $('#listasReferidoContainer').html("");
+    $('#encabezado_lista').html("");
+
+
         
 }
 
@@ -115,7 +121,7 @@ function relojRefresh(){
     }
     
     //document.getElementById("reloj").innerHTML="<b> "+horas+":"+minutos+":"+segundos+"</b>";
-    setTimeout("relojRefresh()",1000);
+    //setTimeout("relojRefresh()",1000);
 }
 
 // Ajax para notificaciones
@@ -162,30 +168,32 @@ function getCookie(name) {
 
 // ajax para cargar las listas del usuario
 function get_listas(){
-    var csrftoken = getCookie('csrftoken');
-    $.ajax({
-        url: url_listas,
-        method: "post",
-        data:{
-            nivel: Filtro_nivel,
-            estado: Filtro_estado
-        },
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            listas_json = JSON.parse(respuesta);
-            //actualizar el contenido del div        
-            displayListas(listas_json);
-        }        
-    });
+    if($("#listasContainer").length > 0){
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: url_listas,
+            method: "post",
+            data:{
+                nivel: Filtro_nivel,
+                estado: Filtro_estado
+            },
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                listas_json = JSON.parse(respuesta);
+                //actualizar el contenido del div        
+                displayListas(listas_json);
+            }        
+        });
+    }    
 }
 
 function displayListas(listas_json){
@@ -206,38 +214,37 @@ function displayListas(listas_json){
 }
 
 // ajax para cargar las listas del referido
-function get_listas_referido(url_listas_referido, id, usuario){
-    ur = url_listas_referido;
-    if (id !=undefined){    
-        ur += "/" + id;
-    }
-    if (usuario != undefined){
-        ur += "/" + usuario;
-    }
-    var csrftoken = getCookie('csrftoken');
-    $.ajax({
-        url: ur,
-        method: "post",
-        data:{
-            nivel: Filtro_nivel,
-            estado: Filtro_estado
-        },
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            listas_json = JSON.parse(respuesta);
-            //actualizar el contenido del div        
-            displayListasReferido(listas_json);
-        }        
-    });
+function get_listas_referido(usr){
+    referido_activo = usr
+    if($("#listasReferidoContainer").length > 0){
+        ur = url_listas_referido;
+
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: ur,
+            method: "post",
+            data:{
+                nivel: Filtro_nivel_ref,
+                estado: Filtro_estado_ref,
+                referido: usr
+            },
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                listas_json = JSON.parse(respuesta);
+                //actualizar el contenido del div        
+                displayListasReferido(listas_json);
+            }        
+        });
+    }    
 }
 
 function displayListasReferido(listas_json){
@@ -256,28 +263,30 @@ function displayListasReferido(listas_json){
 }
 
 // ajax para cargar los datos de la lista
-function get_lista_content(url_lista_content, id, usr){
-    ur = url_lista_content + id + "/"+ usr + "/";
-    $.ajax({
-        url: ur,
-        method: "post",
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            lista_json = JSON.parse(respuesta);
-            lista_desplegada = id;
-            // actualizar el contenido del div
-            displayListaContent(lista_json);
-        }        
-    });
+function get_lista_content(url_lista_content, id, usr){ 
+    if($("#lista_content").length > 0){
+        ur = url_lista_content + id + "/"+ usr + "/";
+        $.ajax({
+            url: ur,
+            method: "post",
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                lista_json = JSON.parse(respuesta);
+                lista_desplegada = id;
+                // actualizar el contenido del div
+                displayListaContent(lista_json);
+            }        
+        });
+    }    
 }
 
 function displayListaContent(lista_json){
@@ -320,25 +329,27 @@ function displayListaContent(lista_json){
 }
 
 function get_lista_clones(url_lista_clones){
-    $.ajax({
-        url: url_lista_clones,
-        method: "post",
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            lista_json = JSON.parse(respuesta);
-            // actualizar el contenido del div
-            displayListaClones(lista_json);
-        }        
-    });
+    if($("#clonesContainer").length > 0){
+        $.ajax({
+            url: url_lista_clones,
+            method: "post",
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                lista_json = JSON.parse(respuesta);
+                // actualizar el contenido del div
+                displayListaClones(lista_json);
+            }        
+        });
+    }    
 }
 
 function displayListaClones(clones_json){
@@ -356,30 +367,32 @@ function displayListaClones(clones_json){
     }
 }
 
-function get_lista_referidos(url_lista_referidos){
-    $.ajax({
-        url: url_lista_referidos,
-        method: "post",
-        data:{
-            nivel: Filtro_nivel_ref,
-            estado: Filtro_estado_ref
-        },
-        beforeSend: function (xhr, settings) {
-            var csrftoken = getCookie('csrftoken');
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },   
-        success: function(respuesta){
-            lista_json = JSON.parse(respuesta);
-            // actualizar el contenido del div
-            displayListaReferidos(lista_json);
-        }        
-    });
+function get_lista_referidos(){
+    if($("#referidosContainer").length > 0 ){
+        $.ajax({
+            url: url_lista_referidos,
+            method: "post",
+            data:{
+                nivel: Filtro_nivel_ref,
+                estado: Filtro_estado_ref
+            },
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                lista_json = JSON.parse(respuesta);
+                // actualizar el contenido del div
+                displayListaReferidos(lista_json);
+            }   
+        });
+    }    
 }
 
 function displayListaReferidos(referidos_json){
@@ -387,17 +400,16 @@ function displayListaReferidos(referidos_json){
         $("#referidosContainer").html("");
         grupo = $("<div class ='btn-group role='group'>")
         vertical = $("<div class = 'btn-group-vertical'>")
-        /*
+       
         referidos_json.forEach(function(item, index){
                        
-            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + 
-            url_listas + item.usuario + "');>" + item.usuario + " en nivel " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
+            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + item.usuario +"');>" + item.usuario + " en nivel " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
             boton.preventDefault;
             vertical.append(boton)
         })
 
         grupo.append(vertical);
-        $("#referidosContainer").append(grupo);*/
+        $("#referidosContainer").append(grupo);
 
     }
 }

@@ -2,72 +2,71 @@
 {% load static %}
 
 {% block contenido %}
+<div class="container-fluid">
+  <div class = "row">
+
+    <div class="col-6 col-lg-3 col-sm-3 mt-2">
+      <h6>Filtrar listas por Estado y Nivel:</h6>
+
+    </div>
+
+    <div class="col-4 col-lg-4">
+      <div class="dropdown">
+        <form>
+          <div class="form-row align-items-center">
+            <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" onchange="cambiarEstado()">
+              <option value="Todos" selected>Todos</option>
+              <option value="A">Abiertas</option>
+              <option value="C">Cerradas</option>
+              <option value="B">Bloqueadas</option>
+            </select>
+          </div>
+        </form>
+        
+        
+      </div>
+    </div>
+    
+    <div class="col-4 col-lg-3">
+      <form>
+        <div class="form-row align-items-center">
+          <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect2">Preference</label>
+          <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" onchange="cambiarNivel()">
+            <option value = "Todos" selected>Todos</option>
+            <option value="1">Nivel 1</option>
+            <option value="2">Nivel 2</option>
+            <option value="3">Nivel 3</option>
+            <option value="4">Nivel 4</option>
+            <option value="5">Nivel 5</option>
+            <option value="6">Nivel 6</option>
+            <option value="7">Nivel 7</option>
+            <option value="8">Nivel 8</option>
+            <option value="9">Nivel 9</option>
+            <option value="10">Nivel 10</option>
+            <option value="11">Nivel 11</option>
+            <option value="12">Nivel 12</option>
+            <option value="13">Nivel 13</option>
+            <option value="14">Nivel 14</option>
+            <option value="15">Nivel 15</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="col-2 col-lg-2  ">
+      <button onclick="borrar_filtros()" class="btn btn-sm btn-success">Limpiar</button>
+    </div>
+  </div>  
+</div>  
+
+
+
   <div class="container-fluid ">
     <div class="row">
       
       <div class="col-md-4"> <!-- Columna de listas -->
         <div class="card w-100 mt-3">
-          <h6 class="card-header"><i class="fas fa-list-alt"></i> Mis Listas 
-            <div class="container-fluid">
-              <div class = "row">
-
-                <div class="col-3 col-lg-3 col-sm-3 mt-2">
-                  <h6>Filtro</h6>
-
-                </div>
-
-                <div class="col-4 col-lg-4">
-                  <div class="dropdown">
-                    <form>
-                      <div class="form-row align-items-center">
-                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect"  onclick="cambiarEstado()">
-                          <option value="Todos" selected>Todos</option>
-                          <option value="A">Abiertas</option>
-                          <option value="C">Cerradas</option>
-                          <option value="B">Bloqueadas</option>
-                        </select>
-                      </div>
-                    </form>
-                    
-                    
-                  </div>
-                </div>
-                
-                <div class="col-3 col-lg-3">
-                  <form>
-                    <div class="form-row align-items-center">
-                      <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" onclick="cambiarNivel()">
-                        <option value = "Todos" selected>Todos</option>
-                        <option value="1">Nivel 1</option>
-                        <option value="2">Nivel 2</option>
-                        <option value="3">Nivel 3</option>
-                        <option value="4">Nivel 4</option>
-                        <option value="5">Nivel 5</option>
-                        <option value="6">Nivel 6</option>
-                        <option value="7">Nivel 7</option>
-                        <option value="8">Nivel 8</option>
-                        <option value="9">Nivel 9</option>
-                        <option value="10">Nivel 10</option>
-                        <option value="11">Nivel 11</option>
-                        <option value="12">Nivel 12</option>
-                        <option value="13">Nivel 13</option>
-                        <option value="14">Nivel 14</option>
-                        <option value="15">Nivel 15</option>
-                      </select>
-                    </div>
-                  </form>
-                </div>
-                <div class="col-2 col-lg-2  ">
-                  <button onclick="borrar_filtros()" class="btn btn-sm btn-success">Quitar</button>
-                </div>
-              </div>  
-            </div>  
-
-            
-          
-          </h6>
+          <h6 class="card-header"><i class="fas fa-list-alt"></i> Mis Listas </h6>
           <div class="card-body scroll-list" style="height: 18rem;">
             <p class="card-text">
               <div id ="listasContainer"></div>
