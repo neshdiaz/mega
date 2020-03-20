@@ -623,10 +623,6 @@ def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
                 nuevo_clon.save()
                 nuevo_clon.refresh_from_db()
 
-
-
-
-
 # Inicio del bloque de funciones validaciones pc y bloqueo
 
 def lista_desbloquear(lista):
@@ -688,12 +684,12 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
             juego_posicion_1 = juegos.filter(posicion=1)
             
             # Traigo los datos de jugadorNivel para verificar el color
-            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_posicion_0.jugador, nivel=lista.nivel)
-            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_posicion_1.jugador, nivel=lista.nivel)
+            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_posicion_0[0].jugador, nivel=lista.nivel)
+            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_posicion_1[0].jugador, nivel=lista.nivel)
             
             # traigo los objetos que se van a modificar
-            objPosicion0 = Juego.objects.get(pk=juego_posicion_0.id)
-            objPosicion1 = Juego.objects.get(pk=juego_posicion_1.id)
+            objPosicion0 = Juego.objects.get(pk=juego_posicion_0[0].id)
+            objPosicion1 = Juego.objects.get(pk=juego_posicion_1[0].id)
 
             if jugador_nivel_0.color != 'green':
                 # recorremos la lista para buscar algun verde que suba de posicion
