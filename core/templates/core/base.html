@@ -50,7 +50,8 @@
         </div> <!-- Fin Submenu-->
       </div>
     </nav> <!-- Fin Menu-->
-    <div class="messages">  </div>
+  
+  </div>
     <h4> Bienvenido {{ request.user }}</h4>
     <div class="container-fluid"> <!--Enlace de referido -->
       <div class="row">
@@ -111,7 +112,7 @@
         url_cargar_saldo = "{% url 'core:cargar_saldo' %}";
         url_base = "{{base_url}}"
         
-        init('{{hora_local}}');
+        init();
       }  
     </script>
   </body>

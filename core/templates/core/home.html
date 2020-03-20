@@ -1,8 +1,12 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block contenido %}
-<div class="container-fluid card card-body ">
+{% block contenido %}  
+  {% if not tiene_niveles_activos %}
+    <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de niveles para empezar...</div>
+  {% endif %}  
+
+  <div class="container-fluid card card-body ">
   <div class = "row">
 
     <div class="col-3 col-lg-2 col-sm-2 mt-2 align-self-center">

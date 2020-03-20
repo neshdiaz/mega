@@ -202,9 +202,7 @@ function displayListas(listas_json){
         htmlListas = "";
         htmlListas += "<div class ='btn-group role='group'>";
         htmlListas += "  <div class = 'btn-group-vertical'>";
-        $( ".messages" ).html("<div class='alert alert-primary' role='alert'>No estas jugando en ningun nivel, entra en el menu de niveles para empezar...</div>")
         listas_json.forEach(function(item, index){
-            $( ".messages" ).html("");
             url = url_lista_content;
             htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small>" + item.nivel +  "</button>";
         })

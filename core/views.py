@@ -65,10 +65,15 @@ def mis_finanzas(request):
 @requires_csrf_token
 def home(request, id_usuario=None, id_lista=None):
     hora_local = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    listas_activas = JugadorNivel.objects.filter(jugador__usuario__username=request.user.username, \
+                                                       estado='A')
+    tiene_niveles_activos = listas_activas.exists()
+
 
     return render(request, 'core/home.html', {
         'hora_local': hora_local,
-        'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+        'base_url': request.build_absolute_uri('/')[:-1].strip("/"),
+        'tiene_niveles_activos': tiene_niveles_activos})
 
 
 # @receiver(post_save, sender=Jugador)
@@ -99,9 +104,6 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                       posicion=nueva_ubicacion['posicion'])
         juego.save()
         juego.refresh_from_db()
-
-        
-
 
         
         log_registrar('log.txt', 'Jugador ' + str(nuevo_jugador) +
@@ -677,68 +679,79 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
                                    .filter(pc=False, nivel=nivel_lista)
 
         for lista in listas_patrocinador:
+            
             juegos = Juego.objects.select_related('jugador', 'lista')\
                                   .filter(lista=lista)
-            # validamos si hay 2 o más jugadores en el juego
-            # de lo contrario estaríamos arrancando el juego
-            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
-            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
             
+            # filtramos los juegos de la lista posiciones 0 y 1
+            juego_posicion_0 = juegos.filter(posicion=0)
+            juego_posicion_1 = juegos.filter(posicion=1)
+            
+            # Traigo los datos de jugadorNivel para verificar el color
+            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_posicion_0.jugador, nivel=lista.nivel)
+            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_posicion_1.jugador, nivel=lista.nivel)
+            
+            # traigo los objetos que se van a modificar
+            objPosicion0 = Juego.objects.get(pk=posicion0.id)
+            objPosicion1 = Juego.objects.get(pk=posicion1.id)
+
             if jugador_nivel_0.color != 'green':
                 # recorremos la lista para buscar algun verde que suba de posicion
                 # en caso de que la cabeza no este en verde
                 if jugador_nivel_1 == 'green':
-                    jugador_nivel_1.posicion = 0
-                    jugador_nivel_1.save()
-                    jugador_nivel_1.refresh_from_db()
+                    objPosicion1.posicion = 0
+                    objPosicion1.save()
+                    objPosicion1.refresh_from_db()
 
-                    jugador_nivel_0.posicion = 1
-                    jugador_nivel_0.save()
-                    jugador_nivel_0.refresh_from_db()
+                    objPosicion0.posicion = 1
+                    objPosicion0.save()
+                    objPosicion0.refresh_from_db()
 
                     lista.pc = True
                     lista.save()
                     lista.refresh_from_db()
                     log_registrar('log.txt', 'jugador ' +
-                                    str(juegos[1].jugador.usuario) +
+                                    str(objPosicion1.jugador.usuario) +
                                     ' en posicion 2 se activa en verde ')
                 
 
 #  Validamos lista para generar el premio castigo
 def lista_validar_pc(lista):
-
+    
+    #juegos de la lista (jugador-lista)
     juegos = Juego.objects.filter(lista=lista)\
                           .exclude(lista__estado='C')\
                           .filter(lista__pc=False)
+                          
+    if juegos.exists():
+        # Posiciones 0 y 1
+        juego_0 = juegos.filter(posicion=0)
+        juego_1 = juegos.filter(posicion=1)
 
-    jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
-    jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
-    
-    if jugador_nivel_0.color != 'green':
-        # recorremos la lista para buscar algun verde que suba de posicion
-        # en caso de que la cabeza no este en verde
-        if jugador_nivel_1.color == 'green':
-            jugador_nivel_1.posicion = 0
-            jugador_nivel_1.save()
-            jugador_nivel_1.refresh_from_db()
-
-            jugador_nivel_0.posicion = 1
-            jugador_nivel_0.save()
-            jugador_nivel_0.refresh_from_db()
-
-            lista.pc = True
-            lista.save()
-            lista.refresh_from_db()
-            log_registrar('log.txt', 'Premio castigo en lista ' +
-                          str(lista))
-
-            lista.pc = True
-            lista.save()
-            lista.refresh_from_db()
-            log_registrar('log.txt', 'Premio castigo en lista ' +
-                          str(lista))
-
+        jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_0[0].jugador, nivel=lista.nivel)
+        jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_1[0].jugador, nivel=lista.nivel)
         
+        posicion0 = juego_0[0]
+        posicion1 = juego_1[0]
+
+        if jugador_nivel_0.color != 'green':
+            # recorremos la lista para buscar algun verde que suba de posicion
+            # en caso de que la cabeza no este en verde
+            if jugador_nivel_1.color == 'green':
+                posicion1.posicion = 0
+                posicion1.save()
+                posicion1.refresh_from_db()
+
+                posicion0.posicion = 1
+                posicion0.save()
+                posicion0.refresh_from_db()
+
+                lista.pc = True
+                lista.save()
+                lista.refresh_from_db()
+                log_registrar('log.txt', 'Premio castigo en lista ' +
+                            str(lista))
+            
 
 
 # Fin del bloque de funciones validaciones pc y bloqueo
