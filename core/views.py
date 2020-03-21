@@ -477,7 +477,7 @@ def lista_ciclar(lista):
                       ' en la posicion: ' + str(nueva_ubicacion['posicion']))
 
         lista_inc_item(nueva_ubicacion['lista'])
-        jugador_inc_ciclo(jugador0)
+        jugador_inc_ciclo(jugador0) 
         ciclado['lista'] = nueva_ubicacion['lista']
         ciclado['posicion'] = nueva_ubicacion['posicion']
         ciclado['jugador_ciclado'] = jugador0
@@ -834,9 +834,10 @@ def lista_content(request, id_lista=None, n_usuario=None):
                 dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
 
-                if juego.jugador.patrocinador is not None:
+                jugador_nivel = JugadorNivel(jugador=juego.jugador, nivel=mi_lista.nivel)
+                if jugador_nivel.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
-                        juego.jugador.patrocinador.usuario.username
+                        jugador_nivel.patrocinador.usuario.username
         # Lista abierta
         else:
             for juego in juegos_en_lista:
