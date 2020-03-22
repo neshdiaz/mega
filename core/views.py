@@ -1032,7 +1032,7 @@ def listaReferidos(request, n_usuario=None):
     
     lista_referidos = JugadorNivel.objects.filter(patrocinador__usuario__username=usr.username)\
                                     .filter(estado='A')\
-                                    .order_by('jugador')\
+                                    .order_by('jugador', 'nivel')\
                                     .distinct()
     if filtro_nivel != 'Todos':
         lista_referidos = lista_referidos.filter(nivel=int(filtro_nivel))
