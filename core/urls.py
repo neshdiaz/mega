@@ -6,6 +6,8 @@ app_name = 'core'
 urlpatterns = [
 
 # Peticiones Django
+
+    
     path('home/', views.home, name='home'),
     path('referidos/', views.mis_referidos, name='mis_referidos'),
     path('clones/', views.mis_clones, name='mis_clones'),
@@ -17,6 +19,7 @@ urlpatterns = [
     path('home/activar_nivel/<int:nivel_id>/', views.activar_nivel, name='activar_nivel'),
     path('home/cargar_saldo/<int:monto>/', views.cargar_saldo, name='cargar_saldo'),
     path('home/cargar_saldo/', views.cargar_saldo, name='cargar_saldo'),
+
 
 # Peticiones AJAX
     path('ajax/lista_content/', views.lista_content, name='lista_content'),

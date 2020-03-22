@@ -187,6 +187,7 @@ class Clon(models.Model):
 class Cobrador(models.Model):
     jugador = models.ForeignKey('jugador', blank=True, null=True,
                                 on_delete=models.CASCADE)
+    nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE, default=1)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

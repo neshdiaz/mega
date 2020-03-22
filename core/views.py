@@ -335,7 +335,7 @@ def lista_buscar_padre(patrocinador, nivel_lista):
 
 def lista_nuevo_cobrador(lista):
     cobrador = Jugador.objects.get(juego__lista=lista, juego__posicion=0)
-    nuevo_cobrador = Cobrador(jugador=cobrador)
+    nuevo_cobrador = Cobrador(jugador=cobrador, nivel=lista.nivel)
     nuevo_cobrador.save()
 
 
@@ -448,7 +448,7 @@ def lista_ciclar(lista):
 
     log_registrar('log.txt', 'CICLANDO A: ' + str(jugador0) + ' EN LISTA: ' + str(lista))
 
-    patrocinador = JugadorNivel.objects.get(jugador=jugador0, nivel=lista.nivel).jugador
+    patrocinador = JugadorNivel.objects.get(jugador=jugador0, nivel=lista.nivel).patrocinador
     
     
     if patrocinador is None:
@@ -668,6 +668,7 @@ def jugador_validar_bloqueos(patrocinador, nivel_lista):
 
 # Buscamos todas las listas del patrocinador para generar el premio castigo
 def jugador_validar_pcs(patrocinador, nivel_lista):
+    print('funciona')
     if patrocinador is not None:
         listas_patrocinador = Lista.objects \
                                    .filter(jugador=patrocinador)\
@@ -675,6 +676,7 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
                                    .filter(pc=False, nivel=nivel_lista)
 
         for lista in listas_patrocinador:
+            print(lista)
             
             juegos = Juego.objects.select_related('jugador', 'lista')\
                                   .filter(lista=lista)
@@ -694,7 +696,7 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
             if jugador_nivel_0.color != 'green':
                 # recorremos la lista para buscar algun verde que suba de posicion
                 # en caso de que la cabeza no este en verde
-                if jugador_nivel_1 == 'green':
+                if jugador_nivel_1.color == 'green':
                     objPosicion1.posicion = 0
                     objPosicion1.save()
                     objPosicion1.refresh_from_db()
@@ -709,6 +711,9 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
                     log_registrar('log.txt', 'jugador ' +
                                     str(objPosicion1.jugador.usuario) +
                                     ' en posicion 2 se activa en verde ')
+
+
+
                 
 
 #  Validamos lista para generar el premio castigo
@@ -815,7 +820,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
     mi_lista = Lista.objects \
         .select_related('nivel').get(pk=id_lista)
     estado_lista = mi_lista.get_estado_display()
-    nivel = mi_lista.nivel.monto
+    nivel = mi_lista.nivel.id
 
 
 # Validamos si el usuario pertenece a la lista que esta solicitando
@@ -928,6 +933,7 @@ def listas(request, usr=None):
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all()\
+            .order_by('nivel')\
             .distinct()
                     
         # aplicamos los filtros
@@ -946,6 +952,7 @@ def listas(request, usr=None):
     else:
         lista_listas = Lista.objects\
             .filter(jugador__usuario__username=usuario.username)\
+            .order_by('nivel')\
             .distinct()
                     
         # aplicamos los filtros
@@ -973,7 +980,9 @@ def listasReferido(request):
     usuario = User.objects.get(username=usr)
 
     if usuario.is_staff:
-        lista_listas = Lista.objects.all().distinct()
+        lista_listas = Lista.objects.all()\
+        .order_by('nivel')\
+        .distinct()
         lst_listas = []
         
         # aplicamos los filtros
@@ -986,11 +995,12 @@ def listasReferido(request):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
     else:
         lista_listas = Lista.objects\
             .filter(jugador__usuario__username=usuario.username)\
+            .order_by('nivel')\
             .distinct()
                     
         # aplicamos los filtros
@@ -1002,7 +1012,7 @@ def listasReferido(request):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":(lista.estado), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)
@@ -1022,6 +1032,7 @@ def listaReferidos(request, n_usuario=None):
     
     lista_referidos = JugadorNivel.objects.filter(patrocinador__usuario__username=usr.username)\
                                     .filter(estado='A')\
+                                    .order_by('jugador')\
                                     .distinct()
     if filtro_nivel != 'Todos':
         lista_referidos = lista_referidos.filter(nivel=int(filtro_nivel))
@@ -1032,11 +1043,14 @@ def listaReferidos(request, n_usuario=None):
     lst_referidos = []
     for referido in lista_referidos:
 
-        ele = {'usuario': referido.jugador.usuario.username,
-               'color': referido.color,
-               'n_referidos': referido.n_referidos,
-               'n_referidos_activados': referido.n_referidos_activados,
-               'nivel':referido.nivel.id}
+        ele = {"id": referido.id, 
+                "nivel": str(referido.nivel), 
+                "estado":str(referido.get_estado_display()), 
+                "usuario":str(referido.jugador.usuario.username),             
+                "color":str(referido.color),
+                "n_referidos":str(referido.n_referidos),
+                "n_referidos_activados":str(referido.n_referidos_activados)
+                }
 
         lst_referidos.append(ele)
 
@@ -1059,7 +1073,8 @@ def cobrando(request):
     lista_cobrando = Cobrador.objects.all()[:10]
     lst_cobrando = []
     for cobrador in lista_cobrando:
-        ele = {"usuario": cobrador.jugador.usuario.username}
+        ele = {"usuario": cobrador.jugador.usuario.username,
+               "nivel": cobrador.nivel.id}
         lst_cobrando.append(ele)
 
     json_response = json.dumps(lst_cobrando)

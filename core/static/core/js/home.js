@@ -253,7 +253,7 @@ function displayListasReferido(listas_json){
         htmlListas += "  <div class = 'btn-group-vertical'>";
         listas_json.forEach(function(item, index){
             url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + " " + item.estado + "</button>";
+            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small>" + item.nivel +  "</button>";
         })
         htmlListas += "</div></div>";
         ContenedorListasReferido.innerHTML = htmlListas;
@@ -320,7 +320,7 @@ function displayListaContent(lista_json){
         $("#j4").css({"color": lista_json[4].color});
         
         $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
-        enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado //+ ' ' + lista_json[5].nivel
+        enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado + ' nivel ' + lista_json[5].nivel
         $("#encabezado_lista").text(enc);
     }
     
@@ -401,7 +401,7 @@ function displayListaReferidos(referidos_json){
        
         referidos_json.forEach(function(item, index){
                        
-            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + item.usuario +"');>" + item.usuario + " en nivel " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
+            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + item.usuario +"');>" + item.usuario + " en  " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
             boton.preventDefault;
             vertical.append(boton)
         })
@@ -441,7 +441,7 @@ function displayListaCobrando(cobrando_json){
         htmlCobrando = "<ul>";
         cobrando_json.forEach(function(item, index){
             url = url_lista_cobrando;
-            htmlCobrando += "    <li>" + item.usuario + "</li>" ;
+            htmlCobrando += "    <li>" + item.usuario + " nivel "+ item.nivel + "</li>" ;
         })
         htmlCobrando += "</ul>";
         ContenedorCobrando.innerHTML = htmlCobrando
