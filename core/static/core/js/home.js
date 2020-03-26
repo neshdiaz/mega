@@ -13,7 +13,6 @@ var Filtro_estado_ref = "Todos"
 var Filtro_nivel_ref = "Todos"
 
 $(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
     Filtro_estado = "Todos"
     Filtro_nivel = "Todos"
     Filtro_estado_ref = "Todos"
@@ -198,6 +197,38 @@ function get_listas(){
 
 function displayListas(listas_json){
     if($("#listasContainer").length > 0){
+        accordion = $('#listasContainer')
+        headx = "";
+        collapsex = "";
+        item_anterior="";
+        repetido = false;
+        inicial = true; 
+        $(accordion).html("");
+        listas_json.forEach(function(item, index){
+            url = url_lista_content;
+            item_nuevo = item.nivel;
+            if (item_nuevo != item_anterior || inicial){
+                inicial = false;
+                headx = "<div id='head" + index + "'>";
+                headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
+                headx += "collapse" + index + "' aria-expanded='false' aria-controls='collapse" + index +"'>> ";
+                headx += item.nivel + "</div>";
+                $(headx).appendTo(accordion);
+                item_anterior = item.nivel
+            }
+            collapsex = "<div id='collapse" + index +"' class='collapse hide' aria-labeldby='head" + index +"'data-parent='#listasContainer'>"
+            collapsex += "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
+            collapsex += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            collapsex += " " + item.estado  +  "</button> </div>";
+            $(collapsex).appendTo(accordion);
+
+        })     
+
+    }  
+    
+    
+    
+    /*if($("#listasContainer").length > 0){
         ContenedorListas = document.getElementById("listasContainer");
         htmlListas = "";
         htmlListas += "<div class ='btn-group role='group'>";
@@ -208,11 +239,11 @@ function displayListas(listas_json){
         })
         htmlListas += "</div></div>";
         ContenedorListas.innerHTML = htmlListas;
-    }
+    }*/
 }
 
 // ajax para cargar las listas del referido
-function get_listas_referido(usr){
+function get_listas_referido(usr, nivel){
     referido_activo = usr
     if($("#listasReferidoContainer").length > 0){
         ur = url_listas_referido;
@@ -224,7 +255,8 @@ function get_listas_referido(usr){
             data:{
                 nivel: Filtro_nivel_ref,
                 estado: Filtro_estado_ref,
-                referido: usr
+                referido: usr,
+                nivel_referido:nivel,
             },
             beforeSend: function (xhr, settings) {
                 var csrftoken = getCookie('csrftoken');
@@ -247,17 +279,34 @@ function get_listas_referido(usr){
 
 function displayListasReferido(listas_json){
     if($("#listasReferidoContainer").length > 0){
-        ContenedorListasReferido = document.getElementById("listasReferidoContainer");
-        htmlListas = "";
-        htmlListas += "<div class ='btn-group role='group'>";
-        htmlListas += "  <div class = 'btn-group-vertical'>";
+        accordion = $('#listasReferidoContainer')
+        headx = "";
+        collapsex = "";
+        item_anterior="";
+        repetido = false;
+        inicial = true; 
+        $(accordion).html("");
         listas_json.forEach(function(item, index){
             url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small>" + item.nivel +  "</button>";
-        })
-        htmlListas += "</div></div>";
-        ContenedorListasReferido.innerHTML = htmlListas;
-    }
+            item_nuevo = item.nivel;
+            if (item_nuevo != item_anterior || inicial){
+                inicial = false;
+                headx = "<div id='head" + index + "'>";
+                headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
+                headx += "collapse" + index + "' aria-expanded='false' aria-controls='collapse" + index +"'>> ";
+                headx += item.nivel + "</div>";
+                $(headx).appendTo(accordion);
+                item_anterior = item.nivel
+            }
+            collapsex = "<div id='collapse" + index +"' class='collapse hide' aria-labeldby='head" + index +"'data-parent='#listasReferidoContainer'>"
+            collapsex += "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
+            collapsex += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            collapsex += " " + item.estado  +  "</button> </div>";
+            $(collapsex).appendTo(accordion);
+
+        })     
+
+    }  
 }
 
 // ajax para cargar los datos de la lista
@@ -401,7 +450,7 @@ function displayListaReferidos(referidos_json){
        
         referidos_json.forEach(function(item, index){
                        
-            boton=$("<button style = 'background-color:" + item.color + "' class='btn btn-primary' onclick=get_listas_referido('" + item.usuario +"');>" + item.usuario + " en  " + item.nivel + "</button><p class='small'>" + item.n_referidos +" Referidos "+ item.n_referidos_activados + " activados</p>");
+            boton=$(`<button style = 'background-color:${item.color}' class='btn btn-primary' onclick=get_listas_referido('${item.usuario}');>${item.usuario} en  ${item.nivel}</button><p class='small'>${item.n_referidos} Referidos ${item.n_referidos_activados} activados</p>`);
             boton.preventDefault;
             vertical.append(boton)
         })

@@ -924,12 +924,14 @@ def lista_content(request, id_lista=None, n_usuario=None):
 def listas(request, usr=None):
     filtro_estado = request.POST.get('estado')
     filtro_nivel = request.POST.get('nivel')
+    nivel_referido =  request.POST.get('nivel_referido')
 
 
     if usr is None:
         usuario = User.objects.get(username=request.user.username)
     else:
         usuario = User.objects.get(username=usr)
+        nivel_ref = Niveles.objects.get(pk=nivel_referido)
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all()\
@@ -1022,7 +1024,6 @@ def listasReferido(request):
 def listaReferidos(request, n_usuario=None):
     filtro_nivel = request.POST.get('nivel')
     filtro_estado = request.POST.get('estado')
-    
     usr = None
     if n_usuario is None:
         usr = User.objects.get(username=request.user.username)
@@ -1043,7 +1044,7 @@ def listaReferidos(request, n_usuario=None):
     lst_referidos = []
     for referido in lista_referidos:
 
-        ele = {"id": referido.id, 
+        ele = {"id": referido.id,
                 "nivel": str(referido.nivel), 
                 "estado":str(referido.get_estado_display()), 
                 "usuario":str(referido.jugador.usuario.username),             
