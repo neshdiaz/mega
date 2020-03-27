@@ -92,34 +92,32 @@
       
       <div class="col-md-4"> <!-- Columna de listas -->
         <div class="card w-100 mt-3">
-          <h6 class="card-header"><i class="fas fa-list-alt"></i> Listas del referido 
-            
-          </h6>
-          <div class="small" id="encabezado_lista">
-            Seleccione un referido para ver sus listas
-          </div>
+          <h6 class="card-header"><i class="fas fa-list-alt"></i> Listas del referido</h6>
+          
           <div class="card-body scroll-list" style="height: 18rem;">
-            <p class="card-text">
+            <div class="card-text">
+              <div class="card card-body p-0 mb-2">
+                <small> Despliega cada nivel para ver las listas del referido</small>
+              </div>
               <div id ="listasReferidoContainer"></div>
-            </p>
+            </div>
           </div>
         </div>
       </div> <!-- Fin columna de listas -->
 
       <div class="col-md-4"> <!-- Columna de jugadores -->
-        <div class="card w-100 mt-3">
-          <h6 class="card-header">
-            <i class="fas fa-user-friends"></i>Jugadores en la lista
-          </h6>
-          <div class="small" id="encabezado_lista">
-              Seleccione una lista para ver su contenido
-          </div>
-        
+        <div class="card w-100 mt-0">
+          <h6 class="card-header"> <i class="fas fa-user-friends"></i>Jugadores en la lista</h6>
+          
           <div class="card-body scroll-list" style="height: 18rem;">
             <div class="card-text">
+              <div class="card card-body p-0 mt-0">
+                <small> Seleccione un referido para ver sus listas</small>
+                <p id="encabezado_lista"> </p>
+              </div>
+                           
               <div id="lista_content">
-                <div class="container">
-                  
+                <div class="container mt-2">
                   <div class="row">
                     <div class="col-1">
                       <h4>1</h4>

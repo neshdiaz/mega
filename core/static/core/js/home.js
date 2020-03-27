@@ -201,45 +201,39 @@ function displayListas(listas_json){
         headx = "";
         collapsex = "";
         item_anterior="";
+        item_nuevo = "";
         repetido = false;
-        inicial = true; 
+        collapsex_content = "";
         $(accordion).html("");
+        temp = "";
+        url = url_lista_content;
+        
         listas_json.forEach(function(item, index){
-            url = url_lista_content;
-            item_nuevo = item.nivel;
+            item_anterior = item.nivel;
             if (item_nuevo != item_anterior || inicial){
                 inicial = false;
-                headx = "<div id='head" + index + "'>";
+                headx = "<div id='head" + item.nivel_id + "'>";
                 headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
-                headx += "collapse" + index + "' aria-expanded='false' aria-controls='collapse" + index +"'>> ";
+                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>";
                 headx += item.nivel + "</div>";
+                // agrego la cabecera
                 $(headx).appendTo(accordion);
-                item_anterior = item.nivel
-            }
-            collapsex = "<div id='collapse" + index +"' class='collapse hide' aria-labeldby='head" + index +"'data-parent='#listasContainer'>"
-            collapsex += "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
-            collapsex += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
-            collapsex += " " + item.estado  +  "</button> </div>";
-            $(collapsex).appendTo(accordion);
-
+                collapsex_content = "<div id = 'content_"+ item.nivel_id +"' class='collapse hide' aria-labeldby='head" + item.nivel_id +"'data-parent='#listasContainer'></div>"
+                // agrego el div para los botones de niveles
+                $(collapsex_content).appendTo(accordion);
+                item_nuevo = item.nivel
+            }           
         })     
-
-    }  
-    
-    
-    
-    /*if($("#listasContainer").length > 0){
-        ContenedorListas = document.getElementById("listasContainer");
-        htmlListas = "";
-        htmlListas += "<div class ='btn-group role='group'>";
-        htmlListas += "  <div class = 'btn-group-vertical'>";
+        
+        // Agregamos lo botones a las casillas de niveles correspondientes
         listas_json.forEach(function(item, index){
-            url = url_lista_content;
-            htmlListas += "    <button class='btn btn-primary' onclick=get_lista_content('" + url + "'," + item.id + ",'"+ item.usuario +"');>" + "Lista " + item.id + "<small> " + item.estado + " </small>" + item.nivel +  "</button>";
+            boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
+            boton += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            boton += " " + item.estado  +  "</button>"
+            contentId = "content_" + item.nivel_id.toString();
+            $(boton).appendTo('#' + contentId)
         })
-        htmlListas += "</div></div>";
-        ContenedorListas.innerHTML = htmlListas;
-    }*/
+    }
 }
 
 // ajax para cargar las listas del referido
@@ -283,29 +277,38 @@ function displayListasReferido(listas_json){
         headx = "";
         collapsex = "";
         item_anterior="";
+        item_nuevo = "";
         repetido = false;
-        inicial = true; 
+        collapsex_content = "";
         $(accordion).html("");
+        temp = "";
+        url = url_lista_content;
+        
         listas_json.forEach(function(item, index){
-            url = url_lista_content;
-            item_nuevo = item.nivel;
+            item_anterior = item.nivel;
             if (item_nuevo != item_anterior || inicial){
                 inicial = false;
-                headx = "<div id='head" + index + "'>";
+                headx = "<div id='head" + item.nivel_id + "'>";
                 headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
-                headx += "collapse" + index + "' aria-expanded='false' aria-controls='collapse" + index +"'>> ";
+                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>";
                 headx += item.nivel + "</div>";
+                // agrego la cabecera
                 $(headx).appendTo(accordion);
-                item_anterior = item.nivel
-            }
-            collapsex = "<div id='collapse" + index +"' class='collapse hide' aria-labeldby='head" + index +"'data-parent='#listasReferidoContainer'>"
-            collapsex += "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
-            collapsex += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
-            collapsex += " " + item.estado  +  "</button> </div>";
-            $(collapsex).appendTo(accordion);
-
+                collapsex_content = "<div id = 'content_"+ item.nivel_id +"' class='collapse hide' aria-labeldby='head" + item.nivel_id +"'data-parent='#listasReferidoContainer'></div>"
+                // agrego el div para los botones de niveles
+                $(collapsex_content).appendTo(accordion);
+                item_nuevo = item.nivel
+            }           
         })     
-
+        
+        // Agregamos lo botones a las casillas de niveles correspondientes
+        listas_json.forEach(function(item, index){
+            boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
+            boton += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            boton += " " + item.estado  +  "</button>"
+            contentId = "content_" + item.nivel_id.toString();
+            $(boton).appendTo('#' + contentId)
+        })
     }  
 }
 
@@ -369,7 +372,7 @@ function displayListaContent(lista_json){
         $("#j4").css({"color": lista_json[4].color});
         
         $("#encabezado_lista").html('<i class="fas fa-people-carry"></i>');
-        enc = '    Lista ' + lista_json[5].lista_id + ' ' + lista_json[5].estado + ' nivel ' + lista_json[5].nivel
+        enc = '    Nivel: ' + lista_json[5].nivel + ' Lista: ' + lista_json[5].lista_id + ' ' + lista_json[5].estado
         $("#encabezado_lista").text(enc);
     }
     

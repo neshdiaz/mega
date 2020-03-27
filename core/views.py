@@ -948,7 +948,7 @@ def listas(request, usr=None):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "nivel_id": str(lista.nivel.id), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     else:
@@ -968,7 +968,7 @@ def listas(request, usr=None):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "nivel_id": str(lista.nivel.id), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)
@@ -983,7 +983,7 @@ def listasReferido(request):
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all()\
-        .order_by('nivel')\
+        .order_by('nivel', 'id')\
         .distinct()
         lst_listas = []
         
@@ -997,12 +997,12 @@ def listasReferido(request):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "nivel_id":lista.nivel.id, "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
     else:
         lista_listas = Lista.objects\
             .filter(jugador__usuario__username=usuario.username)\
-            .order_by('nivel')\
+            .order_by('nivel', 'id')\
             .distinct()
                     
         # aplicamos los filtros
@@ -1014,7 +1014,7 @@ def listasReferido(request):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
+            ele = {"id": lista.id, "nivel": str(lista.nivel), "nivel_id":lista.nivel.id, "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
             lst_listas.append(ele)
 
     json_response = json.dumps(lst_listas)

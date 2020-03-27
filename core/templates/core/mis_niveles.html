@@ -18,7 +18,7 @@
       <thead>
         <tr>
           <th scope="col">Nivel</th>
-          <th scope="col">Monto</th>
+          <th scope="col">Monto(US$)</th>
           <th scope="col">Estado</th>
           <th scope="col">Activar</th>
         </tr>
@@ -28,11 +28,11 @@
           <tr>
           <td>{{nivel.nivel}}</td>
           <td>{{nivel.nivel.monto}}</td>
-          <td>{{nivel.estado}}</td>
+          <td>{{nivel.get_estado_display}}</td>
           {% if nivel.estado == "A"%}
-            <td><button disabled onclick="window.location.href = ('{{base_url}}{% url 'core:activar_nivel' nivel.id %}')" class="btn btn-success">Activar</button></td>
+            <td><button disabled onclick="window.location.href = ('{{base_url}}{% url 'core:activar_nivel' nivel.id %}')" class="btn btn-warning">Activar</button></td>
             {%else%}
-            <td><button onclick="window.location.href = ('{{base_url}}{% url 'core:activar_nivel' nivel.id %}')" class="btn btn-success">Activar</button></td>
+            <td><button onclick="window.location.href = ('{{base_url}}{% url 'core:activar_nivel' nivel.id %}')" class="btn btn-warning">Activar</button></td>
           {%endif%}  
         </tr>
           
