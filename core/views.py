@@ -935,7 +935,7 @@ def listas(request, usr=None):
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all()\
-            .order_by('nivel')\
+            .order_by('nivel', 'id')\
             .distinct()
                     
         # aplicamos los filtros
