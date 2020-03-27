@@ -214,7 +214,7 @@ function displayListas(listas_json){
                 inicial = false;
                 headx = "<div id='head" + item.nivel_id + "'>";
                 headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
-                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>";
+                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>> ";
                 headx += item.nivel + "</div>";
                 // agrego la cabecera
                 $(headx).appendTo(accordion);
@@ -228,7 +228,7 @@ function displayListas(listas_json){
         // Agregamos lo botones a las casillas de niveles correspondientes
         listas_json.forEach(function(item, index){
             boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
-            boton += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            boton += item.id + ",'"+ item.usuario +"');>>> Lista " + item.id;
             boton += " " + item.estado  +  "</button>"
             contentId = "content_" + item.nivel_id.toString();
             $(boton).appendTo('#' + contentId)
@@ -290,7 +290,7 @@ function displayListasReferido(listas_json){
                 inicial = false;
                 headx = "<div id='head" + item.nivel_id + "'>";
                 headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
-                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>";
+                headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>> ";
                 headx += item.nivel + "</div>";
                 // agrego la cabecera
                 $(headx).appendTo(accordion);
@@ -304,7 +304,7 @@ function displayListasReferido(listas_json){
         // Agregamos lo botones a las casillas de niveles correspondientes
         listas_json.forEach(function(item, index){
             boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
-            boton += item.id + ",'"+ item.usuario +"');>Lista " + item.id;
+            boton += item.id + ",'"+ item.usuario +"');>>> Lista " + item.id;
             boton += " " + item.estado  +  "</button>"
             contentId = "content_" + item.nivel_id.toString();
             $(boton).appendTo('#' + contentId)
