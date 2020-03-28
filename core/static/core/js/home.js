@@ -436,7 +436,11 @@ function displayListaClones(clones_json){
             td = "<td>" + item.nivel +"</td>";
             td += "<td>" + item.estado +"</td>";
             td += "<td>" + item.tipo +"</td>";
-            td += "<td> <a href = " + url_activar_clon + item.id +">" + "Activar Clon " +" </a></td>";
+            if (item.estado == 'Activo'){
+                td += "<td> Activar Clon </td>";
+            } else{
+                td += "<td> <a href = " + url_activar_clon + item.id +">" + "Activar Clon " +" </a></td>";
+            }
             $(td).appendTo(tr);
             $(tr).appendTo(tbody);
         })
@@ -524,7 +528,7 @@ function displayListaCobrando(cobrando_json){
         htmlCobrando = "<ul>";
         cobrando_json.forEach(function(item, index){
             url = url_lista_cobrando;
-            htmlCobrando += "    <li>" + item.usuario + " nivel "+ item.nivel + "</li>" ;
+            htmlCobrando += "    <li>" + item.usuario + " Nivel "+ item.nivel + "</li>" ;
         })
         htmlCobrando += "</ul>";
         ContenedorCobrando.innerHTML = htmlCobrando

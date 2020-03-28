@@ -5,7 +5,7 @@ app_name = 'core'
 
 urlpatterns = [
 
-# Peticiones Django
+    # Peticiones Django
 
     
     path('home/', views.home, name='home'),

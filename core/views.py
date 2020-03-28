@@ -199,6 +199,7 @@ def asignar_clon(clon, nivel_lista):
 
     nueva_ubicacion = lista_buscar_mas_antigua(nivel_lista)
 
+
     if nueva_ubicacion['posicion'] != -1:
         # Creamos el juego para enlazar la lista con el nuevo jugador
         juego = Juego(lista=nueva_ubicacion['lista'],
@@ -207,8 +208,7 @@ def asignar_clon(clon, nivel_lista):
         juego.save()
         juego.refresh_from_db()
 
-
-
+        
         log_registrar('log.txt', 'Clon ' + str(clon.jugador) +
                       ' agregado a lista ' + str(nueva_ubicacion['lista']) +
                       ' en posicion: ' +
@@ -217,17 +217,19 @@ def asignar_clon(clon, nivel_lista):
         # procesos post asignacion directa
         lista_inc_item(nueva_ubicacion['lista'])
 
+        lista_nuevo_cobrador(nueva_ubicacion['lista'])
+
         respuesta = 'Clon asignado correctamente'
         notificar_asignacion()
 
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
-            lista_nueva(nueva_ubicacion['lista'])
+            lista_nueva(nueva_ubicacion['lista'])   
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
             # ciclo la lista en la nueva ubicacion
             # empieza el ciclaje
-            usuario_que_paga = '(' + str(clon) + '-> '
+            usuario_que_paga = '(' + str(clon.jugador) + '-> '
             # ciclo la lista donde se ubico la posicion libre
             ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
             usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
@@ -284,7 +286,8 @@ def asignar_clon(clon, nivel_lista):
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-    return HttpResponse(reverse('core:home'))
+
+    return HttpResponse(reverse('core:mis_clones'))
 
 def buscar_ubicacion(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
@@ -549,7 +552,7 @@ def lista_nueva(lista):
     nuevo_juego1.refresh_from_db()
 
     log_registrar('log.txt', 'Jugador ' + str(jugador0[0]) +
-                  ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 0' +
+                  ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 0' + 'Jugador ' + str(jugador1[0]) +
                   ' agregado a lista ' + str(nueva_lista_impar) + ' en posicion: 1')
     lista_inc_ciclo(nueva_lista_impar)
     lista_validar_bloqueo(nueva_lista_impar)
@@ -596,7 +599,7 @@ def jugador_inc_referidos(patrocinador, nivel_lista):
         jugador_nivel.save()
         jugador_nivel.refresh_from_db()
         if jugador_nivel.n_referidos == 0:
-           jugador_nivel.color = 'red'
+            jugador_nivel.color = 'red'
         elif jugador_nivel.n_referidos == 1:
             jugador_nivel.color = '#d6d007'
         elif jugador_nivel.n_referidos >= 2:
@@ -899,16 +902,16 @@ def lista_content(request, id_lista=None, n_usuario=None):
                         jugador_nivel.patrocinador.usuario.username
             else:
                for juego in juegos_en_lista:
-                jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=mi_lista.nivel)
-                dict_list[juego.posicion]['user'] = \
+                    jugador_nivel = JugadorNivel.objects.get(jugador=juego.jugador, nivel=mi_lista.nivel)
+                    dict_list[juego.posicion]['user'] = \
                     juego.jugador.usuario.username
-                dict_list[juego.posicion]['color'] = \
+                    dict_list[juego.posicion]['color'] = \
                     jugador_nivel.color
-                dict_list[juego.posicion]['cadena_ciclaje'] = \
+                    dict_list[juego.posicion]['cadena_ciclaje'] = \
                     juego.cadena_ciclaje
-                if jugador_nivel.patrocinador is not None:
-                    dict_list[juego.posicion]['patrocinador'] = \
-                        jugador_nivel.patrocinador.usuario.username
+                    if jugador_nivel.patrocinador is not None:
+                        dict_list[juego.posicion]['patrocinador'] = \
+                            jugador_nivel.patrocinador.usuario.username
 
 
         # posicion 5 para el encabezado de la lista
@@ -931,7 +934,7 @@ def listas(request, usr=None):
         usuario = User.objects.get(username=request.user.username)
     else:
         usuario = User.objects.get(username=usr)
-        nivel_ref = Niveles.objects.get(pk=nivel_referido)
+        nivel_ref = Nivel.objects.get(pk=nivel_referido)
 
     if usuario.is_staff:
         lista_listas = Lista.objects.all()\
@@ -1108,8 +1111,8 @@ def activar_clon(request, clon_id=None, nivel_lista=None):
             clon.estado = 'A'
             clon.save()
             clon.refresh_from_db()
-            asignar_clon(clon, nivel_lista)
-    return redirect(reverse('core:home'))
+            asignar_clon(clon, clon.nivel)
+    return redirect(reverse('core:mis_clones'))
 
 @transaction.atomic
 @requires_csrf_token
