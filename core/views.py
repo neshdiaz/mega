@@ -954,7 +954,7 @@ def listas(request, usr=None):
     else:
         lista_listas = Lista.objects\
             .filter(jugador__usuario__username=usuario.username)\
-            .order_by('nivel')\
+            .order_by('nivel', 'id')\
             .distinct()
                     
         # aplicamos los filtros
@@ -1090,6 +1090,7 @@ def clones(request):
         ele = {"id": clon.id,
                "jugador": str(clon.jugador),
                "estado": clon.get_estado_display(),
+               "tipo": clon.get_tipo_display(),
                "nivel": str(clon.nivel),
                }
 

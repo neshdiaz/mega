@@ -38,10 +38,10 @@
             <li>
               <a class="nav-link" href="{% url 'core:mis_finanzas' %}"><i class="fas fa-coins"></i>Finanzas</a>
             </li>
-            <li>
+            <!--<li>
               <a class="nav-link" href="{% url 'core:mi_tienda' %}"><i class="fas fa-store"></i>Tienda</a>
             </li>
-            <li>
+            <li>-->
               {% if request.user.is_authenticated %}
                 <a class="nav-link" href="{% url 'registration:logged_out' %}"><i class="fas fa-sign-out-alt"></i> Salir</a>
               {% endif %}        

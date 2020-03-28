@@ -404,16 +404,44 @@ function get_lista_clones(url_lista_clones){
 
 function displayListaClones(clones_json){
     if($("#clonesContainer").length > 0){
-        ContenedorClones = document.getElementById("clonesContainer");
-        htmlClones = "";
-        htmlClones += "<div class ='btn-group role='group'>";
-        htmlClones += "<div class = 'btn-group-vertical'>";
+        contenedorClones = $('#clonesContainer');
+        table="";
+        thead = "";
+        tbody = "";
+        td = "";
+        tr = "";
+        
+        $("#clonesContainer").html("");
+        if (clones_json.length == 0){
+            $("<p>No tienes clones disponibles ... </p>").appendTo(contenedorClones)
+        }        
+        
+        table = $("<table class='table'></table>");
+        thead += "<thead>";
+        thead += "<tr>";
+        thead += "<th scope='col'>Nivel</th>";
+        thead += "<th scope='col'>Estado</th>";
+        thead += "<th scope='col'>Tipo</th>";
+        thead += "<th scope='col'>Activar</th>";
+        thead += "</tr>";
+        thead += "</thead>";
+        // Asigno cabecera a tabla
+        $(thead).appendTo(table);
+        
+        tbody = $("<tbody></tbody>")
+
+        
         clones_json.forEach(function(item, index){
-            url = url_clones;
-            htmlClones += "    <a href = " + url_activar_clon + item.id +">" + "Clon " + item.estado + " " + item.nivel + " </a>" ;
+            tr = $("<tr></tr>");
+            td = "<td>" + item.nivel +"</td>";
+            td += "<td>" + item.estado +"</td>";
+            td += "<td>" + item.tipo +"</td>";
+            td += "<td> <a href = " + url_activar_clon + item.id +">" + "Activar Clon " +" </a></td>";
+            $(td).appendTo(tr);
+            $(tr).appendTo(tbody);
         })
-        htmlClones += "</div></div>";
-        ContenedorClones.innerHTML = htmlClones
+        $(tbody).appendTo(table);
+        $(table).appendTo(clonesContainer);
     }
 }
 
@@ -447,7 +475,11 @@ function get_lista_referidos(){
 
 function displayListaReferidos(referidos_json){
     if($("#referidosContainer").length > 0 ){
+        contenedorReferidos = $("#referidosContainer");
         $("#referidosContainer").html("");
+        if (referidos_json.length == 0){
+            $("<p>Aún no tienes referidos.</p>").appendTo(contenedorReferidos);
+        }        
         grupo = $("<div class ='btn-group role='group'>")
         vertical = $("<div class = 'btn-group-vertical'>")
        
@@ -457,7 +489,6 @@ function displayListaReferidos(referidos_json){
             boton.preventDefault;
             vertical.append(boton)
         })
-
         grupo.append(vertical);
         $("#referidosContainer").append(grupo);
 

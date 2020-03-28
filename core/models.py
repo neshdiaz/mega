@@ -174,7 +174,7 @@ class Clon(models.Model):
                                 on_delete=models.CASCADE)
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
-    tipo = models.CharField(max_length=1, choices=ESTADO_CHOICES,
+    tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
                             default='R')
     nivel = models.ForeignKey('Nivel', on_delete=models.CASCADE, default=1)
 
