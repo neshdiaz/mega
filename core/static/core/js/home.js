@@ -436,7 +436,7 @@ function displayListaClones(clones_json){
             td = "<td>" + item.nivel +"</td>";
             td += "<td>" + item.estado +"</td>";
             td += "<td>" + item.tipo +"</td>";
-            if (item.estado == 'Activo'){
+            if (item.estado == 'ACTIVO'){
                 td += "<td> Activar Clon </td>";
             } else{
                 td += "<td> <a href = " + url_activar_clon + item.id +">" + "Activar Clon " +" </a></td>";
