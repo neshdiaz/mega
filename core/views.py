@@ -981,7 +981,7 @@ def listas(request, usr=None):
 def listasReferido(request):
     filtro_estado = request.POST.get('estado')
     filtro_nivel = request.POST.get('nivel')
-    usr = request.POST.get('referido') 
+    usr = request.POST.get('referido')
     usuario = User.objects.get(username=usr)
 
     if usuario.is_staff:
@@ -1000,7 +1000,13 @@ def listasReferido(request):
         
         lst_listas = []
         for lista in lista_listas:
-            ele = {"id": lista.id, "nivel": str(lista.nivel), "nivel_id":lista.nivel.id, "estado":str(lista.get_estado_display()), "usuario":str(usuario.username)}
+            ele = {
+                "id": lista.id,
+                "nivel": str(lista.nivel), 
+                "nivel_id":lista.nivel.id, 
+                "estado":str(lista.get_estado_display()), 
+                "usuario":str(usuario.username)
+            }
             lst_listas.append(ele)
     else:
         lista_listas = Lista.objects\
@@ -1035,22 +1041,25 @@ def listaReferidos(request, n_usuario=None):
 
     
     lista_referidos = JugadorNivel.objects.filter(patrocinador__usuario__username=usr.username)\
-                                    .filter(estado='A')\
-                                    .order_by('jugador', 'nivel')\
-                                    .distinct()
+                                    .filter(estado='A')
+                                    
     if filtro_nivel != 'Todos':
         lista_referidos = lista_referidos.filter(nivel=int(filtro_nivel))
 
     if filtro_estado != 'Todos':
         lista_referidos = lista_referidos.filter(estado=filtro_estado)
     
+    lista_referidos = lista_referidos.order_by('jugador__usuario__username', 'nivel').distinct()
+
+
+
     lst_referidos = []
     for referido in lista_referidos:
 
         ele = {"id": referido.id,
-                "nivel": str(referido.nivel), 
-                "estado":str(referido.get_estado_display()), 
-                "usuario":str(referido.jugador.usuario.username),             
+                "nivel": str(referido.nivel),
+                "estado":str(referido.get_estado_display()),
+                "usuario":str(referido.jugador.usuario.username),
                 "color":str(referido.color),
                 "n_referidos":str(referido.n_referidos),
                 "n_referidos_activados":str(referido.n_referidos_activados)
