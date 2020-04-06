@@ -534,12 +534,37 @@ function displayListaCobrando(cobrando_json){
     if($("#cobrando_container").length > 0){
         ContenedorCobrando = document.getElementById("cobrando_container");
         htmlCobrando = "";
-        htmlCobrando = "<ul>";
+        //htmlCobrando = "<ol>";
+        htmlCobrando = "<div class='container-fluid p-0 m-0'>";
         cobrando_json.forEach(function(item, index){
+            htmlCobrando += "<div class='row'>";
             url = url_lista_cobrando;
-            htmlCobrando += "    <li>" + item.usuario + " Nivel "+ item.nivel + "</li>" ;
+            //htmlCobrando += "    <li style='list-style:none; margin:0'> <i class='fas fa-hand-holding-usd'></i>" + item.usuario +" " + "<i class='fas fa-sort-amount-up'></i>"+ item.nivel + " " + "</li>" ;
+            htmlCobrando += "<div class='col-1'>";
+            htmlCobrando += "     <i class='fas fa-hand-holding-usd'></i>" ;
+            htmlCobrando +="</div>";
+            
+            htmlCobrando += "<div class='col-6'>";
+            htmlCobrando += item.usuario + " ";
+            htmlCobrando +="</div>";
+            
+            htmlCobrando += "<div class='col-1'>";
+            htmlCobrando += "<i class='fas fa-sort-amount-up'></i>";
+            htmlCobrando +="</div>";
+            
+            
+            htmlCobrando += "<div class='col-1'>";
+            htmlCobrando += item.nivel;
+            htmlCobrando += "</div>";
+
+            
+            htmlCobrando += "</div>";
+
+
+
         })
-        htmlCobrando += "</ul>";
+        //htmlCobrando += "</ol>";
+        htmlCobrando += "</div>";   
         ContenedorCobrando.innerHTML = htmlCobrando
     }
 }

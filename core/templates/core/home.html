@@ -3,7 +3,7 @@
 
 {% block contenido %}  
   {% if not tiene_niveles_activos %}
-    <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de niveles para empezar...</div>
+    <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de <a href ="{%url 'core:mis_niveles'%}"> <i class="fas fa-sort-amount-up"></i>Niveles</a> para empezar...</div>
   {% endif %}  
 
   <div class="container-fluid card card-body ">
@@ -70,13 +70,13 @@
   <div class="container-fluid ">
     <div class="row">
       
-      <div class="col-md-4"> <!-- Columna de listas -->
+      <div class="col-md-5"> <!-- Columna de listas -->
         <div class="card w-100 mt-3">
           <h6 class="card-header"><i class="fas fa-list-alt"></i> Mis Listas </h6>
           <div class="card-body scroll-list" style="height: 18rem;">
             <div class="card-text">
               <div class="card card-body p-0 mb-2">
-                <small> Despliega cada nivel para ver las listas</small>
+                <small> Despliega cada nivel para ver las listas.</small>
               </div>
               <div id ="listasContainer"></div>
             </div>
@@ -84,7 +84,7 @@
         </div>
       </div> <!-- Fin columna de listas -->
 
-      <div class="col-md-4"> <!-- Columna de jugadores -->
+      <div class="col-md-7"> <!-- Columna de jugadores -->
         <div class="card w-100 mt-3">
           <h6 class="card-header">
             <i class="fas fa-user-friends"></i>Jugadores en la lista
@@ -95,7 +95,7 @@
           <div class="card-body scroll-list" style="height: 18rem;">
             <div class="card-text">
               <div class="card card-body p-0 mt-0">
-                <small> Seleccione una lista para ver su contenido</small>
+                <small> Seleccione una lista para ver sus jugadores. </small>
                 <p id="encabezado_lista"> </p>
               </div>
               <div id="lista_content">
