@@ -228,7 +228,21 @@ function displayListas(listas_json){
         listas_json.forEach(function(item, index){
             boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
             boton += item.id + ",'"+ item.usuario +"');>>> Lista " + item.id;
-            boton += " " + item.estado  +  "</button>"
+            switch(item.estado) {
+                case "ABIERTA":
+                    boton += " <i class='fas fa-door-open'></i>"  +  "</button>"
+                  break;
+                case "CERRADA":
+                    boton += " <i class='fas fa-door-closed'></i>"  +  "</button>"
+                  break;
+                case "BLOQUEADA":
+                    boton += " <i class='fas fa-lock'></i>"  +  "</button>"
+                    break;
+              }
+            //boton += " " + item.estado  +  "</button>"
+            
+            
+            
             contentId = "content_" + item.nivel_id.toString();
             $(boton).appendTo('#' + contentId)
         })

@@ -155,6 +155,8 @@ class JugadorNivel(models.Model):
     n_referidos_activados = models.SmallIntegerField(default=0)
     color = models.CharField(max_length=10, default='red')
     ciclo = models.BigIntegerField(default=0)
+    bloqueo_x_clon = models.BooleanField(default=False)
+    bloqeo_x_cobros = models.BooleanField(default=False)
     def __str__(self):
         return "Jugador " + str(self.jugador) + " " + str(self.nivel)
 
