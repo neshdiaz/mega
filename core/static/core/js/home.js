@@ -360,7 +360,7 @@ function displayListaContent(lista_json){
         texto_usuario = lista_json[0].user + ' ' +  lista_json[0].cadena_ciclaje
         pat = lista_json[0].patrocinador;
         $("#j0").text(texto_usuario); 
-        $("#j0").html('<div>'+ texto_usuario +'</div>');
+        $("#j0").html("<div><i class='fas fa-hand-holding-usd'></i>"+ texto_usuario +'</div>');
         $("#j0").css({"color": lista_json[0].color});
         
         texto_usuario = lista_json[1].user + ' ' +  lista_json[1].cadena_ciclaje
@@ -378,7 +378,7 @@ function displayListaContent(lista_json){
         texto_usuario = lista_json[3].user + ' ' +  lista_json[3].cadena_ciclaje
         pat = lista_json[3].patrocinador;
         $("#j3").text(texto_usuario); 
-        $("#j3").html('<div>'+ texto_usuario +'</div>');
+        $("#j3").html("<div><i class='fas fa-recycle'></i>"+ texto_usuario +"</div>");
         $("#j3").css({"color": lista_json[3].color}); 
 
         texto_usuario = lista_json[4].user + ' ' +  lista_json[4].cadena_ciclaje
