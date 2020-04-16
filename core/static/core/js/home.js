@@ -251,7 +251,7 @@ function displayListas(listas_json){
 
 // ajax para cargar las listas del referido
 function get_listas_referido(usr, nivel){
-    referido_activo = usrlo
+    referido_activo = usr
     if($("#referidosContainer").length > 0){
         ur = url_listas_referido;
 
