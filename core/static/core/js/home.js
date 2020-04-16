@@ -517,7 +517,7 @@ function displayListaReferidos(referidos_json){
             item_anterior = item.usuario;
             if (item_nuevo != item_anterior ){
                 headx = "<div id='head_" + item.usuario + "'>";
-                headx += "<button style='color: "+ item.color +"' onclick=get_listas_referido('"+ item.usuario +"');  class='btn btn-warning' data-toggle='collapse' data-target='#";
+                headx += "<button style='background-color: "+ item.color +"' onclick=get_listas_referido('"+ item.usuario +"');  class='btn-referido btn btn-warning' data-toggle='collapse' data-target='#";
                 headx += "content_" + item.usuario + "' aria-expanded='false' aria-controls='content_" + item.usuario +"'>> ";
                 headx += item.usuario + "</div>";
                 // agrego la cabecera
