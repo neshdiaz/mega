@@ -12,7 +12,8 @@ class Configuracion(models.Model):
     porcent_posicion_cobro = models.SmallIntegerField(default=50)
     monto_minimo_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=100)
     comision_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    tope_cobros = models.SmallIntegerField(default=6)
+    tope_cobros_nivel = models.SmallIntegerField(default=6)
+    tope_cobros_clon = models.SmallIntegerField(default=10)
 
     def __str__(self):
         return "Configuracion" + str(self.nombre)
@@ -155,8 +156,10 @@ class JugadorNivel(models.Model):
     n_referidos_activados = models.SmallIntegerField(default=0)
     color = models.CharField(max_length=10, default='red')
     ciclo = models.BigIntegerField(default=0)
-    bloqueo_x_clon = models.BooleanField(default=False)
-    bloqeo_x_cobros = models.BooleanField(default=False)
+    cobros = models.BigIntegerField(default=0)
+    bloqueo_x_cobros_nivel = models.BooleanField(default=False)
+    bloqueo_y_cobros_clon = models.BooleanField(default=False)
+    
     def __str__(self):
         return "Jugador " + str(self.jugador) + " " + str(self.nivel)
 

@@ -11,7 +11,8 @@ from django.dispatch import receiver
 from django.http import HttpResponse, JsonResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Lista, Jugador, Juego, Cobrador, Clon, User, JugadorNivel, Nivel, Cuenta, Configuracion, Movimiento
+from .models import Lista, Jugador, Juego, Cobrador, Clon, User,\
+                    JugadorNivel, Nivel, Cuenta, Configuracion, Movimiento
 
 @requires_csrf_token
 def index(request):
@@ -81,6 +82,11 @@ def home(request, id_usuario=None, id_lista=None):
 #    if created:
 #        asignar_jugador(instance)
 
+@receiver(post_save, sender=Cobrador)
+def signal_cobrador(instance, created, **kwargs):
+    if created:
+        jugador_inc_cobros(instance.jugador, instance.nivel)
+
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador, nivel_lista):
@@ -102,7 +108,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         juego = Juego(lista=nueva_ubicacion['lista'],
                       jugador=nuevo_jugador,
                       posicion=nueva_ubicacion['posicion'])
-        juego.save()
+        juego.save()    
         juego.refresh_from_db()
 
         
@@ -749,6 +755,30 @@ def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
                 nuevo_clon.save()
                 nuevo_clon.refresh_from_db()
 
+
+@transaction.atomic
+def jugador_inc_cobros(jugador, nivel_lista):
+    tope_cobros_nivel = Configuracion.objects.get(pk=1).tope_cobros_nivel
+    tope_cobros_clon = Configuracion.objects.get(pk=1).tope_cobros_clon
+
+    jugador_nivel = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_lista)
+    jugador_nivel.cobros = F('cobros') + 1
+    jugador_nivel.save()
+    jugador_nivel.refresh_from_db()
+
+    if jugador_nivel.cobros == tope_cobros_nivel:
+        jugador_nivel.bloqueo_x_cobros_nivel = True
+        jugador_nivel.color = 'orange'
+        jugador_nivel.save()
+        jugador_nivel.refresh_from_db()
+
+    if jugador_nivel.cobros == tope_cobros_clon:
+        jugador_nivel.bloqueo_x_cobros_clon = True
+        jugador_nivel.color = 'blue'
+        jugador_nivel.save()
+        jugador_nivel.refresh_from_db()
+
+
 # Inicio del bloque de funciones validaciones pc y bloqueo
 
 def lista_desbloquear(lista):
@@ -765,13 +795,19 @@ def lista_validar_bloqueo(lista):
     juegos = Juego.objects.select_related('lista', 'jugador')\
                           .filter(lista=lista)
     
-    color0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel).color
-    color1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel).color
+    juego0 = Juego.objects.get(lista=lista, posicion=0)
+    juego1 = Juego.objects.get(lista=lista, posicion=1)
     
-    if color0 == 'green' or\
-        color1 == 'green':
-        lista_desbloquear(lista)
+    jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego0.jugador, nivel=lista.nivel)
+    jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego1.jugador, nivel=lista.nivel)
 
+    color0 = jugador_nivel_0.color
+    color1 = jugador_nivel_1.color
+    
+    if color0 != 'blue' and color0 != 'orange': #Si no tiene bloqueo por cobros
+        if color0 == 'green' or\
+            color1 == 'green':
+            lista_desbloquear(lista)
 
 # Validamos todas las listas del patrocinador bloqueadas para activarlas
 def jugador_validar_bloqueos(patrocinador, nivel_lista):
@@ -787,14 +823,14 @@ def jugador_validar_bloqueos(patrocinador, nivel_lista):
             jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
             jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
 
-            if jugador_nivel_0.color == 'green' or \
+            if jugador_nivel0.color != 'blue' and jugador_nivel0.color != 'orange': #Si no tiene bloqueo por cobros
+                if jugador_nivel_0.color == 'green' or \
                     jugador_nivel_1.color == 'green':
-                lista_desbloquear(lista)
+                    lista_desbloquear(lista)
 
 
 # Buscamos todas las listas del patrocinador para generar el premio castigo
 def jugador_validar_pcs(patrocinador, nivel_lista):
-    print('funciona')
     if patrocinador is not None:
         listas_patrocinador = Lista.objects \
                                    .filter(jugador=patrocinador)\
@@ -802,7 +838,6 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
                                    .filter(pc=False, nivel=nivel_lista)
 
         for lista in listas_patrocinador:
-            print(lista)
             
             juegos = Juego.objects.select_related('jugador', 'lista')\
                                   .filter(lista=lista)
@@ -819,7 +854,7 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
             objPosicion0 = Juego.objects.get(pk=juego_posicion_0[0].id)
             objPosicion1 = Juego.objects.get(pk=juego_posicion_1[0].id)
 
-            if jugador_nivel_0.color != 'green':
+            if jugador_nivel_0.color == 'red' or jugador_nivel_0.color == '#d6d007':
                 # recorremos la lista para buscar algun verde que suba de posicion
                 # en caso de que la cabeza no este en verde
                 if jugador_nivel_1.color == 'green':
@@ -861,7 +896,7 @@ def lista_validar_pc(lista):
         posicion0 = juego_0[0]
         posicion1 = juego_1[0]
 
-        if jugador_nivel_0.color != 'green':
+        if jugador_nivel_0.color == 'red' or jugador_nivel_0.color == '#d6d007':
             # recorremos la lista para buscar algun verde que suba de posicion
             # en caso de que la cabeza no este en verde
             if jugador_nivel_1.color == 'green':

@@ -238,7 +238,7 @@ function displayListas(listas_json){
                 case "BLOQUEADA":
                     boton += " <i class='fas fa-lock'></i>"  +  "</button>"
                     break;
-              }
+            }
             //boton += " " + item.estado  +  "</button>"
             
             
@@ -251,7 +251,7 @@ function displayListas(listas_json){
 
 // ajax para cargar las listas del referido
 function get_listas_referido(usr, nivel){
-    referido_activo = usr
+    referido_activo = usrlo
     if($("#referidosContainer").length > 0){
         ur = url_listas_referido;
 
@@ -322,7 +322,17 @@ function displayListasReferido(listas_json){
     for(item_lista of listas_json){
         boton = "<button class='btn btn-secondary ml-4' onclick=get_lista_content('" + url + "',";
         boton += item_lista.id + ",'"+ item_lista.usuario +"');>>>> Lista " + item_lista.id;
-        boton += " " + item_lista.estado  +  "</button>";
+        switch(item_lista.estado) {
+            case "ABIERTA":
+                boton += " <i class='fas fa-door-open'></i>"  +  "</button>"
+              break;
+            case "CERRADA":
+                boton += " <i class='fas fa-door-closed'></i>"  +  "</button>"
+              break;
+            case "BLOQUEADA":
+                boton += " <i class='fas fa-lock'></i>"  +  "</button>"
+                break;
+        }
         contentId = "#content_" + usuario + "_nivel_" + item_lista.nivel_id.toString();
         $(boton).appendTo(contentId);
     }
@@ -507,7 +517,7 @@ function displayListaReferidos(referidos_json){
             item_anterior = item.usuario;
             if (item_nuevo != item_anterior ){
                 headx = "<div id='head_" + item.usuario + "'>";
-                headx += "<button onclick=get_listas_referido('"+ item.usuario +"');  class='btn btn-warning' data-toggle='collapse' data-target='#";
+                headx += "<button style='color: "+ item.color +"' onclick=get_listas_referido('"+ item.usuario +"');  class='btn btn-warning' data-toggle='collapse' data-target='#";
                 headx += "content_" + item.usuario + "' aria-expanded='false' aria-controls='content_" + item.usuario +"'>> ";
                 headx += item.usuario + "</div>";
                 // agrego la cabecera
