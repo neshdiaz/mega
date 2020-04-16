@@ -6,6 +6,14 @@
     <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de <a href ="{%url 'core:mis_niveles'%}"> <i class="fas fa-sort-amount-up"></i>Niveles</a> para empezar...</div>
   {% endif %}  
 
+  {% if tiene_bloqueo_nivel %}
+    <div class='alert alert-danger' role='alert'>Apareces de color naranja porque alcanzaste el número máximo de cobros, debes activar el siguiente nivel para continuar en verde y cobrar.<a href ="{%url 'core:mis_niveles'%}"> <i class="fas fa-sort-amount-up"></i>Niveles</a></div>
+  {% endif %}  
+
+  {% if tiene_bloqueo_clon %}
+    <div class='alert alert-danger' role='alert'>Apareces de color Azul, hemos generado un clon especial para ti, debes activarlo para poder continuar en verde y cobrar.<a href ="{%url 'core:mis_clones'%}"> <i class="fas fa-users"></i>Mis Clones</a></div>
+  {% endif %}  
+
   <div class="container-fluid card card-body ">
   <div class = "row">
 

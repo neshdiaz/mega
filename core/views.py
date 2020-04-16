@@ -69,13 +69,24 @@ def home(request, id_usuario=None, id_lista=None):
     listas_activas = JugadorNivel.objects.filter(jugador__usuario__username=request.user.username, \
                                                        estado='A')
     tiene_niveles_activos = listas_activas.exists()
-
+    
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    jugador_niveles = JugadorNivel.objects.filter(jugador=jugador)
+    
+    tiene_bloqueo_nivel = False
+    tiene_bloqueo_clon = False
+    for jugador in jugador_niveles:
+        if jugador.bloqueo_x_cobros_nivel == True:
+            tiene_bloqueo_nivel = True
+        if jugador.bloqueo_y_cobros_clon == True:
+            tiene_bloqueo_clon = True
 
     return render(request, 'core/home.html', {
         'hora_local': hora_local,
         'base_url': request.build_absolute_uri('/')[:-1].strip("/"),
-        'tiene_niveles_activos': tiene_niveles_activos})
-
+        'tiene_niveles_activos': tiene_niveles_activos,
+        'tiene_bloqueo_nivel':tiene_bloqueo_nivel,
+        'tiene_bloqueo_clon':tiene_bloqueo_clon})
 
 # @receiver(post_save, sender=Jugador)
 #def activar_jugador(instance, created, **kwargs):
@@ -773,10 +784,14 @@ def jugador_inc_cobros(jugador, nivel_lista):
         jugador_nivel.refresh_from_db()
 
     if jugador_nivel.cobros == tope_cobros_clon:
-        jugador_nivel.bloqueo_x_cobros_clon = True
+        jugador_nivel.bloqueo_y_cobros_clon = True
         jugador_nivel.color = 'blue'
         jugador_nivel.save()
         jugador_nivel.refresh_from_db()
+        # Generamos el nuevo clon especial
+        nuevo_clon_especial = Clon(jugador=jugador, estado='P', tipo='C', nivel=nivel_lista)
+        nuevo_clon_especial.save()
+        
 
 
 # Inicio del bloque de funciones validaciones pc y bloqueo
@@ -1279,6 +1294,13 @@ def activar_clon(request, clon_id=None, nivel_lista=None):
             clon.save()
             clon.refresh_from_db()
             asignar_clon(clon, clon.nivel)
+            if clon.tipo == 'C':
+                jugador_nivel = JugadorNivel.objects.get(jugador=clon.jugador, nivel=nivel_lista)
+                if jugador_nivel.color == 'blue' and bloqueo_y_cobros_clon == True:
+                    jugador_nivel.color = 'green'
+                    jugador_nivel.bloqueo_y_cobros_clon = False
+                    jugador_nivel.save()
+
     return redirect(reverse('core:mis_clones'))
 
 @transaction.atomic
@@ -1290,6 +1312,13 @@ def activar_nivel(request, nivel_id):
     nivel_a_activar.save()
     nivel_a_activar.refresh_from_db()
     asignar_jugador(jugador, nivel_a_activar.nivel)
+
+    # Desbloqueo jugador si activa otro nivel
+    jugador_nivel = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_a_activar)
+    if jugador_nivel.color == 'orange' and bloqueo_x_cobros_nivel == True:
+        jugador_nivel.color = 'green'
+        jugador_nivel.bloqueo_y_cobros_nivel = False
+        jugador_nivel.save()
     return redirect(reverse('core:mis_niveles'))
 
 @requires_csrf_token

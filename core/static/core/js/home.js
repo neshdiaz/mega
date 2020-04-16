@@ -3,6 +3,8 @@ lista_desplegada = 1;
 primera_carga = false;
 url_listas = "";
 url_lista_content = "";
+url_lista_cobrando = "";
+url_lista_clones = "";
 mis_listas = [];
 var referido_activo = "";
 var Filtro_estado = "Todos"
@@ -23,10 +25,10 @@ function init(){
     compartirReferido(); 
     get_listas();
     //get_lista_content(url_lista_content);
-    relojInit(relojActual);
-    get_lista_clones(url_clones);
+    //relojInit(relojActual);
+    get_lista_clones();
     get_lista_referidos();  
-    get_lista_cobrando(url_lista_cobrando);   
+    get_lista_cobrando();   
     websocket();
 }
 
@@ -139,11 +141,10 @@ function websocket(){
 
 function actualizar_pantalla(){
     get_listas()
-    get_lista_content();
+    // get_lista_content();
     get_lista_clones();
     get_lista_referidos();
     get_lista_cobrando();
-    get_lista_niveles();
     
 }
 
@@ -404,7 +405,7 @@ function displayListaContent(lista_json){
     
 }
 
-function get_lista_clones(url_lista_clones){
+function get_lista_clones(){
     if($("#clonesContainer").length > 0){
         $.ajax({
             url: url_lista_clones,
@@ -532,7 +533,7 @@ function displayListaReferidos(referidos_json){
     }
 }
 
-function get_lista_cobrando(url_lista_cobrando){
+function get_lista_cobrando(){
     $.ajax({
         url: url_lista_cobrando,
         method: "post",
