@@ -16,7 +16,7 @@ urlpatterns = [
     path('finanzas/', views.mis_finanzas, name='mis_finanzas'),
     path('home/activar_clon/<int:clon_id>/', views.activar_clon, name='activar_clon'),
     path('home/activar_clon/', views.activar_clon, name='activar_clon'),
-    path('home/activar_nivel/<int:nivel_id>/', views.activar_nivel, name='activar_nivel'),
+    path('home/activar_nivel/<int:jugador_nivel_id>/', views.activar_nivel, name='activar_nivel'),
     path('home/cargar_saldo/<int:monto>/', views.cargar_saldo, name='cargar_saldo'),
     path('home/cargar_saldo/', views.cargar_saldo, name='cargar_saldo'),
 

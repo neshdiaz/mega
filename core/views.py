@@ -97,7 +97,7 @@ def home(request, id_usuario=None, id_lista=None):
 def signal_cobrador(instance, created, **kwargs):
     if created:
         jugador_inc_cobros(instance.jugador, instance.nivel)
-
+        
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador, nivel_lista):
@@ -762,7 +762,7 @@ def jugador_inc_activos_abuelo(patrocinador, nivel_lista):
                 jugador_nivel_abuelo.n_referidos_activados != 0:
                 nuevo_clon = Clon(jugador=abuelo,
                                 estado='P',
-                                nivel=nivel_lista)
+                                nivel=nivel_lista)  
                 nuevo_clon.save()
                 nuevo_clon.refresh_from_db()
 
@@ -1305,21 +1305,53 @@ def activar_clon(request, clon_id=None, nivel_lista=None):
 
 @transaction.atomic
 @requires_csrf_token
-def activar_nivel(request, nivel_id):
+def activar_nivel(request, jugador_nivel_id):
     jugador = Jugador.objects.get(usuario__username=request.user.username)
-    nivel_a_activar = JugadorNivel.objects.get(pk=nivel_id)
-    nivel_a_activar.estado = 'A'
-    nivel_a_activar.save()
-    nivel_a_activar.refresh_from_db()
-    asignar_jugador(jugador, nivel_a_activar.nivel)
+    cuenta = Cuenta.objects.get(jugador=jugador)
+    niveles = ""
+    
+    nivel_a_activar = JugadorNivel.objects.get(pk=jugador_nivel_id)
+    if cuenta.saldo_activacion >= nivel_a_activar.nivel.monto or cuenta.saldo_activacion\
+        + cuenta.saldo_disponible >= nivel_a_activar.nivel.monto:   
 
-    # Desbloqueo jugador si activa otro nivel
-    jugador_nivel = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_a_activar)
-    if jugador_nivel.color == 'orange' and bloqueo_x_cobros_nivel == True:
-        jugador_nivel.color = 'green'
-        jugador_nivel.bloqueo_y_cobros_nivel = False
-        jugador_nivel.save()
-    return redirect(reverse('core:mis_niveles'))
+        nivel_a_activar.estado = 'A'
+        nivel_a_activar.save()
+        nivel_a_activar.refresh_from_db()
+        asignar_jugador(jugador, nivel_a_activar.nivel.id)
+
+        # genero descuentos y movimientos en la cuenta
+        if nivel_a_activar.nivel.monto > cuenta.saldo_activacion and nivel_a_activar.nivel.monto <= (cuenta.saldo_activacion + cuenta.saldo_disponible):
+            restante = nivel_a_activar.nivel.monto - cuenta.saldo_activacion
+            cuenta.saldo_activacion = 0
+            cuenta.saldo_disponible = F('saldo_disponible') - restante
+            cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
+            cuenta.save()
+
+            desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
+            nuevo_movimiento = Movimiento(cuenta=cuenta, 
+                                          tipo='P', 
+                                          descripcion=desc_movimiento,
+                                          valor=nivel_a_activar.nivel.monto)
+            nuevo_movimiento.save()
+            
+            # Desbloqueo jugador si activa el siguiente nivel
+            nivel_id_anterior = nivel_a_activar.nivel.id-1
+            nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
+            jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
+            if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
+                jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
+                jugador_nivel_anterior.color == 'green'
+                jugador_nivel_anterior.save()
+        respuesta = 'Nivel activado correctamente'
+    else:
+        respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
+    
+    niveles = list(JugadorNivel.objects.filter(jugador=jugador))
+    return render(request, 'core/mis_niveles.html', {
+                           'niveles_jugador': niveles,
+                           'respuesta':respuesta,
+                           'base_url': request.build_absolute_uri('/')[:-1].strip("/")})
+
 
 @requires_csrf_token
 def cargar_saldo(request, monto):

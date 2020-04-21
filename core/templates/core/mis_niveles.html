@@ -3,14 +3,12 @@
 
 
 {% block contenido %}
-
+{% if respuesta %}
+  <div class='alert alert-info' role='alert'>{{respuesta}}</div>
+{% endif %}  
   
   <h2>Mis Niveles</h2>
   <div class = "listaNiveles">
-  {% for nivel in niveles_jugador %}
-
-      
-  {% endfor %}
   </div>
 
   <div class="container-fluid">

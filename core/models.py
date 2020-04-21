@@ -40,8 +40,9 @@ class Cuenta(models.Model):
 
 class Movimiento(models.Model):
     TIPO_CHOICES = (
-        ('A', 'ABONO POR ACTIVACION'),
-        ('C', 'ABONO POR CARGUE')
+        ('A', 'ABONO'),
+        ('P', 'PAGO'),
+        ('R', 'RETIRO')
     )
     cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
