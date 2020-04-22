@@ -254,6 +254,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador
     
     # Actualizamos cuentas y movimientos de cada jugador
+    # cuenta_plataforma arranca con todos los niveles activos no se valida autoactivacion
     cuenta_plataforma = Cuenta.objects.get(jugador=jugador_plataforma)
     cuenta_plataforma.saldo_activacion = F('saldo_activacion') + porcent_plataforma
     cuenta_plataforma.saldo_total = F('saldo_total') + porcent_plataforma
@@ -273,12 +274,15 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                         valor=porcent_plataforma)
     movimiento_plataforma.save()
 
+    # cuenta_patrocinador_directo 
     cuenta_patrocinador_directo = Cuenta.objects.get(jugador=jugador_patrocinador)
     cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.saldo_total = F('saldo_total') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.beneficios_totales = F('beneficios_totales') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.save()
     cuenta_patrocinador_directo.refresh_from_db()
+    # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
+    jugador_validar_auto_nivel_up(jugador_patrocinador, lista.nivel)
 
     movimiento_patrocinador_directo = Movimiento(cuenta=cuenta_patrocinador_directo,
                                                  tipo='A',
@@ -292,6 +296,8 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_segunda_generacion.beneficios_totales = F('beneficios_totales') + porcent_segunda_generacion
     cuenta_segunda_generacion.save()
     cuenta_segunda_generacion.refresh_from_db()
+    # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
+    jugador_validar_auto_nivel_up(jugador_segunda_generacion, lista.nivel)
 
     movimiento_segunda_generacion = Movimiento(cuenta=cuenta_segunda_generacion,
                                                  tipo='A',
@@ -306,6 +312,8 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_tercera_generacion.beneficios_totales = F('beneficios_totales') + porcent_tercera_generacion
     cuenta_tercera_generacion.save()
     cuenta_tercera_generacion.refresh_from_db()
+    # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
+    jugador_validar_auto_nivel_up(jugador_tercera_generacion, lista.nivel)
 
     movimiento_tercera_generacion = Movimiento(cuenta=cuenta_tercera_generacion,
                                                  tipo='A',
@@ -322,12 +330,33 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_posicion_cobro.beneficios_totales = F('beneficios_totales') + porcent_posicion_cobro
     cuenta_posicion_cobro.save()
     cuenta_posicion_cobro.refresh_from_db()
+    # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
+    jugador_validar_auto_nivel_up(jugador_posicion_cobro, lista.nivel)
     
     movimiento_posicion_cobro = Movimiento(cuenta=cuenta_posicion_cobro,
                                            tipo='A',
                                            descripcion='Pago por activación de jugador: ' + str(jugador),
                                            valor=porcent_posicion_cobro)
     movimiento_posicion_cobro.save()
+
+
+@transaction.atomic
+def jugador_validar_auto_nivel_up(jugador, nivel_lista):
+    cuenta_jugador = Cuenta.objects.get(jugador=jugador)
+    niveles_creados = Nivel.objects.all()
+    niveles_jugador = JugadorNivel.objects.filter(jugador=jugador)
+    for nivel_jugador in niveles_jugador:
+        if cuenta_jugador.saldo_activacion > nivel_jugador.nivel.monto and nivel_jugador.estado == 'P':
+            nivel_jugador.estado = 'A'
+            nivel_jugador.save()
+            nivel_jugador.refresh_from_db()
+            asignar_jugador(jugador, nivel_jugador.nivel.id)
+
+
+
+
+
+
 
 @transaction.atomic
 def asignar_clon(clon, nivel_lista):
