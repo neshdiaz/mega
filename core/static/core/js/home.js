@@ -29,6 +29,7 @@ function init(){
     get_lista_clones();
     get_lista_referidos();  
     get_lista_cobrando();   
+    //consulta_saldos_usuario()
     websocket();
 }
 
@@ -145,6 +146,7 @@ function actualizar_pantalla(){
     get_lista_clones();
     get_lista_referidos();
     get_lista_cobrando();
+    //consulta_saldos_usuario()
     
 }
 
@@ -164,6 +166,40 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// ajax para cargar saldos del usuario
+function consulta_saldos_usuario(){
+    if($("#saldosContainer").length > 0){
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: url_saldos_usuario,
+            method: "post",
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                saldos_json = JSON.parse(respuesta);
+                //actualizar el contenido del div        
+                displaySaldos(saldos_json);
+            }        
+        });
+    }    
+}
+
+function displaySaldos(saldos_json){
+    if($("#saldosContainer").length > 0){
+        $('#saldo_activacion').html('<p>SALDO ACTIVACION </p>')
+    }
+
+}
+
 
 // ajax para cargar las listas del usuario
 function get_listas(){

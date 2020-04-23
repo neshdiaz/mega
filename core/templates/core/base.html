@@ -55,7 +55,7 @@
     <h4> Bienvenido {{ request.user }}</h4>
     <div class="container-fluid"> <!--Enlace de referido -->
       <div class="row">
-        <div class="col-md-12">Este es tu enlace de referido:
+        <div class="col-md-6">Este es tu enlace de referido:
           <div class="input-group share">
             <input id="txtEnlaceReferido" class="form-control" value="{{base_url}}{% url 'registration:registro_referido' request.user %}" name=""  readonly> 
             <span class= input-group-btn> 
@@ -64,6 +64,13 @@
             </span>
           </div>
         </div>  
+
+        <div id="saldosContainer" class="col-md-6">Saldos
+          <div id="saldo_activacion" class="col-md-6"></div>
+          <div id="saldo_disponible" class="col-md-6"></div>
+          <div id="saldo_total" class="col-md-6"></div>
+        </div>
+
       </div>
     </div>
     
@@ -111,6 +118,7 @@
         url_activar_clon = "{% url 'core:activar_clon' %}";
         url_lista_cobrando = "{% url 'core:cobrando' %}";
         url_cargar_saldo = "{% url 'core:cargar_saldo' %}";
+        //url_cargar_saldo = "{% url 'core:consulta_saldos_usuario' %}";
         url_base = "{{base_url}}"
         
         init();

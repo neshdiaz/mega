@@ -1002,6 +1002,17 @@ def consulta_usuario(request, n_usuario=None):
     json_response = json.dumps(resp)
     return HttpResponse(json_response)
 
+@requires_csrf_token
+def consulta_saldos_usuario(request):
+    jugador = Jugador.objects.get(jugador__usuario__username=request.user.username)
+    cuenta = Cuenta.objects.get(jugador=jugador)
+    saldos = {'saldo_activacion': cuenta.saldo_activacion,
+              'saldo_disponible': cuenta.saldo_disponible,
+              'saldo_total': cuenta.saldo_total,
+    }
+    json_response = json.dumps(saldos)
+    return HttpResponse(json_response)
+
 
 @login_required
 @requires_csrf_token
@@ -1364,13 +1375,14 @@ def activar_nivel(request, jugador_nivel_id):
             nuevo_movimiento.save()
             
             # Desbloqueo jugador si activa el siguiente nivel
-            nivel_id_anterior = nivel_a_activar.nivel.id-1
-            nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
-            jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
-            if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
-                jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
-                jugador_nivel_anterior.color == 'green'
-                jugador_nivel_anterior.save()
+            if nivel_a_activar.nivel.id > 1:
+                nivel_id_anterior = nivel_a_activar.nivel.id-1
+                nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
+                jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
+                if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
+                    jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
+                    jugador_nivel_anterior.color == 'green'
+                    jugador_nivel_anterior.save()
         respuesta = 'Nivel activado correctamente'
     else:
         respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
