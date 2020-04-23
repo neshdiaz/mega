@@ -867,7 +867,7 @@ def jugador_validar_bloqueos(patrocinador, nivel_lista):
             jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
             jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
 
-            if jugador_nivel0.color != 'blue' and jugador_nivel0.color != 'orange': #Si no tiene bloqueo por cobros
+            if jugador_nivel_0.color != 'blue' and jugador_nivel_0.color != 'orange': #Si no tiene bloqueo por cobros
                 if jugador_nivel_0.color == 'green' or \
                     jugador_nivel_1.color == 'green':
                     lista_desbloquear(lista)
