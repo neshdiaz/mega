@@ -9,7 +9,7 @@
       <h4>Saldo total {{cuenta.saldo_total}}</h4>
     </div>
     <div class = "card-body">
-      <div class="container-fluid" >
+      <div class="container-fluid">
         <table class="table">
           <tbody>
             <tr>
@@ -56,7 +56,7 @@
         </div>
 
         <div class = "col-md-3 text-center p-5">
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalRetirar">
+          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalMovimientos">
             <i class="fas fa-list-ul"></i>Detalle de Movimientos
           </button>
         </div>
@@ -111,8 +111,8 @@
       </div>
     </div>
   </div>
-  
- <!-- Modal Movimientos-->
+
+  <!-- Modal retirar-->
  <div class="modal fade" id="modalRetirar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -123,6 +123,27 @@
         </button>
       </div>
       <div class="modal-body">
+        Realice sus retiros hacia su cuenta de criptomonedas
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+ <!-- Modal Movimientos-->
+ <div class="modal fade" id="modalMovimientos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Transacciones...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="movimientos" class="modal-body">
         Movimientos...
       </div>
       <div class="modal-footer">

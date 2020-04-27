@@ -30,6 +30,7 @@ function init(){
     get_lista_referidos();  
     get_lista_cobrando();   
     //consulta_saldos_usuario()
+    consulta_movimientos_usuario()
     websocket();
 }
 
@@ -196,6 +197,47 @@ function consulta_saldos_usuario(){
 function displaySaldos(saldos_json){
     if($("#saldosContainer").length > 0){
         $('#saldo_activacion').html('<p>SALDO ACTIVACION </p>')
+    }
+
+}
+
+// ajax para cargar movimientos del usuario
+function consulta_movimientos_usuario(){
+    if($("#movimientos").length > 0){
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: url_ver_movimientos,
+            method: "post",
+            beforeSend: function (xhr, settings) {
+                var csrftoken = getCookie('csrftoken');
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },   
+            success: function(respuesta){
+                movimientos_json = JSON.parse(respuesta);
+                //actualizar el contenido del div        
+                displaymovimientos(movimientos_json);
+            }        
+        });
+    }    
+}
+
+function displaymovimientos(movimientos_json){
+    if($("#movimientos").length > 0){
+        html_movimientos = ""
+        for (i in movimientos_json){
+            cont = parseInt(i) + 1
+            html_movimientos += "<p>" + cont + " "
+            html_movimientos +=  movimientos_json[i].tipo + " "       
+            html_movimientos +=  movimientos_json[i].descripcion + " "
+            html_movimientos +=  movimientos_json[i].valor +  "</p>"        
+        }
+        $('#movimientos').html(html_movimientos)
     }
 
 }
