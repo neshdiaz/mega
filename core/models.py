@@ -47,7 +47,7 @@ class Movimiento(models.Model):
     cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
                             default='A')
-    descripcion = models.CharField(default='', max_length=100, blank=True, null=True)
+    descripcion = models.CharField(default='', max_length=250, blank=True, null=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     created = models.DateTimeField(auto_now_add=True)

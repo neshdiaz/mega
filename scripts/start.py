@@ -65,7 +65,7 @@ def run():
     user2.refresh_from_db()
 
     # Creamos jugadores
-    jugador0 = Jugador(usuario=sistema,)
+    jugador0 = Jugador(usuario=sistema)
     jugador0.save()
     jugador0.refresh_from_db()
     
