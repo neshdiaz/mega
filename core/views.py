@@ -566,13 +566,14 @@ def lista_buscar_descendencia(patrocinador, nivel_lista):
                     log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+
                                   ' libre: en lista ' + str(nueva_ubicacion['lista']))
                 else:
-                    if jugador_nivel_abuelo.patrocinador is not None and patrocinador_abuelo is not None:
+                    if jugador_nivel_abuelo.patrocinador is not None:
                         jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo,
                                                                         nivel=nivel_lista)
                         patrocinador_abuelo = jugador_nivel_abuelo.patrocinador
-                        abuelo = Jugador.objects.get(pk=patrocinador_abuelo.id)
-                    else:
-                        abuelo = None
+                        if patrocinador_abuelo is not None:
+                            abuelo = Jugador.objects.get(pk=patrocinador_abuelo.id)
+                        else:
+                            abuelo = None
     return ubicacion
 
 
