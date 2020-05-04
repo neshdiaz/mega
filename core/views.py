@@ -260,9 +260,14 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     # Actualizamos cuentas y movimientos de cada jugador
     # cuenta_plataforma arranca con todos los niveles activos no se valida autoactivacion
     cuenta_plataforma = Cuenta.objects.get(jugador=jugador_plataforma)
+    
     cuenta_plataforma.saldo_activacion = F('saldo_activacion') + porcent_plataforma
+    cuenta_plataforma.saldo_disponible = F('saldo_disponible') + porcent_plataforma
+    
     cuenta_plataforma.saldo_total = F('saldo_total') + porcent_plataforma
+    
     cuenta_plataforma.beneficios_totales = F('beneficios_totales') + porcent_plataforma
+    
     cuenta_plataforma.save()
     cuenta_plataforma.refresh_from_db()
 
@@ -284,6 +289,10 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_patrocinador_directo = Cuenta.objects.get(jugador=jugador_patrocinador)
     cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') +\
         porcent_patrocinador_directo
+    
+    cuenta_patrocinador_directo.saldo_disponible = F('saldo_disponible') +\
+        porcent_patrocinador_directo
+    
     cuenta_patrocinador_directo.saldo_total = F('saldo_total') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.beneficios_totales = F('beneficios_totales') +\
         porcent_patrocinador_directo
@@ -301,6 +310,8 @@ def jugador_repartir_pago(jugador, lista, es_clon):
 
     cuenta_segunda_generacion = Cuenta.objects.get(jugador=jugador_segunda_generacion)
     cuenta_segunda_generacion.saldo_activacion = F('saldo_activacion') + porcent_segunda_generacion
+    cuenta_segunda_generacion.saldo_disponible = F('saldo_disponible') + porcent_segunda_generacion
+
     cuenta_segunda_generacion.saldo_total = F('saldo_total') + porcent_segunda_generacion
     cuenta_segunda_generacion.beneficios_totales = F('beneficios_totales') + porcent_segunda_generacion
     cuenta_segunda_generacion.save()
@@ -318,6 +329,8 @@ def jugador_repartir_pago(jugador, lista, es_clon):
 
     cuenta_tercera_generacion = Cuenta.objects.get(jugador=jugador_tercera_generacion)
     cuenta_tercera_generacion.saldo_activacion = F('saldo_activacion') + porcent_tercera_generacion
+    cuenta_tercera_generacion.saldo_disponible = F('saldo_disponible') + porcent_tercera_generacion
+
     cuenta_tercera_generacion.saldo_total = F('saldo_total') + porcent_tercera_generacion
     cuenta_tercera_generacion.beneficios_totales = F('beneficios_totales') + porcent_tercera_generacion
     cuenta_tercera_generacion.save()
@@ -336,6 +349,8 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     # Movimientos de entrada de el cobrador de la lista
     cuenta_posicion_cobro = Cuenta.objects.get(jugador=jugador_posicion_cobro)
     cuenta_posicion_cobro.saldo_activacion = F('saldo_activacion') + porcent_posicion_cobro
+    cuenta_posicion_cobro.saldo_disponible = F('saldo_disponible') + porcent_posicion_cobro
+
     cuenta_posicion_cobro.saldo_total = F('saldo_total') + porcent_posicion_cobro
     cuenta_posicion_cobro.beneficios_totales = F('beneficios_totales') + porcent_posicion_cobro
     cuenta_posicion_cobro.save()
@@ -551,8 +566,9 @@ def lista_buscar_descendencia(patrocinador, nivel_lista):
                     log_registrar('log.txt', 'Posicion ' + str(nueva_ubicacion['posicion'])+
                                   ' libre: en lista ' + str(nueva_ubicacion['lista']))
                 else:
-                    if jugador_nivel_abuelo.patrocinador is not None:
-                        jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo, nivel=nivel_lista)
+                    if jugador_nivel_abuelo.patrocinador is not None and patrocinador_abuelo is not None:
+                        jugador_nivel_abuelo = JugadorNivel.objects.get(jugador=abuelo,
+                                                                        nivel=nivel_lista)
                         patrocinador_abuelo = jugador_nivel_abuelo.patrocinador
                         abuelo = Jugador.objects.get(pk=patrocinador_abuelo.id)
                     else:
@@ -816,22 +832,33 @@ def jugador_inc_cobros(jugador, nivel_lista):
     jugador_nivel.save()
     jugador_nivel.refresh_from_db()
 
-    if jugador_nivel.cobros == tope_cobros_nivel:
-        jugador_nivel.bloqueo_x_cobros_nivel = True
-        jugador_nivel.color = 'orange'
-        jugador_nivel.save()
-        jugador_nivel.refresh_from_db()
+
+    if not niveles_full(jugador):
+        if jugador_nivel.cobros == tope_cobros_nivel:
+            jugador_nivel.bloqueo_x_cobros_nivel = True
+            jugador_nivel.color = 'orange'
+            jugador_nivel.save()
+            jugador_nivel.refresh_from_db()
 
     if jugador_nivel.cobros == tope_cobros_clon:
-        jugador_nivel.bloqueo_y_cobros_clon = True
-        jugador_nivel.color = 'blue'
-        jugador_nivel.save()
-        jugador_nivel.refresh_from_db()
+        if not jugador.usuario.is_staff:
+            jugador_nivel.bloqueo_y_cobros_clon = True
+            jugador_nivel.color = 'blue'
+            jugador_nivel.save()
+            jugador_nivel.refresh_from_db() 
         # Generamos el nuevo clon especial
         nuevo_clon_especial = Clon(jugador=jugador, estado='P', tipo='C', nivel=nivel_lista)
         nuevo_clon_especial.save()
-        
 
+
+@transaction.atomic
+def niveles_full(jugador):
+    niveles_jugador = JugadorNivel.objects.filter(jugador=jugador)
+    n_full = True
+    for nivel_jugador in niveles_jugador:
+        if nivel_jugador.estado == 'P':
+            n_full = False
+    return n_full
 
 # Inicio del bloque de funciones validaciones pc y bloqueo
 

@@ -165,7 +165,7 @@ class JugadorNivel(models.Model):
         return "Jugador " + str(self.jugador) + " " + str(self.nivel)
 
     class Meta:
-        verbose_name_plural = 'Jugador Niveles'       
+        verbose_name_plural = 'Jugador Niveles'
 
 class Clon(models.Model):
     ESTADO_CHOICES = (
