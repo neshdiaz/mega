@@ -37,7 +37,6 @@ class login(LoginView):
                    'placeholder': 'Contraseña'})
         return form
 
-
 class logged_out(LogoutView):
     next_page = reverse_lazy('registration:login')
     template_name = 'registration/logged_out.html'
