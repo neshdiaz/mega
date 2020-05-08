@@ -12,8 +12,8 @@ class Configuracion(models.Model):
     porcent_posicion_cobro = models.SmallIntegerField(default=50)
     monto_minimo_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=100)
     comision_retiro = models.DecimalField(max_digits=6, decimal_places=2, default=0)
-    tope_cobros_nivel = models.SmallIntegerField(default=6)
-    tope_cobros_clon = models.SmallIntegerField(default=10)
+    tope_cobros_nivel = models.SmallIntegerField(default=8)
+    tope_cobros_clon = models.SmallIntegerField(default=16)
 
     def __str__(self):
         return "Configuracion" + str(self.nombre)

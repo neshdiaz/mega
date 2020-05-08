@@ -371,17 +371,21 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
     niveles_creados = Nivel.objects.all()
     niveles_jugador = JugadorNivel.objects.filter(jugador=jugador)
     for nivel_jugador in niveles_jugador:
-        if cuenta_jugador.saldo_activacion > nivel_jugador.nivel.monto and nivel_jugador.estado == 'P':
+        if cuenta_jugador.saldo_activacion > nivel_jugador.nivel.monto and \
+            nivel_jugador.estado == 'P':
+
             nivel_jugador.estado = 'A'
             nivel_jugador.save()
             nivel_jugador.refresh_from_db()
             asignar_jugador(jugador, nivel_jugador.nivel.id)
-
-
-
-
-
-
+            
+            nivel_anterior_id = nivel_jugador.nivel.id - 1
+            if nivel_anterior_id > 0:
+                nivel_anterior_jugador = JugadorNivel(jugador=jugador,
+                                                      nivel__id=nivel_anterior_id)
+                if nivel_anterior_jugador.bloqueo_x_cobros_nivel == True:
+                    nivel_anterior_jugador.bloqueo_x_cobros_nivel = False
+                    nivel_anterior_jugador.color = 'green'
 
 @transaction.atomic
 def asignar_clon(clon, nivel_lista):
@@ -955,10 +959,6 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
                                     str(objPosicion1.jugador.usuario) +
                                     ' en posicion 2 se activa en verde ')
 
-
-
-                
-
 #  Validamos lista para generar el premio castigo
 def lista_validar_pc(lista):
     
@@ -972,8 +972,10 @@ def lista_validar_pc(lista):
         juego_0 = juegos.filter(posicion=0)
         juego_1 = juegos.filter(posicion=1)
 
-        jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_0[0].jugador, nivel=lista.nivel)
-        jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_1[0].jugador, nivel=lista.nivel)
+        jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_0[0].jugador,
+                                                   nivel=lista.nivel)
+        jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_1[0].jugador,
+                                                   nivel=lista.nivel)
         
         posicion0 = juego_0[0]
         posicion1 = juego_1[0]
@@ -1178,7 +1180,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
 def listas(request, usr=None):
     filtro_estado = request.POST.get('estado')
     filtro_nivel = request.POST.get('nivel')
-    nivel_referido =  request.POST.get('nivel_referido')
+    nivel_referido = request.POST.get('nivel_referido')
 
 
     if usr is None:
@@ -1389,54 +1391,55 @@ def activar_nivel(request, jugador_nivel_id):
     niveles = ""
     
     nivel_a_activar = JugadorNivel.objects.get(pk=jugador_nivel_id)
-    # si el saldo de activacion me alcanza o si sumando el saldo disponible me alcanza
-    if cuenta.saldo_activacion >= nivel_a_activar.nivel.monto or cuenta.saldo_activacion\
-        + cuenta.saldo_disponible >= nivel_a_activar.nivel.monto:
+    if nivel_a_activar.estado == 'P':
+        # si el saldo de activacion me alcanza o si sumando el saldo disponible me alcanza
+        if cuenta.saldo_activacion >= nivel_a_activar.nivel.monto or cuenta.saldo_activacion\
+            + cuenta.saldo_disponible >= nivel_a_activar.nivel.monto:
 
-        nivel_a_activar.estado = 'A'
-        nivel_a_activar.save()
-        nivel_a_activar.refresh_from_db()
-        asignar_jugador(jugador, nivel_a_activar.nivel.id)
+            nivel_a_activar.estado = 'A'
+            nivel_a_activar.save()
+            nivel_a_activar.refresh_from_db()
+            asignar_jugador(jugador, nivel_a_activar.nivel.id)
 
-        # genero descuentos y movimientos en la cuenta
-        if cuenta.saldo_activacion > nivel_a_activar.nivel.monto:
-            cuenta.saldo_disponible = F('saldo_disponible') - nivel_a_activar.nivel.monto
-            cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
-            cuenta.save()
+            # genero descuentos y movimientos en la cuenta
+            if cuenta.saldo_activacion > nivel_a_activar.nivel.monto:
+                cuenta.saldo_disponible = F('saldo_disponible') - nivel_a_activar.nivel.monto
+                cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
+                cuenta.save()
 
-            desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
-            nuevo_movimiento = Movimiento(cuenta=cuenta, 
-                                          tipo='P', 
-                                          descripcion=desc_movimiento,
-                                          valor=nivel_a_activar.nivel.monto)
-            nuevo_movimiento.save()
-        elif nivel_a_activar.nivel.monto > cuenta.saldo_activacion and \
-                nivel_a_activar.nivel.monto <= (cuenta.saldo_activacion + cuenta.saldo_disponible):
-            restante = nivel_a_activar.nivel.monto - cuenta.saldo_activacion
-            cuenta.saldo_activacion = 0
-            cuenta.saldo_disponible = F('saldo_disponible') - restante
-            cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
-            cuenta.save()
+                desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
+                nuevo_movimiento = Movimiento(cuenta=cuenta, 
+                                            tipo='P', 
+                                            descripcion=desc_movimiento,
+                                            valor=nivel_a_activar.nivel.monto)
+                nuevo_movimiento.save()
+            elif nivel_a_activar.nivel.monto > cuenta.saldo_activacion and \
+                    nivel_a_activar.nivel.monto <= (cuenta.saldo_activacion + cuenta.saldo_disponible):
+                restante = nivel_a_activar.nivel.monto - cuenta.saldo_activacion
+                cuenta.saldo_activacion = 0
+                cuenta.saldo_disponible = F('saldo_disponible') - restante
+                cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
+                cuenta.save()
 
-            desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
-            nuevo_movimiento = Movimiento(cuenta=cuenta, 
-                                          tipo='P', 
-                                          descripcion=desc_movimiento,
-                                          valor=nivel_a_activar.nivel.monto)
-            nuevo_movimiento.save()
-            
-        # Desbloqueo jugador si activa el siguiente nivel
-        if nivel_a_activar.nivel.id > 1:
-            nivel_id_anterior = nivel_a_activar.nivel.id-1
-            nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
-            jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
-            if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
-                jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
-                jugador_nivel_anterior.color == 'green'
-                jugador_nivel_anterior.save()
-        respuesta = 'Nivel activado correctamente'
-    else:
-        respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
+                desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
+                nuevo_movimiento = Movimiento(cuenta=cuenta, 
+                                            tipo='P', 
+                                            descripcion=desc_movimiento,
+                                            valor=nivel_a_activar.nivel.monto)
+                nuevo_movimiento.save()
+                
+            # Desbloqueo jugador si activa el siguiente nivel
+            if nivel_a_activar.nivel.id > 1:
+                nivel_id_anterior = nivel_a_activar.nivel.id-1
+                nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
+                jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
+                if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
+                    jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
+                    jugador_nivel_anterior.color == 'green'
+                    jugador_nivel_anterior.save()
+            respuesta = 'Nivel activado correctamente'
+        else:
+            respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
     
     niveles = list(JugadorNivel.objects.filter(jugador=jugador))
     return render(request, 'core/mis_niveles.html', {
