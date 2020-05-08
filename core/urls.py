@@ -46,5 +46,6 @@ urlpatterns = [
     path('ajax/consulta_usuario/', views.consulta_usuario, name='consulta_usuario'),
     
     path('ajax/consulta_saldos_usuario/', views.consulta_saldos_usuario, name='consulta_saldos_usuario'),
-    path('ajax/consulta_movimientos/', views.jugador_ver_movimientos, name='jugador_ver_movimientos')
+    path('ajax/consulta_movimientos/', views.jugador_ver_movimientos, name='jugador_ver_movimientos'),
+    path('ajax/referidosInactivos/', views.referidos_inactivos, name='referidos_inactivos')
 ]

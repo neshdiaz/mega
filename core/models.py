@@ -111,6 +111,12 @@ class Juego(models.Model):
 
 
 class Jugador(models.Model):
+    ESTADO_CHOICES = (
+        ('R', 'REGISTRADO'),
+        ('A', 'ACTIVO')
+    )
+    estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
+                              default='R')
     nuevo = models.BooleanField(default=True)
     usuario = models.OneToOneField(User,
                                    on_delete=models.CASCADE)

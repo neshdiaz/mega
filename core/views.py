@@ -1346,6 +1346,20 @@ def cobrando(request):
     json_response = json.dumps(lst_cobrando)
     return HttpResponse(json_response)
 
+
+@requires_csrf_token
+def referidos_inactivos(request):
+    patrocinador = Jugador.objects.get(usuario__username=request.user.username)
+    lista_referidos_p = Jugador.objects.filter(promotor=patrocinador,
+                                               estado='R')
+    lst_referidos_p = []
+    for referido_p in lista_referidos_p:
+        ele = {"usuario": referido_p.usuario.username}
+        lst_referidos_p.append(ele)
+
+    json_response = json.dumps(lst_referidos_p)
+    return HttpResponse(json_response)
+
 @requires_csrf_token
 def clones(request):
     lista_clones = Clon.objects.filter(
@@ -1399,6 +1413,10 @@ def activar_nivel(request, jugador_nivel_id):
             nivel_a_activar.estado = 'A'
             nivel_a_activar.save()
             nivel_a_activar.refresh_from_db()
+
+            jugador.estado = 'A'
+            jugador.save()
+            jugador.refresh_from_db()
             asignar_jugador(jugador, nivel_a_activar.nivel.id)
 
             # genero descuentos y movimientos en la cuenta

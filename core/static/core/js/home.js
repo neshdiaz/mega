@@ -27,7 +27,8 @@ function init(){
     //get_lista_content(url_lista_content);
     //relojInit(relojActual);
     get_lista_clones();
-    get_lista_referidos();  
+    get_lista_referidos();
+    get_lista_inactivos();  
     get_lista_cobrando();   
     //consulta_saldos_usuario()
     consulta_movimientos_usuario()
@@ -72,10 +73,7 @@ function cambiarNivelRef(){
     //$('#listasReferidoContainer').html("");
     $('#encabezado_lista').html("");
 
-
-        
 }
-
 
 function compartirReferido(){
     btn = document.getElementById("btnWhatsapp");  
@@ -669,6 +667,55 @@ function displayListaCobrando(cobrando_json){
         //htmlCobrando += "</ol>";
         htmlCobrando += "</div>";   
         ContenedorCobrando.innerHTML = htmlCobrando
+    }
+}
+
+
+function get_lista_inactivos(){
+    $.ajax({
+        url: url_lista_inactivos,
+        method: "post",
+        beforeSend: function (xhr, settings) {
+            var csrftoken = getCookie('csrftoken');
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        },   
+        success: function(respuesta){
+            lista_json = JSON.parse(respuesta);
+            // actualizar el contenido del div
+            displayListaInactivos(lista_json);
+        }        
+    });
+}
+
+function displayListaInactivos(inactivos_json){
+    if($("#referidos_inactivos").length > 0){
+        ContenedorInactivos = document.getElementById("referidos_inactivos");
+        htmlReferidosInactivos = "";
+        //htmlCobrando = "<ol>";
+        htmlReferidosInactivos = "<div class='container-fluid p-0 m-0'>";
+        inactivos_json.forEach(function(item, index){
+            htmlReferidosInactivos += "<div class='row'>";
+            url = url_lista_cobrando;
+            //htmlCobrando += "    <li style='list-style:none; margin:0'> <i class='fas fa-hand-holding-usd'></i>" + item.usuario +" " + "<i class='fas fa-sort-amount-up'></i>"+ item.nivel + " " + "</li>" ;
+            htmlReferidosInactivos += "<div class='col-1'>";
+            htmlReferidosInactivos += "     <i class='fas fa-user-slash'></i>" ;
+            htmlReferidosInactivos +="</div>";
+            
+            htmlReferidosInactivos += "<div class='col-6'>";
+            htmlReferidosInactivos += item.usuario + " ";
+            htmlReferidosInactivos +="</div>";
+                       
+            htmlReferidosInactivos += "</div>";
+        })
+        //htmlCobrando += "</ol>";
+        htmlReferidosInactivos += "</div>";   
+        ContenedorInactivos.innerHTML = htmlReferidosInactivos
     }
 }
 

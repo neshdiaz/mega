@@ -21,7 +21,7 @@ def run():
     nivel.save()
     nivel = Nivel(monto=500)
     nivel.save()
-    nivel = Nivel(monto=1000)
+    nivel = Nivel(monto=1000)   
     nivel.save()
     nivel = Nivel(monto=2000)
     nivel.save()
@@ -49,8 +49,8 @@ def run():
 
     # Creamos usuarios de primera y segunda linea
     # Nombres personalizados
-    jugador1_name = 'Pepe'
-    jugador2_name = 'Juan'
+    jugador1_name = 'Ethan'
+    jugador2_name = 'Tadeo'
 
     sistema = User(username='System')
     sistema.save()

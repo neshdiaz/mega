@@ -71,10 +71,10 @@ class RegistroUsuario(CreateView):
         user = User.objects.get(username=form['username'].data)
         if str(form['patrocinador'].data) == '':
             pat = Jugador.objects.get(usuario__username='System')   
-            j = Jugador(usuario=user, promotor=pat)
+            j = Jugador(usuario=user, promotor=pat, estado='R')
         else:
             pat = Jugador.objects.get(usuario__username=form['patrocinador'].data)
-            j = Jugador(usuario=user, promotor=pat)
+            j = Jugador(usuario=user, promotor=pat, estado='R')
 
         # guardo el jugador
         j.save()
