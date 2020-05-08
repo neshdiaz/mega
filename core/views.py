@@ -374,15 +374,34 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
         if cuenta_jugador.saldo_activacion > nivel_jugador.nivel.monto and \
             nivel_jugador.estado == 'P':
 
+
             nivel_jugador.estado = 'A'
             nivel_jugador.save()
             nivel_jugador.refresh_from_db()
+
+            jugador.estado = 'A'
+            jugador.save()
+            jugador.refresh_from_db()
+
+            # Descontar de la cuenta y registrar el movimiento auto
+            cuenta_jugador.saldo_disponible = F('saldo_disponible') - nivel_jugador.nivel.monto
+            cuenta_jugador.saldo_total = F('saldo_total') - nivel_jugador.nivel.monto
+            cuenta_jugador.save()
+
+            desc_movimiento = 'Pago automatico nivel  ' + str(nivel_jugador.nivel.id)
+            nuevo_movimiento = Movimiento(cuenta=cuenta_jugador,
+                                        tipo='P',
+                                        descripcion=desc_movimiento,
+                                        valor=nivel_jugador.nivel.monto)
+            nuevo_movimiento.save()
+
             asignar_jugador(jugador, nivel_jugador.nivel.id)
             
             nivel_anterior_id = nivel_jugador.nivel.id - 1
             if nivel_anterior_id > 0:
+                nivel_anterior = Nivel.objects.get(pk=nivel_anterior_id)
                 nivel_anterior_jugador = JugadorNivel(jugador=jugador,
-                                                      nivel__id=nivel_anterior_id)
+                                                      nivel=nivel_anterior)
                 if nivel_anterior_jugador.bloqueo_x_cobros_nivel == True:
                     nivel_anterior_jugador.bloqueo_x_cobros_nivel = False
                     nivel_anterior_jugador.color = 'green'
