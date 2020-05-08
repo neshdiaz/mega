@@ -385,6 +385,7 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
 
             # Descontar de la cuenta y registrar el movimiento auto
             cuenta_jugador.saldo_disponible = F('saldo_disponible') - nivel_jugador.nivel.monto
+            cuenta_jugador.saldo_activacion = F('saldo_activacion') - nivel_jugador.nivel.monto
             cuenta_jugador.saldo_total = F('saldo_total') - nivel_jugador.nivel.monto
             cuenta_jugador.save()
 
