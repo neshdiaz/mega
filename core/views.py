@@ -287,15 +287,12 @@ def jugador_repartir_pago(jugador, lista, es_clon):
 
     # cuenta_patrocinador_directo
     cuenta_patrocinador_directo = Cuenta.objects.get(jugador=jugador_patrocinador)
-    cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') +\
-        porcent_patrocinador_directo
+    cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') + porcent_patrocinador_directo
     
-    cuenta_patrocinador_directo.saldo_disponible = F('saldo_disponible') +\
-        porcent_patrocinador_directo
+    cuenta_patrocinador_directo.saldo_disponible = F('saldo_disponible') + porcent_patrocinador_directo
     
     cuenta_patrocinador_directo.saldo_total = F('saldo_total') + porcent_patrocinador_directo
-    cuenta_patrocinador_directo.beneficios_totales = F('beneficios_totales') +\
-        porcent_patrocinador_directo
+    cuenta_patrocinador_directo.beneficios_totales = F('beneficios_totales') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.save()
     cuenta_patrocinador_directo.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
