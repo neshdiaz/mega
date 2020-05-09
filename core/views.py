@@ -388,6 +388,7 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
             cuenta_jugador.saldo_activacion = F('saldo_activacion') - nivel_jugador.nivel.monto
             cuenta_jugador.saldo_total = F('saldo_total') - nivel_jugador.nivel.monto
             cuenta_jugador.save()
+            cuenta_jugador.refresh_from_db()
 
             desc_movimiento = 'Pago automatico nivel  ' + str(nivel_jugador.nivel.id)
             nuevo_movimiento = Movimiento(cuenta=cuenta_jugador,
@@ -395,6 +396,7 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
                                         descripcion=desc_movimiento,
                                         valor=nivel_jugador.nivel.monto)
             nuevo_movimiento.save()
+            nuevo_movimiento.refresh_from_db()
 
             asignar_jugador(jugador, nivel_jugador.nivel.id)
             
