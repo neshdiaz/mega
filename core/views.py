@@ -289,8 +289,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_patrocinador_directo = Cuenta.objects.get(jugador=jugador_patrocinador)
     cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') + porcent_patrocinador_directo
     
-    cuenta_patrocinador_directo.saldo_disponible = F('saldo_disponible') + porcent_patrocinador_directo
-    
+        
     cuenta_patrocinador_directo.saldo_total = F('saldo_total') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.beneficios_totales = F('beneficios_totales') + porcent_patrocinador_directo
     cuenta_patrocinador_directo.save()
@@ -307,8 +306,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
 
     cuenta_segunda_generacion = Cuenta.objects.get(jugador=jugador_segunda_generacion)
     cuenta_segunda_generacion.saldo_activacion = F('saldo_activacion') + porcent_segunda_generacion
-    cuenta_segunda_generacion.saldo_disponible = F('saldo_disponible') + porcent_segunda_generacion
-
+    
     cuenta_segunda_generacion.saldo_total = F('saldo_total') + porcent_segunda_generacion
     cuenta_segunda_generacion.beneficios_totales = F('beneficios_totales') + porcent_segunda_generacion
     cuenta_segunda_generacion.save()
@@ -326,8 +324,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
 
     cuenta_tercera_generacion = Cuenta.objects.get(jugador=jugador_tercera_generacion)
     cuenta_tercera_generacion.saldo_activacion = F('saldo_activacion') + porcent_tercera_generacion
-    cuenta_tercera_generacion.saldo_disponible = F('saldo_disponible') + porcent_tercera_generacion
-
+    
     cuenta_tercera_generacion.saldo_total = F('saldo_total') + porcent_tercera_generacion
     cuenta_tercera_generacion.beneficios_totales = F('beneficios_totales') + porcent_tercera_generacion
     cuenta_tercera_generacion.save()
@@ -345,7 +342,6 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     
     # Movimientos de entrada de el cobrador de la lista
     cuenta_posicion_cobro = Cuenta.objects.get(jugador=jugador_posicion_cobro)
-    cuenta_posicion_cobro.saldo_activacion = F('saldo_activacion') + porcent_posicion_cobro
     cuenta_posicion_cobro.saldo_disponible = F('saldo_disponible') + porcent_posicion_cobro
 
     cuenta_posicion_cobro.saldo_total = F('saldo_total') + porcent_posicion_cobro
