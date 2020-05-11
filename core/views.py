@@ -601,7 +601,7 @@ def lista_buscar_mas_antigua(nivel_lista):
                  'posicion': -1,
                  'patrocinador': None}
     listas_abiertas = Lista.objects.filter(estado='A', nivel=nivel_lista)\
-                                   .order_by('created')
+                                   .order_by('created')                                     
     for lista in listas_abiertas:
         log_registrar('log.txt', 'Buscando en lista ' + str(lista))
         # si la lista no tienen items es porque empezamos el juego
