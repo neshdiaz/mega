@@ -98,8 +98,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mega',
-        'USER': 'root',
-        'PASSWORD': '1981Sistemas',
+        'USER': 'mega',
+        'PASSWORD': 'Barranquilla2020$',
         'HOST': 'localhost',
         'PORT': '3306',
     }

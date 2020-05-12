@@ -1,3 +1,4 @@
 mega/mega/settings.py
 log.txt
 pendientes.txt
+**/*.pyc
