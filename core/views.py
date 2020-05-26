@@ -1126,7 +1126,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
                     juego.cadena_ciclaje
                 if jugador_nivel.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
-                        jugador_nivel.patrocinador.usuario.username
+                        jugador_nivel.patrocinador.usuario.username 
 
 
         # posicion 5 para el encabezado de la lista
@@ -1512,4 +1512,23 @@ def jugador_ver_movimientos(request):
         lst_movimientos.append(ele)
 
     json_response = json.dumps(lst_movimientos)
+    return HttpResponse(json_response)
+
+@requires_csrf_token
+def lista_canastas(request):    
+    jugador = Jugador.objects.get(usuario__username=request.user.username)
+    jugador_niveles =JugadorNivel.objects.filter(jugador=jugador)
+    
+    lst_jugador_niveles = []
+    for jugador_nivel in jugador_niveles:
+        ele = {"id": str(jugador_nivel.nivel.id),
+               "estado": jugador_nivel.get_estado_display(),
+               "monto": str(jugador_nivel.nivel.monto),
+               "ciclajes": '10',
+               "referidos": '12',
+               }
+
+        lst_jugador_niveles.append(ele)
+
+    json_response = json.dumps(lst_jugador_niveles)
     return HttpResponse(json_response)

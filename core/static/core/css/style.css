@@ -1,5 +1,36 @@
+*{
+
+    font-family:'Conv_Roboto-Regular',sans-serif;
+    -webkit-font-smoothing:antialiased;
+}
+
 .share{
-    padding-bottom: 5px;
+    padding-bottom: 3px;
+    font-size: 80%;
+}
+
+.share #btnCopiar{
+    font-size: 90%;
+    width: 65px;
+    height: 28px;
+    padding-left: 5px;
+    padding-top: 3px;
+    margin: 0px;
+    margin-left: 3px;
+}
+
+.share #txtEnlaceReferido{
+    font-size: 95%;
+    height: 50%;
+}
+
+.filter-box{
+    font-size:80%;
+
+}
+
+.filter-box .custom-select {
+    height:30px;
 }
 
 .container-fluid{
@@ -73,7 +104,7 @@
 }
 
 #encabezado_lista{
-    padding-left: 10px; 
+    padding-left: 10px;
 }
 
 .btn{
@@ -82,4 +113,53 @@
 
 .btn-referido{
     color: white;
+}
+
+#btn-limpiar{
+    margin: 0px;
+    padding: 3px;
+    color: #000000  ;
+    font-size: 95%;
+
+}
+
+.card-text{
+    border:0px;
+}
+
+.canasta-activa {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 90%;
+    min-width: 200px;
+    background-color: green ;
+    color: white;
+
+}
+
+.canasta-activa div.referidos {
+    color: orange;
+}
+
+.canasta-activa div.ciclajes {
+    color: orangered;
+}
+
+.canasta-inactiva {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 90%;
+    min-width: 200px;
+    background-color: rgb(99, 172, 68) ;
+    color: white;
+}
+
+.canasta-inactiva div.referidos {
+    color: orangered;
+}
+
+.canasta-inactiva div.ciclajes {
+    color: orangered;
 }

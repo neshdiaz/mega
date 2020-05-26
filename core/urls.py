@@ -37,7 +37,7 @@ urlpatterns = [
     path('ajax/listas_referido/', views.listasReferido, name='listasReferido'),
     path('ajax/lista_niveles/', views.listaNiveles, name='listaNiveles'),
     path('ajax/clones/', views.clones, name='clones'),
-    
+
     path('ajax/lista_referidos/<str:n_usuario>/', views.listaReferidos, name='listaReferidos'),
     path('ajax/lista_referidos/', views.listaReferidos, name='listaReferidos'),
         
@@ -47,5 +47,7 @@ urlpatterns = [
     
     path('ajax/consulta_saldos_usuario/', views.consulta_saldos_usuario, name='consulta_saldos_usuario'),
     path('ajax/consulta_movimientos/', views.jugador_ver_movimientos, name='jugador_ver_movimientos'),
-    path('ajax/referidosInactivos/', views.referidos_inactivos, name='referidos_inactivos')
+    path('ajax/referidosInactivos/', views.referidos_inactivos, name='referidos_inactivos'),
+    
+    path('ajax/lista_canastas/', views.lista_canastas, name='lista_canastas')
 ]

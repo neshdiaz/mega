@@ -1,4 +1,3 @@
-relojActual = Date.now();
 lista_desplegada = 1;
 primera_carga = false;
 url_listas = "";
@@ -21,19 +20,6 @@ $(document).ready(function(){
     Filtro_nivel_ref = "Todos"
 });
 
-function init(){
-    compartirReferido(); 
-    get_listas();
-    //get_lista_content(url_lista_content);
-    //relojInit(relojActual);
-    get_lista_clones();
-    get_lista_referidos();
-    get_lista_inactivos();  
-    get_lista_cobrando();   
-    //consulta_saldos_usuario()
-    consulta_movimientos_usuario()
-    websocket();
-}
 
 function borrar_filtros(){
     $("#inlineFormCustomSelect").val('Todos');
@@ -53,7 +39,7 @@ function borrar_filtros_ref(){
 
 function cambiarEstado(){
    Filtro_estado = $("#inlineFormCustomSelect").val();
-   get_listas(); 
+   get_lristas(); 
 }
 function cambiarNivel(){
     Filtro_nivel = $("#inlineFormCustomSelect2").val();
@@ -73,97 +59,6 @@ function cambiarNivelRef(){
     //$('#listasReferidoContainer').html("");
     $('#encabezado_lista').html("");
 
-}
-
-function compartirReferido(){
-    btn = document.getElementById("btnWhatsapp");  
-    btn = document.getElementById("btnCopiar");  
-    txt = document.getElementById("txtEnlaceReferido");
-    btn.onclick = function(){
-        txt.select()
-        document.execCommand("copy");
-    }
-    btnWhatsapp.onclick = function(){
-        redir = "whatsapp://send?text=Haz sido invitado a pasamano.com%20" + txt.value
-        window.location.href = redir
-    }
-}
-
-
-function relojInit(HoraActual){
-    relojActual = new Date(HoraActual);
-    setTimeout("relojRefresh()",1000);
-}
-
-function relojRefresh(){
-    horas = "";
-    minutos = "";
-    segundos = "";
-    relojActual.setSeconds(relojActual.getSeconds()+1)
-    hor = relojActual.getHours();
-    min = relojActual.getMinutes();
-    seg = relojActual.getSeconds();
-    if (hor < 10){
-        horas = "0"+hor;
-    } else{
-        horas ="" + hor
-    }
-
-    if (min < 10){
-        minutos = "0"+min;
-    } else{
-        minutos ="" + min
-    }
-    
-    if (seg < 10){
-        segundos = "0"+seg;
-    } else{
-        segundos ="" + seg
-    }
-    
-    //document.getElementById("reloj").innerHTML="<b> "+horas+":"+minutos+":"+segundos+"</b>";
-    //setTimeout("relojRefresh()",1000);
-}
-
-// Ajax para notificaciones
-function websocket(){
-    var chatSocket = new WebSocket('ws://' + window.location.host +
-    '/ws/home/');
-    chatSocket.onmessage = function(e) {
-      var data = JSON.parse(e.data);
-      var message = data['message'];
-      if (message == "Nuevo jugador en lista"){
-        setTimeout("actualizar_pantalla()", 1000);
-      }
-      // document.querySelector('#chat-log').innerHTML += (message + '\n');
-    }
-}
-
-function actualizar_pantalla(){
-    get_listas()
-    // get_lista_content();
-    get_lista_clones();
-    get_lista_referidos();
-    get_lista_cobrando();
-    //consulta_saldos_usuario()
-    
-}
-
-// Tokens de seguridad para ajax
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
 // ajax para cargar saldos del usuario
@@ -289,7 +184,7 @@ function displayListas(listas_json){
             if (item_nuevo != item_anterior || inicial){
                 inicial = false;
                 headx = "<div id='head" + item.nivel_id + "'>";
-                headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
+                headx += "<button  class='btn btn-primary' data-toggle='collapse' data-target='#";
                 headx += "content_" + item.nivel_id + "' aria-expanded='false' aria-controls='content_" + item.nivel_id +"'>> ";
                 headx += item.nivel + "</div>";
                 // agrego la cabecera
@@ -381,7 +276,7 @@ function displayListasReferido(listas_json){
         if (item_nuevo != item_anterior || inicial){
             inicial = false;
             headx = "<div id='head_" + usuario +"_nivel_"+ item.nivel_id + "'>";
-            headx += "<button  class='btn btn-warning' data-toggle='collapse' data-target='#";
+            headx += "<button  class='btn btn-primary' data-toggle='collapse' data-target='#";
             headx += "content_" + usuario + "_nivel_" + item.nivel_id + "' aria-expanded='true' aria-controls='content_" + usuario + "_nivel_ " + item.nivel_id +"'>>> ";
             headx += item.nivel + "</div>";
             // agrego la cabecera
@@ -582,7 +477,7 @@ function get_lista_referidos(){
 
 function displayListaReferidos(referidos_json){
     if($("#referidosContainer").length > 0){
-        accordion = $('#referidosContainer')
+        accordion = $('#referidosContainer')    
         headx = "";
         collapsex = "";
         item_anterior="";
@@ -660,9 +555,6 @@ function displayListaCobrando(cobrando_json){
 
             
             htmlCobrando += "</div>";
-
-
-
         })
         //htmlCobrando += "</ol>";
         htmlCobrando += "</div>";   

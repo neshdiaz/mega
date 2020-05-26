@@ -3,98 +3,84 @@
 
 
 {% block contenido %}
-<!-- contenedor de filtros -->
-<div class="container-fluid card card-body">
-  <div class="row">
-
-    <div class="col-3 col-lg-2 col-sm-3 mt-2 align-self-center">
-      <h6>Filtro</h6>
-    </div>
-
-    <div class="col-3 col-lg-3">
-      <div class="dropdown">
-        <h6>Estado</h6>
-        <form>
-          <div class="form-row align-items-center">
-            <label class="mr-sm-2 sr-only" for="inlineFormCustomSelectRef">Preference</label>
-            <select class="custom-select mr-sm-2" id="inlineFormCustomSelectRef" onchange="cambiarEstadoRef()">
-              <option value="Todos" selected>Todos</option>
-              <option value="A">Abiertas</option>
-              <option value="C">Cerradas</option>
-              <option value="B">Bloqueadas</option>
-            </select>
-          </div>
-        </form>
-
-
-      </div>
-
-    </div>
-
-
-    <div class="col-3 col-lg-3">
-      <div class="dropdown">
-        <h6>Nivel</h6>
-        <form>
-          <div class="form-row align-items-center">
-            <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect2Ref">Preference</label>
-            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2Ref" onchange="cambiarNivelRef()">
-              <option value="Todos" selected>Todos</option>
-              <option value="1">Nivel 1</option>
-              <option value="2">Nivel 2</option>
-              <option value="3">Nivel 3</option>
-              <option value="4">Nivel 4</option>
-              <option value="5">Nivel 5</option>
-              <option value="6">Nivel 6</option>
-              <option value="7">Nivel 7</option>
-              <option value="8">Nivel 8</option>
-              <option value="9">Nivel 9</option>
-              <option value="10">Nivel 10</option>
-              <option value="11">Nivel 11</option>
-              <option value="12">Nivel 12</option>
-              <option value="13">Nivel 13</option>
-              <option value="14">Nivel 14</option>
-              <option value="15">Nivel 15</option>
-            </select>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="col-2 col-lg-2 align-self-center">
-      <button onclick="borrar_filtros_ref()" class="btn btn-sm btn-warning">Limpiar</button>
-    </div>
-
-  </div>
-</div>
-
 <!-- Contenedor de Juego -->
 <div class="container-fluid">
   <div class="row">
 
-
+    <!-- Columna referidos -->
     <div class="col-md-4">
       <div class="card w-100 mt-3">
         <h6 class="card-header"><i class="fas fa-people-carry"></i> Mis Referidos</h6>
         <div class="card-body scroll-list" style="height: 18rem;">
-            <div class="card card-body p-0 mb-2">
-              <small> Despliega cada referido para ver sus niveles y listas.</small>
+          <div class="card-text">
+            <div class="card-text card-body p-0 mb-2">
+              <small> Despliega para ver contenido.</small>
             </div>
+            
+            <div class="container-fluid card card-body filter-box">
+              <div class = "row">
+                <div class="col-6 col-lg-6">
+                  <div class="dropdown">
+                    <div>Estado:</div>
+                    <form>
+                      <div class="form-row align-items-center">
+                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+                        <select class=" custom-select mr-sm-2" id="inlineFormCustomSelectRef" onchange="cambiarEstadoRef()">
+                          <option value="Todos" selected>Todos</option>
+                          <option value="A">Abiertas</option>
+                          <option value="C">Cerradas</option>
+                          <option value="B">Bloqueadas</option>
+                        </select>
+                      </div>
+                    </form>
+                    
+                    
+                  </div>
+                </div>
+                
+                <div class="col-6 col-lg-6">
+                  <div>Nivel:</div>
+                  <form>
+                    <div class="form-row align-items-center">
+                      <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect2">Preference</label>
+                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2Ref" onchange="cambiarNivelRef()">
+                        <option value = "Todos" selected>Todos</option>
+                        <option value="1">Nivel 1</option>
+                        <option value="2">Nivel 2</option>
+                        <option value="3">Nivel 3</option>
+                        <option value="4">Nivel 4</option>
+                        <option value="5">Nivel 5</option>
+                        <option value="6">Nivel 6</option>
+                        <option value="7">Nivel 7</option>
+                        <option value="8">Nivel 8</option>
+                        <option value="9">Nivel 9</option>
+                        <option value="10">Nivel 10</option>
+                        <option value="11">Nivel 11</option>
+                        <option value="12">Nivel 12</option>
+                        <option value="13">Nivel 13</option>
+                        <option value="14">Nivel 14</option>
+                        <option value="15">Nivel 15</option>
+                      </select>
+                    </div>
+                  </form>
+                </div>
+              </div>  
+            </div>  
             <div id="referidosContainer"></div>
+          </div>
         </div>
       </div>
-    </div>
+    </div>  
 
-
+    <!-- Columna de jugadores -->
     <div class="col-md-5">
-      <!-- Columna de jugadores -->
       <div class="card w-100 mt-3">
         <h6 class="card-header"> <i class="fas fa-user-friends"></i>Jugadores en la lista</h6>
 
         <div class="card-body scroll-list" style="height: 18rem;">
           <div class="card-text">
-            <div class="card card-body p-0 mt-0">
-              <small> Seleccione una lista para ver aquí sus jugadores.</small>
+            <div class="card-text card-body p-0 mt-0">
+              <small> Seleccione una lista para ver sus jugadores.</small>
               <p id="encabezado_lista"></p>
             </div>
 
@@ -169,11 +155,11 @@
     <div class="col-md-3">
       <!-- Columna de referidos inactivos -->
       <div class="card w-100 mt-3">
-        <h6 class="card-header"> <i class="fas fa-user-friends"></i>Referidos inactivos</h6>
+        <h6 class="card-header"> <i class="fas fa-user-friends"></i>Inactivos</h6>
         <div class="card-body scroll-list" style="height: 18rem;">
           <div class="card-text">
-            <div class="card card-body p-0 mt-0">
-              <small> Los siguientes referidos no están activos. </small>
+            <div class="card-text card-body p-0 mt-0">
+              <small> Referidos sin pago. </small>
               <div id="referidos_inactivos"></div>
             </div>
           </div>
