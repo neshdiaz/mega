@@ -100,7 +100,7 @@ DATABASES = {
         'NAME': 'mega',
         'USER': 'mega',
         'PASSWORD': 'Barranquilla2020$',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1  ',
         'PORT': '3306',
     }
 }
