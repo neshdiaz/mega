@@ -3,117 +3,130 @@
 
 
 {% block contenido %}
-  <div class = "card">
-    <div class = "card-header">
-      <h2>Mis Finanzas</h2>
-      <h4>Saldo total {{cuenta.saldo_total}}</h4>
+<h3>Mis Finanzas</h3>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-5 ">
+      <div class="card mt-3 ">
+        <div class="card-header">
+          <i class="fas fa-money-check-alt"></i>Transacciones
+        </div>
+        <div class="card-body">
+          <div class="container-fluid">  
+            <div class="row">
+              <div class = "col-md-4 text-center">
+                <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#modalCargar">
+                  <i class="fas fa-credit-card"></i>Cargar
+                </button>
+              </div>
+              <div class = "col-md-4 text-center">
+                <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#modalTransferir">
+                  <i class="fas fa-exchange-alt"></i>Transf.
+                </button>
+              </div>
+              <div class = "col-md-4 text-center ">
+                <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#modalRetirar">
+                  <i class="fas fa-file-invoice-dollar"></i>Retiro
+                </button>
+              </div>
+            </div>    
+          </div>  
+        </div>
+      </div>
     </div>
-    <div class = "card-body">
-      <div class="container-fluid">
-        <table class="table">
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td>Saldo disponible</td>
-              <td>{{cuenta.saldo_disponible}}</td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Saldo de Activación</td>
-              <td>{{cuenta.saldo_activacion}}</td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td>Beneficios totales</td>
-              <td>{{cuenta.beneficios_totales}}</td>
-            </tr>
-          </tbody>
-        </table>
+
+    <div class="col-7 ">
+      <div class="card mt-3 ">
+        <div class="card-header">
+          <i class="fas fa-wallet"></i> Billeteras
+        </div>
+        <div class="card-body">
+          <div class="container-fluid">             
+            <div class="row">
+              <div class = "col-md-4 text-center">
+                <button onclick="consulta_movimientos_usuario('T')" type="button" class="btn btn-success btn-block">
+                  <i class="fas fa-fas fa-wallet"></i> Todas
+                </button>
+              </div>
+              <div class = "col-md-4 text-center">
+                <button onclick="consulta_movimientos_usuario('D')" type="button" class="btn btn-success btn-block" >
+                  <i class="fas fa-fas fa-wallet"></i>Disponible
+                </button>
+              </div>
+              <div class = "col-md-4 text-center ">
+                <button onclick="consulta_movimientos_usuario('A')" type="button" class="btn btn-block btn-success" >
+                  <i class="fas fa-wallet"></i>Activación
+                </button>
+              </div>
+            </div>
+          </div>  
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-wallet"></i> Movimientos en la billetera
+        </div>
+        <div class="card-body scroll-list">
+          <div class="card-text" style="height: 18rem;">
+            <div id = "movimientos"></div>
+          </div>
+        </div>
+      </div>
+    
+    </div>
+  </div>  
+</div>
+
+<!-- Modal Cargar-->
+<div class="modal fade" id="modalCargar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Cargar Fondos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Puede cargar saldo desde su cuenta Bitcoin, digite el monto en dólares, sin comas ni puntos:
+        <input id = "monto" class="form-control" type="number">
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button onclick="boton_cargar_saldo()" type="button" class="btn btn-primary">Confirmar</button>
       </div>
     </div>
   </div>
-  
-  <div class="card">
-    <div class="card-header">
-      <h4>Operaciones</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class = "col-md-3 text-center p-5">
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalCargar">
-            <i class="fas fa-credit-card"></i> Cargar
-          </button>
-        </div>
-        <div class = "col-md-3 text-center p-5">
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalTransferir">
-            <i class="fas fa-exchange-alt"></i> Transferir
-          </button>
-        </div>
-        <div class = "col-md-3 text-center p-5">
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalRetirar">
-            <i class="fas fa-file-invoice-dollar"></i>Retirar 
-          </button>
-        </div>
+</div>
 
-        <div class = "col-md-3 text-center p-5">
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalMovimientos">
-            <i class="fas fa-list-ul"></i>Detalle de Movimientos
-          </button>
-        </div>
+ <!-- Modal Transferir-->
+ <div class="modal fade" id="modalTransferir" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Transferir Fondos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Puede transferir saldo desde su cuenta entre usuarios WorldCycle (utilizable solo para activaciones)...
       </div>
       
-
-    </div>
-  </div>
-
-
-  <!-- Modal Cargar-->
-  <div class="modal fade" id="modalCargar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Cargar Fondos</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          Puede cargar saldo desde su cuenta Bitcoin, digite el monto en dólares, sin comas ni puntos:
-          <input id = "monto" class="form-control" type="number">
-          
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-          <button onclick="boton_cargar_saldo()" type="button" class="btn btn-primary">Confirmar</button>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary">Confirmar</button>
       </div>
     </div>
   </div>
-  
-   <!-- Modal Transferir-->
-   <div class="modal fade" id="modalTransferir" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Transferir Fondos</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          Puede transferir saldo desde su cuenta entre usuarios WorldCycle (utilizable solo para activaciones)...
-        </div>
-        
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary">Confirmar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <!-- Modal retirar-->
- <div class="modal fade" id="modalRetirar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Modal retirar-->
+<div class="modal fade" id="modalRetirar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -124,27 +137,6 @@
       </div>
       <div class="modal-body">
         Realice sus retiros hacia su cuenta de criptomonedas
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary">Confirmar</button>
-      </div>
-    </div>
-  </div>
-</div>
-  
- <!-- Modal Movimientos-->
- <div class="modal fade" id="modalMovimientos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Transacciones...</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="movimientos" class="modal-body">
-        Movimientos...
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>

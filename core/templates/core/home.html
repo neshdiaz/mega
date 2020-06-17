@@ -1,9 +1,10 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block contenido %}  
+{% block contenido %}
+<h3>Panel Principal</h3>
   {% if not tiene_niveles_activos %}
-    <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de <a href ="{%url 'core:mis_niveles'%}"> <i class="fas fa-sort-amount-up"></i>Niveles</a> para empezar...</div>
+    <div class='alert alert-danger' role='alert'>No estas jugando en ningun nivel, entra en el menu de <a href ="{%url 'core:mis_niveles'%}"> <i class="fas fa-layer-group"></i>Niveles</a> para empezar...</div>
   {% endif %}  
 
   {% if tiene_bloqueo_nivel %}
@@ -29,21 +30,20 @@
 
           <div class="card-body scroll-list" style="height: 18rem;">
             <div class="card-text">
-              <div class="card-text card-body p-0 mb-2">
+              <div class="card-text card-body p-0 mb-1">
                 <small> Despliega cada nivel para ver las listas.</small>
               </div>
               
-              <div class="container-fluid card card-body filter-box">
+              <div class="container-fluid filter-box mb-1">
                 <div class = "row">
             
                   <div class="col-6 col-lg-6">
                     <div class="dropdown">
-                      <div>Estado:</div>
                       <form>
                         <div class="form-row align-items-center">
                           <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
                           <select class=" custom-select mr-sm-2" id="inlineFormCustomSelect" onchange="cambiarEstado()">
-                            <option value="Todos" selected>Todos</option>
+                            <option value="Todos" selected>Estado</option>
                             <option value="A">Abiertas</option>
                             <option value="C">Cerradas</option>
                             <option value="B">Bloqueadas</option>
@@ -56,12 +56,11 @@
                   </div>
                   
                   <div class="col-6 col-lg-6">
-                    <div>Nivel:</div>
                     <form>
                       <div class="form-row align-items-center">
                         <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect2">Preference</label>
                         <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" onchange="cambiarNivel()">
-                          <option value = "Todos" selected>Todos</option>
+                          <option value = "Todos" selected>Nivel</option>
                           <option value="1">Nivel 1</option>
                           <option value="2">Nivel 2</option>
                           <option value="3">Nivel 3</option>
@@ -109,7 +108,7 @@
                   
                   <div class="row">
                     <div class="col-1">
-                      <h4>1</h4>
+                      <h4 class="badge badge-pill badge-primary">1</h4>
                     </div>
                     <div class="col-10 ">
                       <h4>
@@ -120,7 +119,7 @@
                   
                   <div class="row">
                     <div class="col-1">
-                      <h6>2</h6>
+                      <h6 class="badge badge-pill badge-primary" >2</h6>
                     </div>
                     <div class="col-10">
                       <h6>
@@ -132,7 +131,7 @@
   
                   <div class="row">
                     <div class="col-1">
-                      <h6>3</h6>
+                      <h6 class="badge badge-pill badge-primary">3</h6>
                     </div>
                     <div class="col-10">
                       <h6>
@@ -143,7 +142,7 @@
   
                   <div class="row">
                     <div class="col-1">
-                      <h6>4</h6>
+                      <h6 class="badge badge-pill badge-primary">4</h6>
                     </div>
                     <div class="col-10">
                       <h6>
@@ -155,7 +154,7 @@
                   
                   <div class="row">
                     <div class="col-1">
-                      <h6>5</h6>
+                      <h6 class="badge badge-pill badge-primary">5</h6>
                     </div>
                     <div class="col-10">
                       <h6>

@@ -8,11 +8,10 @@ function init(){
     get_lista_inactivos();  
     get_lista_cobrando();   
     get_lista_canastas(url_lista_canastas)
-    //consulta_saldos_usuario()
+    consulta_saldos_usuario()
     consulta_movimientos_usuario()
     websocket();
 }   
-
 
 function compartirReferido(){
     btn = document.getElementById("btnWhatsapp");  
@@ -47,8 +46,8 @@ function actualizar_pantalla(){
     get_lista_clones();
     get_lista_referidos();
     get_lista_cobrando();
-    load_lista_canastas(url_lista_canastas)
-    //consulta_saldos_usuario()
+    get_lista_canastas(url_lista_canastas)
+    consulta_saldos_usuario()
     
 }
 

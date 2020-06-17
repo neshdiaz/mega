@@ -10,7 +10,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static "core/css/style.css" %}">
+    <script type=text/javascript>
+      window.onload = function preInit(){
+        //ajax urls
+        url_lista_content = "{% url 'core:lista_content' %}";
+        url_listas = "{% url 'core:listas' %}";
+        url_listas_referido = "{% url 'core:listasReferido' %}";
+        url_lista_referidos = "{% url 'core:listaReferidos' %}";
+        url_lista_clones = "{% url 'core:clones' %}";
+        url_activar_clon = "{% url 'core:activar_clon' %}";
+        url_lista_cobrando = "{% url 'core:cobrando' %}";
+        url_cargar_saldo = "{% url 'core:cargar_saldo' %}";
+        url_ver_movimientos = "{% url 'core:jugador_ver_movimientos' %}";
+        url_lista_inactivos = "{% url 'core:referidos_inactivos' %}";
+        url_lista_canastas = "{% url 'core:lista_canastas' %}";
+        url_activar_nivel ="{% url 'core:activar_nivel' %}";
+        url_saldos_usuario = "{% url 'core:consulta_saldos_usuario' %}";
+        url_base = "{{base_url}}"
+        init();
+      }  
+    </script>
     {% block titulo %} {% endblock %}
+    <link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
   </head>
   
   <body>
@@ -34,7 +55,7 @@
               <a class="nav-link" href="{% url 'core:mis_clones' %}"><i class="fas fa-users"></i>Clones</a>
             </li>
             <li>
-              <a class="nav-link" href="{% url 'core:mis_niveles' %}"><i class="fas fa-shopping-basket"></i>Canastas</a>
+              <a class="nav-link" href="{% url 'core:mis_niveles' %}"><i class="fas fa-layer-group"></i>Niveles</a>
             </li>
             <li>
               <a class="nav-link" href="{% url 'core:mis_finanzas' %}"><i class="fas fa-coins"></i>Finanzas</a>
@@ -53,12 +74,11 @@
     </nav> <!-- Fin Menu-->
   
   </div>  
-    <h4> Bienvenido {{ request.user }}</h4>   
-
-  
+      
     <div class="container-fluid"> 
       <div class="row">
         <div class="col-12 col-sm-2 col-md-2 col-lg-2 col-xl-2"> <!-- columna izquierda -->  
+          <h5> Bienvenido {{ request.user }}</h5>
           <!--Compartir -->
           <div class="row">
             <div class="col-md-12 share">Este es tu enlace de referido:
@@ -70,8 +90,16 @@
               </div>
             </div>
           </div>
+
+          <!--Mis saldos -->
           
-          
+          <div class = "card">
+            <div class = "card-body">
+              <div class="container-fluid">
+                <div id='saldosContainer'></div>
+              </div>
+            </div>
+          </div>
 
 
         </div>
@@ -83,16 +111,15 @@
         <div class="col-12 col-sm-2 col-md-2 col-lg-2 col-xl-2 "> <!-- columna derecha -->  
           <!--Cobradores -->
 
-            <div class="card w-100">
+            <div class="card w-100 mt-3">
+              <div class="card-header">
+                <i class="fas fa-hand-holding-usd"></i>Últimos cobros
+              </div>
               <div class="card-body">
-                <h6>Ultimos cobradores</h6>
                 <div id = "cobrando_container">Cobrando... </div>
               </div>
             </div>
-
-          
-
-                    
+            
         </div>
       </div>
     </div>
@@ -107,25 +134,7 @@
       </div>
     </div>
     
-    <script type=text/javascript>
-      window.onload = function preInit(){
-        //ajax urls
-        url_lista_content = "{% url 'core:lista_content' %}";
-        url_listas = "{% url 'core:listas' %}";
-        url_listas_referido = "{% url 'core:listasReferido' %}";
-        url_lista_referidos = "{% url 'core:listaReferidos' %}";
-        url_lista_clones = "{% url 'core:clones' %}";
-        url_activar_clon = "{% url 'core:activar_clon' %}";
-        url_lista_cobrando = "{% url 'core:cobrando' %}";
-        url_cargar_saldo = "{% url 'core:cargar_saldo' %}";
-        url_ver_movimientos = "{% url 'core:jugador_ver_movimientos' %}";
-        url_lista_inactivos = "{% url 'core:referidos_inactivos' %}";
-        url_lista_canastas = "{% url 'core:lista_canastas' %}";
-        //url_cargar_saldo = "{% url 'core:consulta_saldos_usuario' %}";
-        url_base = "{{base_url}}"
-        init();
-      }  
-    </script>
+
     
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>

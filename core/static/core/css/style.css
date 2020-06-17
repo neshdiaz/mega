@@ -1,9 +1,21 @@
 *{
-
-    font-family:'Conv_Roboto-Regular',sans-serif;
-    -webkit-font-smoothing:antialiased;
+    font-family: 'Open Sans', sans-serif;
+}
+body{
+    background-color: #f8f8f8;
 }
 
+table{
+    font-size: 80%;
+}
+
+.btn {
+    font-size: 14px;
+}
+
+.card-header{
+    padding: 5px;
+}
 .share{
     padding-bottom: 3px;
     font-size: 80%;
@@ -93,10 +105,9 @@
     border-color:rgba(255,255,255,0.0);
 }
 
+
 .scroll-list{
     overflow: scroll;
-    font-weight: bold
-
 }
 .errorlist{
     font-weight: bold;
@@ -111,6 +122,10 @@
     margin:2px;
 }
 
+.btn-secondary{
+    background-color:#08c353 ;
+
+}
 .btn-referido{
     color: white;
 }
@@ -127,39 +142,72 @@
     border:0px;
 }
 
+.card-body{
+    padding:5px;
+}
+
 .canasta-activa {
-    padding: 5px;
+    padding: 2px;
     margin: 5px;
-    border-radius: 5px;
-    font-size: 90%;
+    border-radius: 10px;
+    font-size: 80%;
+    font-weight: 800;
     min-width: 200px;
-    background-color: green ;
+    background-color: #618c32 ;
     color: white;
 
+}
+
+.canasta-activa .badge {
+    background-color: #031e65;
+    font-weight: 800;
 }
 
 .canasta-activa div.referidos {
-    color: orange;
+    color: #f5ffea;
+    font-weight: 800; 
 }
 
 .canasta-activa div.ciclajes {
-    color: orangered;
+    color: #f5ffea;
 }
 
 .canasta-inactiva {
-    padding: 5px;
+    padding: 2px;
     margin: 5px;
-    border-radius: 5px;
-    font-size: 90%;
+    border-radius: 10px;
+    font-size: 80%;
+    font-weight: 300;
     min-width: 200px;
-    background-color: rgb(99, 172, 68) ;
+    background-color: #95c85f ;
     color: white;
 }
 
+.canasta-inactiva :hover {
+    background-color: #d7efbc;
+    font-weight: 100;
+    color: #618c32;
+}
+
+.canasta-inactiva .badge {
+    background-color: #031e65;
+    font-weight: 800;
+}
+
+
 .canasta-inactiva div.referidos {
-    color: orangered;
+    color: #f5ffea; 
+}
+
+.canasta-inactiva a {
+    color: white;
 }
 
 .canasta-inactiva div.ciclajes {
-    color: orangered;
+    color: #f5ffea; 
+
 }
+
+#cobrando_container *{
+    color:#031e65   ;
+}   

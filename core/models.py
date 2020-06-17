@@ -18,7 +18,7 @@ class Configuracion(models.Model):
     def __str__(self):
         return "Configuracion" + str(self.nombre)
 
-    class Meta:
+    class Meta: 
         verbose_name_plural = 'Configuraciones'
 
 class Cuenta(models.Model):
@@ -40,13 +40,34 @@ class Cuenta(models.Model):
 
 class Movimiento(models.Model):
     TIPO_CHOICES = (
-        ('A', 'ABONO'),
-        ('P', 'PAGO'),
-        ('R', 'RETIRO')
+        ('E', 'ENTRADA'),
+        ('S', 'SALIDA'),
     )
+
+    CONCEPTO_CHOICES = (
+        ('CP', 'COMISION PLATAFORMA'),
+        ('C1', 'COMISION GENERACION 1'),
+        ('C2', 'COMISION GENERACION 2'),
+        ('C3', 'COMISION GENERACION 3'),
+        ('CI', 'CICLAJE'),
+        ('PN', 'PAGO POR NIVEL'),
+        ('CS', 'CARGA DE SALDO'),
+        ('RS', 'RETIRO DE SALDO'),    
+    )    
+
+    BILLETERA_CHOICES = (
+        ('E', 'CRIPTOMONEDA EXTERNA'),      # BILLETERA EXTERNA CRIPTO
+        ('D', 'DISPONIBLE'),                # COMISIONES DIRECTAS
+        ('A', 'ACTIVACION'),                # TRANSFERENCIAS INTERNAS Y COMISIONES NO DIRECTAS
+
+    )    
     cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
+    billetera = models.CharField(max_length=2, choices=BILLETERA_CHOICES,
+                                 default='', blank=True, null=True)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES,
-                            default='A')
+                            default='', blank=True, null=True)
+    concepto = models.CharField(max_length=2, choices=CONCEPTO_CHOICES,
+                            default='', blank=True, null=True)
     descripcion = models.CharField(default='', max_length=250, blank=True, null=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 

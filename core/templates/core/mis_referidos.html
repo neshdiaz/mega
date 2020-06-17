@@ -3,6 +3,7 @@
 
 
 {% block contenido %}
+<h3>Administrar Referidos</h3>
 <!-- Contenedor de Juego -->
 <div class="container-fluid">
   <div class="row">
@@ -13,20 +14,19 @@
         <h6 class="card-header"><i class="fas fa-people-carry"></i> Mis Referidos</h6>
         <div class="card-body scroll-list" style="height: 18rem;">
           <div class="card-text">
-            <div class="card-text card-body p-0 mb-2">
+            <div class="card-text card-body p-0 mb-1">
               <small> Despliega para ver contenido.</small>
             </div>
             
-            <div class="container-fluid card card-body filter-box">
+            <div class="container-fluid filter-box">
               <div class = "row">
                 <div class="col-6 col-lg-6">
                   <div class="dropdown">
-                    <div>Estado:</div>
                     <form>
                       <div class="form-row align-items-center">
                         <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
                         <select class=" custom-select mr-sm-2" id="inlineFormCustomSelectRef" onchange="cambiarEstadoRef()">
-                          <option value="Todos" selected>Todos</option>
+                          <option value="Todos" selected>Estado</option>
                           <option value="A">Abiertas</option>
                           <option value="C">Cerradas</option>
                           <option value="B">Bloqueadas</option>
@@ -39,12 +39,11 @@
                 </div>
                 
                 <div class="col-6 col-lg-6">
-                  <div>Nivel:</div>
                   <form>
                     <div class="form-row align-items-center">
                       <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect2">Preference</label>
                       <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2Ref" onchange="cambiarNivelRef()">
-                        <option value = "Todos" selected>Todos</option>
+                        <option value = "Todos" selected>Nivel</option>
                         <option value="1">Nivel 1</option>
                         <option value="2">Nivel 2</option>
                         <option value="3">Nivel 3</option>
@@ -89,7 +88,7 @@
                 
                 <div class="row">
                   <div class="col-1">
-                    <h4>1</h4>
+                    <h4 class="badge badge-pill badge-primary">1</h4>
                   </div>
                   <div class="col-10 ">
                     <h4>
@@ -100,7 +99,7 @@
                 
                 <div class="row">
                   <div class="col-1">
-                    <h6>2</h6>
+                    <h6 class="badge badge-pill badge-primary">2</h6>
                   </div>
                   <div class="col-10">
                     <h6>
@@ -112,7 +111,7 @@
 
                 <div class="row">
                   <div class="col-1">
-                    <h6>3</h6>
+                    <h6 class="badge badge-pill badge-primary">3</h6>
                   </div>
                   <div class="col-10">
                     <h6>
@@ -123,7 +122,7 @@
 
                 <div class="row">
                   <div class="col-1">
-                    <h6>4</h6>
+                    <h6 class="badge badge-pill badge-primary">4</h6>
                   </div>
                   <div class="col-10">
                     <h6>
@@ -135,7 +134,7 @@
                 
                 <div class="row">
                   <div class="col-1">
-                    <h6>5</h6>
+                    <h6 class="badge badge-pill badge-primary">5</h6>
                   </div>
                   <div class="col-10">
                     <h6>
@@ -155,11 +154,11 @@
     <div class="col-md-3">
       <!-- Columna de referidos inactivos -->
       <div class="card w-100 mt-3">
-        <h6 class="card-header"> <i class="fas fa-user-friends"></i>Inactivos</h6>
+        <h6 class="card-header"> <i class="fas fa-people-carry"></i>Inactivos</h6>
         <div class="card-body scroll-list" style="height: 18rem;">
           <div class="card-text">
             <div class="card-text card-body p-0 mt-0">
-              <small> Referidos sin pago. </small>
+              <small> Referidos sin pago: </small>
               <div id="referidos_inactivos"></div>
             </div>
           </div>
