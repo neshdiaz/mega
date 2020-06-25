@@ -168,7 +168,12 @@ function displaymovimientos(movimientos_json){
             html_movimientos += "   <td>" + movimientos_json[i].billetera + "</td>"
             html_movimientos += "   <td>" + movimientos_json[i].concepto + "</td>"
             html_movimientos += "   <td>" + movimientos_json[i].descripcion + "</td>"
-            html_movimientos += "   <td>" + movimientos_json[i].valor + "</td>"
+            if (movimientos_json[i].tipo == 'SALIDA'){
+                html_movimientos += "   <td>-" + movimientos_json[i].valor + "</td>"
+            }
+            else{
+                html_movimientos += "   <td>" + movimientos_json[i].valor + "</td>"
+            }
             html_movimientos += "</tr>"
         }
         html_movimientos += "</tbody>";

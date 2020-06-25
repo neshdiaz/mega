@@ -53,6 +53,8 @@ def run():
     jugador2_name = 'Tadeo'
 
     sistema = User(username='System')
+    sistema.is_staff = True
+    sistema.is_superuser = True
     sistema.save()
     sistema.refresh_from_db()
 
