@@ -59,6 +59,7 @@ class Movimiento(models.Model):
         ('E', 'CRIPTOMONEDA EXTERNA'),      # BILLETERA EXTERNA CRIPTO
         ('D', 'DISPONIBLE'),                # COMISIONES DIRECTAS
         ('A', 'ACTIVACION'),                # TRANSFERENCIAS INTERNAS Y COMISIONES NO DIRECTAS
+        ('S', 'SISTEMA'),                   # TRANSFERENCIAS TEMPORALES PARA POSTERIOR PAGO
 
     )    
     cuenta = models.ForeignKey('Cuenta', on_delete=models.CASCADE)
