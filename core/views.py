@@ -229,11 +229,12 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
 @transaction.atomic
 def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
     jugador_destino = Jugador.objects.get(juego__lista=lista.id, juego__posicion=0)
-    
+        
     cuenta_jugador_origen = Cuenta.objects.get(jugador=jugador_origen)
     cuenta_jugador_destino = Cuenta.objects.get(jugador=jugador_destino)
 
     if primer_ciclaje:
+
         nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
                                         billetera='D',
                                         tipo='E',
@@ -242,6 +243,17 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         valor=lista.nivel.monto,
                                         )
         nuevo_movimiento_destino.save()
+
+        nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
+                                        billetera='D',
+                                        tipo='S',
+                                        concepto='CI',
+                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador),
+                                        valor=lista.nivel.monto,
+                                        )
+        nuevo_movimiento_destino.save()
+
+
     else:
         nuevo_movimiento_origen = Movimiento(cuenta=cuenta_jugador_origen,
                                             billetera='D',
@@ -352,7 +364,6 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                            valor=porcent_plataforma)
     movimiento_plataforma_e.save()
 
-
     # cuenta_patrocinador_directo
     cuenta_patrocinador_directo = Cuenta.objects.get(jugador=jugador_patrocinador)
     cuenta_patrocinador_directo.saldo_activacion = F('saldo_activacion') + porcent_patrocinador_directo
@@ -455,8 +466,6 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
     for nivel_jugador in niveles_jugador:
         if cuenta_jugador.saldo_activacion > nivel_jugador.nivel.monto and \
             nivel_jugador.estado == 'P':
-
-
             nivel_jugador.estado = 'A'
             nivel_jugador.save()
             nivel_jugador.refresh_from_db()
@@ -1528,8 +1537,8 @@ def activar_nivel(request, jugador_nivel_id):
                 cuenta.saldo_disponible = F('saldo_disponible') - nivel_a_activar.nivel.monto
                 cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
                 cuenta.save()
-
-                desc_movimiento = 'Pago nivel ' + str(nivel_a_activar.nivel.id)
+                
+                desc_movimiento = 'Pago activacion nivel ' + str(nivel_a_activar.nivel.id)
                 nuevo_movimiento = Movimiento(cuenta=cuenta,
                                             billetera='S',
                                             tipo='S',
@@ -1537,6 +1546,7 @@ def activar_nivel(request, jugador_nivel_id):
                                             descripcion=desc_movimiento,
                                             valor=nivel_a_activar.nivel.monto)
                 nuevo_movimiento.save()
+                
             # si no me alcanza el saldo de activacion pero tengo saldo disponible para debitar
             elif cuenta.saldo_activacion < nivel_a_activar.nivel.monto and \
                     nivel_a_activar.nivel.monto <= (cuenta.saldo_activacion + cuenta.saldo_disponible):
@@ -1547,33 +1557,28 @@ def activar_nivel(request, jugador_nivel_id):
                 cuenta.saldo_disponible = F('saldo_disponible') - restante
                 cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
                 cuenta.save()
-            
-                if descuento_activacion == 0:
-                    desc_movimiento = ''
-                else:
-                    desc_movimiento = 'Descuento saldo activacion para nivel ' + str(nivel_a_activar.nivel.id)
-
-                        
-                    nuevo_movimiento = Movimiento(cuenta=cuenta,
-                                                billetera='S',
-                                                tipo='S',
-                                                concepto='PN',  
-                                                descripcion=desc_movimiento,
-                                                valor=descuento_activacion)
-                    nuevo_movimiento.save()
-                    nuevo_movimiento.refresh_from_db()
-
                 
-                desc_movimiento = 'Descuento activacion saldo disponiible para nivel ' + str(nivel_a_activar.nivel.id)
+                
+                desc_movimiento = 'Descuento saldo activacion para activar nivel ' + str(nivel_a_activar.nivel.id)
                 nuevo_movimiento = Movimiento(cuenta=cuenta,
-                                              billetera='S',
-                                              tipo='S',
-                                              concepto='PN',  
-                                              descripcion=desc_movimiento,
-                                              valor=descuento_disponible)
+                                            billetera='A',
+                                            tipo='S',
+                                            concepto='PN',  
+                                            descripcion=desc_movimiento,
+                                            valor=descuento_activacion)
                 nuevo_movimiento.save()
                 nuevo_movimiento.refresh_from_db()
 
+                
+                desc_movimiento = 'Descuento saldo disponible para activar nivel ' + str(nivel_a_activar.nivel.id)
+                nuevo_movimiento = Movimiento(cuenta=cuenta,
+                                                billetera='D',
+                                                tipo='S',
+                                                concepto='PN',  
+                                                descripcion=desc_movimiento,
+                                                valor=descuento_disponible)
+                nuevo_movimiento.save()
+                nuevo_movimiento.refresh_from_db()
 
             # Desbloqueo jugador si activa el siguiente nivel
             if nivel_a_activar.nivel.id > 1:
