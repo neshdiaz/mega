@@ -239,7 +239,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='E',
                                         concepto='CI',
-                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + 'en nivel' + str(lista.nivel.id),
+                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
                                         valor=lista.nivel.monto,
                                         )
         nuevo_movimiento_destino.save()
@@ -248,7 +248,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='S',
                                         concepto='CI',
-                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + 'en nivel' + str(lista.nivel.id),
+                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
                                         valor=lista.nivel.monto,
                                         )
         nuevo_movimiento_destino.save()
@@ -259,7 +259,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='S',
                                             concepto='CI',
-                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + 'en nivel' + str(lista.nivel.id),
+                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
                                             valor=lista.nivel.monto,
                                         )
 
@@ -267,7 +267,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='E',
                                             concepto='CI',
-                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + 'en nivel' + str(lista.nivel.id),
+                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
                                             valor=lista.nivel.monto,
                                         )                                    
         nuevo_movimiento_origen.save()
@@ -352,7 +352,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                            tipo='E',
                                            concepto='CP',
                                            descripcion='Comisión a plataforma por usuario ' +\
-                                               str(jugador)  + 'en nivel' + str(lista.nivel.id),
+                                               str(jugador)  + ' en nivel ' + str(lista.nivel.id),
                                            valor=porcent_plataforma)
     else:
         movimiento_plataforma_e = Movimiento(cuenta=cuenta_plataforma,
@@ -360,7 +360,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                            tipo='E',
                                            concepto='CP',
                                            descripcion='Comisión a plataforma por clon de usuario ' + \
-                                               str(jugador) + 'en nivel' + str(lista.nivel.id),
+                                               str(jugador) + 'en nivel ' + str(lista.nivel.id),
                                            valor=porcent_plataforma)
     movimiento_plataforma_e.save()
 
@@ -381,7 +381,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                                  tipo='E',  
                                                  concepto='C1',
                                                  descripcion='Comisión por patrocinador directo de \
-                                                     jugador: ' + str(jugador)  + 'en nivel' + str(lista.nivel.id),
+                                                     jugador ' + str(jugador)  + ' en nivel ' + str(lista.nivel.id),
                                                  valor=porcent_patrocinador_directo)
     movimiento_patrocinador_directo.save()
 
@@ -400,7 +400,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                                tipo='E',
                                                concepto='C2',
                                                descripcion='Comisión por segunda generacion de\
-                                                     jugador: ' + str(jugador) + 'en nivel' + str(lista.nivel.id),
+                                                     jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
                                                valor=porcent_segunda_generacion)
     movimiento_segunda_generacion.save()
 
@@ -409,7 +409,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                                tipo='E',
                                                concepto='C2',
                                                descripcion='Comisión por segunda generacion de\
-                                                     jugador: ' + str(jugador)  + 'en nivel' + str(lista.nivel.id),
+                                                     jugador ' + str(jugador)  + ' en nivel ' + str(lista.nivel.id),
                                                valor=porcent_segunda_generacion)
     movimiento_segunda_generacion.save()
 
@@ -428,7 +428,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                                billetera='A',
                                                tipo='E',
                                                concepto='C3',
-                                               descripcion='Comisión por tercera generación de jugador: ' + str(jugador) + 'en nivel' + str(lista.nivel.id),
+                                               descripcion='Comisión por tercera generación de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
                                                valor=porcent_tercera_generacion)
     movimiento_tercera_generacion.save()
 
@@ -453,7 +453,7 @@ def jugador_repartir_pago(jugador, lista, es_clon):
                                            billetera='D',
                                            tipo='E',
                                            concepto='PN',
-                                           descripcion='Pago por activación de jugador: ' + str(jugador) + 'en nivel' + str(lista.nivel.id),
+                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
                                            valor=porcent_posicion_cobro)
     movimiento_posicion_cobro.save()
 
