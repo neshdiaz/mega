@@ -137,7 +137,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         jugador_validar_pcs(patrocinador, nueva_ubicacion['lista'].nivel)
         jugador_inc_activos_abuelo(patrocinador, nueva_ubicacion['lista'].nivel)
         if nueva_ubicacion['posicion'] != 3:
-            jugador_repartir_pago(nuevo_jugador, nueva_ubicacion['lista'], False)
+            jugador_pago(nuevo_jugador, nueva_ubicacion['lista'])
         lista_nuevo_cobrador(nueva_ubicacion['lista'])
 
         respuesta = 'Jugador asignado correctamente'
@@ -177,7 +177,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
                 ultimo_ciclaje_juego.save()
                 ultimo_ciclaje_juego.refresh_from_db()
-                jugador_repartir_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'], False)
+                jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
 
             if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
@@ -211,15 +211,15 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                     ultimo_ciclaje_juego.refresh_from_db()
 
                     # movimiento entrada salida por pago completo por ciclaje
-                    jugador_repartir_pago(ret_ciclado['jugador_ciclado'], \
-                        ret_ciclado['lista'], False)
+                    jugador_pago(ret_ciclado['jugador_ciclado'], \
+                        ret_ciclado['lista'])
                     
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
 
                 if ret_ciclado['posicion'] == 2:
-                    jugador_repartir_pago(ret_ciclado['jugador_ciclado'], \
-                    ret_ciclado['lista'], False)
+                    jugador_pago(ret_ciclado['jugador_ciclado'], \
+                    ret_ciclado['lista'])
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
@@ -234,13 +234,12 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
     cuenta_jugador_destino = Cuenta.objects.get(jugador=jugador_destino)
 
     if primer_ciclaje:
-
         nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
                                         billetera='D',
                                         tipo='E',
                                         concepto='CI',
                                         descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
-                                        valor=lista.nivel.monto,
+                                        valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
 
@@ -249,7 +248,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         tipo='S',
                                         concepto='CI',
                                         descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
-                                        valor=lista.nivel.monto,
+                                        valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
 
@@ -260,7 +259,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             tipo='S',
                                             concepto='CI',
                                             descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
-                                            valor=lista.nivel.monto,
+                                            valor=(lista.nivel.monto * 50) / 100,
                                         )
 
         nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
@@ -268,7 +267,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             tipo='E',
                                             concepto='CI',
                                             descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
-                                            valor=lista.nivel.monto,
+                                            valor=(lista.nivel.monto * 50) / 100,
                                         )                                    
         nuevo_movimiento_origen.save()
         nuevo_movimiento_destino.save()
@@ -276,63 +275,73 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
 
 
 @transaction.atomic
-def jugador_repartir_pago(jugador, lista, es_clon):
+def jugador_pago(jugador, lista):
     # se consulta los datos de division de pagos en la bd
     conf = Configuracion.objects.get(pk=1)
     monto = lista.nivel.monto
     cuenta_jugador = Cuenta.objects.get(jugador=jugador)
 
-    # verificamos de que que cuentas se va a debitar
-    # calculamos los valores de descuentos de activacion y disponible
-    if cuenta_jugador.saldo_activacion > lista.nivel.monto:
-        descuento_activacion = cuenta_jugador.saldo_activacion
-        descuento_disponible = 0
-    # si no me alcanza el saldo de activacion pero tengo saldo disponible para debitar
-    elif cuenta_jugador.saldo_activacion < lista.nivel.monto and \
-            lista.nivel.monto <= (cuenta_jugador.saldo_activacion + cuenta_jugador.saldo_disponible):
-        restante = lista.nivel.monto - cuenta_jugador.saldo_activacion
-        descuento_activacion = cuenta_jugador.saldo_activacion
-        descuento_disponible = restante
+    # Estableciendo porcentajes para cada jugador
+    porcent_posicion_cobro = (monto * conf.porcent_posicion_cobro)/100
 
+    # Estableciendo jugadores para comision
+    jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador
+
+    # Actualizamos cuentas y movimientos de cada jugador
+   
+
+    # Movimientos de entrada de el cobrador de la lista
+    cuenta_posicion_cobro = Cuenta.objects.get(jugador=jugador_posicion_cobro)
+    cuenta_posicion_cobro.saldo_disponible = F('saldo_disponible') + porcent_posicion_cobro
+
+    cuenta_posicion_cobro.saldo_total = F('saldo_total') + porcent_posicion_cobro
+    cuenta_posicion_cobro.beneficios_totales = F('beneficios_totales') + porcent_posicion_cobro
+    cuenta_posicion_cobro.save()
+    cuenta_posicion_cobro.refresh_from_db()
     
+    movimiento_posicion_cobro = Movimiento(cuenta=cuenta_posicion_cobro,
+                                           billetera='D',
+                                           tipo='E',
+                                           concepto='PN',
+                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
+                                           valor=porcent_posicion_cobro)
+    movimiento_posicion_cobro.save()
+
+
+@transaction.atomic
+def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
+    # se consulta los datos de division de pagos en la bd
+    conf = Configuracion.objects.get(pk=1)
+    monto = nivel_a_activar.nivel.monto
+    cuenta_jugador = Cuenta.objects.get(jugador=jugador)
+
     # Estableciendo porcentajes para cada jugador
     porcent_plataforma = (monto * conf.porcent_plataforma)/100
     porcent_patrocinador_directo = (monto * conf.porcent_patrocinador_directo)/100
     porcent_segunda_generacion = (monto * conf.porcent_segunda_generacion)/100
     porcent_tercera_generacion = (monto * conf.porcent_tercera_generacion)/100
-    porcent_posicion_cobro = (monto * conf.porcent_posicion_cobro)/100
+    
 
     # Estableciendo jugadores para comision
 
-    if es_clon:
-        # Si es un clon todo menos el 50% va a system
-        jugador_plataforma = Jugador.objects.get(usuario__username='System')
+    jugador_plataforma = Jugador.objects.get(usuario__username='System')
+    jugador_patrocinador = jugador.promotor
+    if jugador_patrocinador is None:
         jugador_patrocinador = Jugador.objects.get(usuario__username='System')
+
+    jugador_nivel_patrocinador = JugadorNivel.objects.get(jugador=jugador_patrocinador,\
+        nivel=nivel_a_activar.nivel)
+    jugador_segunda_generacion = jugador_nivel_patrocinador.patrocinador
+    if jugador_segunda_generacion is None:
         jugador_segunda_generacion = Jugador.objects.get(usuario__username='System')
+
+    jugador_nivel_patrocinador_3 = JugadorNivel.objects.get(jugador=jugador_segunda_generacion,\
+        nivel=nivel_a_activar.nivel)
+    jugador_tercera_generacion = jugador_nivel_patrocinador_3.patrocinador
+    if jugador_tercera_generacion is None:
         jugador_tercera_generacion = Jugador.objects.get(usuario__username='System')
-        
-
-    else:
-        # si no es clon se establece cada jugador que comisiona
-        jugador_plataforma = Jugador.objects.get(usuario__username='System')
-        jugador_patrocinador = jugador.promotor
-        if jugador_patrocinador is None:
-            jugador_patrocinador = Jugador.objects.get(usuario__username='System')
-
-        jugador_nivel_patrocinador = JugadorNivel.objects.get(jugador=jugador_patrocinador,\
-            nivel=lista.nivel)
-        jugador_segunda_generacion = jugador_nivel_patrocinador.patrocinador
-        if jugador_segunda_generacion is None:
-            jugador_segunda_generacion = Jugador.objects.get(usuario__username='System')
-
-        jugador_nivel_patrocinador_3 = JugadorNivel.objects.get(jugador=jugador_segunda_generacion,\
-            nivel=lista.nivel)
-        jugador_tercera_generacion = jugador_nivel_patrocinador_3.patrocinador
-        if jugador_tercera_generacion is None:
-            jugador_tercera_generacion = Jugador.objects.get(usuario__username='System')
-    # Este siempre va igual
-    jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador
-
+    
+    
     # Actualizamos cuentas y movimientos de cada jugador
     # cuenta_plataforma arranca con todos los niveles activos no se valida autoactivacion
     cuenta_plataforma = Cuenta.objects.get(jugador=jugador_plataforma)
@@ -346,22 +355,13 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_plataforma.save()
     cuenta_plataforma.refresh_from_db()
 
-    if not es_clon:
-        movimiento_plataforma_e = Movimiento(cuenta=cuenta_plataforma,
-                                           billetera="A", 
-                                           tipo='E',
-                                           concepto='CP',
-                                           descripcion='Comisión a plataforma por usuario ' +\
-                                               str(jugador)  + ' en nivel ' + str(lista.nivel.id),
-                                           valor=porcent_plataforma)
-    else:
-        movimiento_plataforma_e = Movimiento(cuenta=cuenta_plataforma,
-                                           billetera="A",
-                                           tipo='E',
-                                           concepto='CP',
-                                           descripcion='Comisión a plataforma por clon de usuario ' + \
-                                               str(jugador) + 'en nivel ' + str(lista.nivel.id),
-                                           valor=porcent_plataforma)
+    movimiento_plataforma_e = Movimiento(cuenta=cuenta_plataforma,
+                                        billetera="A",
+                                        tipo='E',
+                                        concepto='CP',
+                                        descripcion='Comisión a plataforma de usuario ' + \
+                                            str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id),
+                                        valor=porcent_plataforma)
     movimiento_plataforma_e.save()
 
     # cuenta_patrocinador_directo
@@ -374,14 +374,14 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_patrocinador_directo.save()
     cuenta_patrocinador_directo.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_patrocinador, lista.nivel)
+    jugador_validar_auto_nivel_up(jugador_patrocinador, nivel_a_activar.nivel)
 
     movimiento_patrocinador_directo = Movimiento(cuenta=cuenta_patrocinador_directo,
                                                  billetera='A',
                                                  tipo='E',  
                                                  concepto='C1',
                                                  descripcion='Comisión por patrocinador directo de \
-                                                     jugador ' + str(jugador)  + ' en nivel ' + str(lista.nivel.id),
+                                                     jugador ' + str(jugador)  + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                  valor=porcent_patrocinador_directo)
     movimiento_patrocinador_directo.save()
 
@@ -393,26 +393,16 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_segunda_generacion.save()
     cuenta_segunda_generacion.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_segunda_generacion, lista.nivel)
+    jugador_validar_auto_nivel_up(jugador_segunda_generacion, nivel_a_activar.nivel)
 
     movimiento_segunda_generacion = Movimiento(cuenta=cuenta_segunda_generacion,
                                                billetera='A',
                                                tipo='E',
                                                concepto='C2',
                                                descripcion='Comisión por segunda generacion de\
-                                                     jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
+                                                     jugador ' + str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                valor=porcent_segunda_generacion)
     movimiento_segunda_generacion.save()
-
-    movimiento_segunda_generacion2 = Movimiento(cuenta=cuenta_segunda_generacion,
-                                               billetera='A',
-                                               tipo='E',
-                                               concepto='C2',
-                                               descripcion='Comisión por segunda generacion de\
-                                                     jugador ' + str(jugador)  + ' en nivel ' + str(lista.nivel.id),
-                                               valor=porcent_segunda_generacion)
-    movimiento_segunda_generacion.save()
-
 
     cuenta_tercera_generacion = Cuenta.objects.get(jugador=jugador_tercera_generacion)
     cuenta_tercera_generacion.saldo_activacion = F('saldo_activacion') + porcent_tercera_generacion
@@ -422,41 +412,15 @@ def jugador_repartir_pago(jugador, lista, es_clon):
     cuenta_tercera_generacion.save()
     cuenta_tercera_generacion.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_tercera_generacion, lista.nivel)
+    jugador_validar_auto_nivel_up(jugador_tercera_generacion, nivel_a_activar.nivel)
 
     movimiento_tercera_generacion = Movimiento(cuenta=cuenta_tercera_generacion,
                                                billetera='A',
                                                tipo='E',
                                                concepto='C3',
-                                               descripcion='Comisión por tercera generación de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
+                                               descripcion='Comisión por tercera generación de jugador ' + str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                valor=porcent_tercera_generacion)
     movimiento_tercera_generacion.save()
-
-
-
-
-
-            
-    
-    # Movimientos de entrada de el cobrador de la lista
-    cuenta_posicion_cobro = Cuenta.objects.get(jugador=jugador_posicion_cobro)
-    cuenta_posicion_cobro.saldo_disponible = F('saldo_disponible') + porcent_posicion_cobro
-
-    cuenta_posicion_cobro.saldo_total = F('saldo_total') + porcent_posicion_cobro
-    cuenta_posicion_cobro.beneficios_totales = F('beneficios_totales') + porcent_posicion_cobro
-    cuenta_posicion_cobro.save()
-    cuenta_posicion_cobro.refresh_from_db()
-    # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_posicion_cobro, lista.nivel)
-    
-    movimiento_posicion_cobro = Movimiento(cuenta=cuenta_posicion_cobro,
-                                           billetera='D',
-                                           tipo='E',
-                                           concepto='PN',
-                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
-                                           valor=porcent_posicion_cobro)
-    movimiento_posicion_cobro.save()
-
 
 @transaction.atomic
 def jugador_validar_auto_nivel_up(jugador, nivel_lista):
@@ -475,15 +439,16 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
             jugador.refresh_from_db()
 
             # Descontar de la cuenta y registrar el movimiento auto
-            cuenta_jugador.saldo_disponible = F('saldo_disponible') - nivel_jugador.nivel.monto
             cuenta_jugador.saldo_activacion = F('saldo_activacion') - nivel_jugador.nivel.monto
             cuenta_jugador.saldo_total = F('saldo_total') - nivel_jugador.nivel.monto
             cuenta_jugador.save()
             cuenta_jugador.refresh_from_db()
 
-            desc_movimiento = 'Pago automatico nivel  ' + str(nivel_jugador.nivel.id)
+            desc_movimiento = 'Pago activación automática nivel  ' + str(nivel_jugador.nivel.id)
             nuevo_movimiento = Movimiento(cuenta=cuenta_jugador,
-                                        tipo='P',
+                                        billetera='A',
+                                        tipo='S',
+                                        concepto='PA',
                                         descripcion=desc_movimiento,
                                         valor=nivel_jugador.nivel.monto)
             nuevo_movimiento.save()
@@ -1558,16 +1523,16 @@ def activar_nivel(request, jugador_nivel_id):
                 cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
                 cuenta.save()
                 
-                
-                desc_movimiento = 'Descuento saldo activacion para activar nivel ' + str(nivel_a_activar.nivel.id)
-                nuevo_movimiento = Movimiento(cuenta=cuenta,
-                                            billetera='A',
-                                            tipo='S',
-                                            concepto='PN',  
-                                            descripcion=desc_movimiento,
-                                            valor=descuento_activacion)
-                nuevo_movimiento.save()
-                nuevo_movimiento.refresh_from_db()
+                if descuento_activacion > 0:
+                    desc_movimiento = 'Descuento saldo activacion para activar nivel ' + str(nivel_a_activar.nivel.id)
+                    nuevo_movimiento = Movimiento(cuenta=cuenta,
+                                                billetera='A',
+                                                tipo='S',
+                                                concepto='PN',  
+                                                descripcion=desc_movimiento,
+                                                valor=descuento_activacion)
+                    nuevo_movimiento.save()
+                    nuevo_movimiento.refresh_from_db()
 
                 
                 desc_movimiento = 'Descuento saldo disponible para activar nivel ' + str(nivel_a_activar.nivel.id)
@@ -1579,6 +1544,9 @@ def activar_nivel(request, jugador_nivel_id):
                                                 valor=descuento_disponible)
                 nuevo_movimiento.save()
                 nuevo_movimiento.refresh_from_db()
+            
+            # Reparto las comisiones de cada generación
+            jugador_repartir_pago_comisiones(jugador, nivel_a_activar)
 
             # Desbloqueo jugador si activa el siguiente nivel
             if nivel_a_activar.nivel.id > 1:
@@ -1632,7 +1600,7 @@ def jugador_ver_movimientos(request):
     for movimiento in movimientos:
         ele = {"codigo":str(movimiento.id),
                "fecha": str(movimiento.created.strftime("%Y-%m-%d")),
-               "tipo": movimiento.get_tipo_display(),
+               "tipo": movimiento.get_tipo_display(), 
                "billetera": movimiento.get_billetera_display(),
                "concepto": movimiento.get_concepto_display(),
                "descripcion": movimiento.descripcion,

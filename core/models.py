@@ -51,6 +51,7 @@ class Movimiento(models.Model):
         ('C3', 'COMISION GENERACION 3'),
         ('CI', 'CICLAJE'),
         ('PN', 'PAGO POR NIVEL'),
+        ('PA', 'PAGO AUTOMATICO POR NIVEL'),
         ('CS', 'CARGA DE SALDO'),
         ('RS', 'RETIRO DE SALDO'),    
     )    
