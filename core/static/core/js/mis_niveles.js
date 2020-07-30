@@ -86,7 +86,7 @@ $('#exampleModal').on('show.bs.modal', function (event) {
     // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
     // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
     var modal = $(this)
-    modal.find('.modal-title').text('Esta seguro que quiere activar el nivel ' + nivel)
+    modal.find('.modal-title').text('Se descontará de sus saldos para activar el nivel ' + nivel + ', esta seguro?')
     modal.find('.modal-body input').val(nivel)
     modal.find('.modal-footer .confirm-link').attr('href', url_activar_nivel  + nivel_a_activar)
   })
