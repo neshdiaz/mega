@@ -223,7 +223,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-    return patrocinador
+    return patrocinador, 
 
 
 @transaction.atomic
@@ -238,7 +238,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='E',
                                         concepto='CI',
-                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
+                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
                                         valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
@@ -247,7 +247,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='S',
                                         concepto='CI',
-                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
+                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
                                         valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
@@ -258,7 +258,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='S',
                                             concepto='CI',
-                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id),
+                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
                                             valor=(lista.nivel.monto * 50) / 100,
                                         )
 
@@ -266,7 +266,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='E',
                                             concepto='CI',
-                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id),
+                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
                                             valor=(lista.nivel.monto * 50) / 100,
                                         )                                    
         nuevo_movimiento_origen.save()
@@ -303,7 +303,7 @@ def jugador_pago(jugador, lista):
                                            billetera='D',
                                            tipo='E',
                                            concepto='PN',
-                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id),
+                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
                                            valor=porcent_posicion_cobro)
     movimiento_posicion_cobro.save()
 
@@ -374,7 +374,6 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
     cuenta_patrocinador_directo.save()
     cuenta_patrocinador_directo.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_patrocinador, nivel_a_activar.nivel)
 
     movimiento_patrocinador_directo = Movimiento(cuenta=cuenta_patrocinador_directo,
                                                  billetera='A',
@@ -384,6 +383,7 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
                                                      jugador ' + str(jugador)  + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                  valor=porcent_patrocinador_directo)
     movimiento_patrocinador_directo.save()
+    jugador_validar_auto_nivel_up(jugador_patrocinador, nivel_a_activar.nivel)
 
     cuenta_segunda_generacion = Cuenta.objects.get(jugador=jugador_segunda_generacion)
     cuenta_segunda_generacion.saldo_activacion = F('saldo_activacion') + porcent_segunda_generacion
@@ -393,7 +393,6 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
     cuenta_segunda_generacion.save()
     cuenta_segunda_generacion.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_segunda_generacion, nivel_a_activar.nivel)
 
     movimiento_segunda_generacion = Movimiento(cuenta=cuenta_segunda_generacion,
                                                billetera='A',
@@ -403,6 +402,7 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
                                                      jugador ' + str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                valor=porcent_segunda_generacion)
     movimiento_segunda_generacion.save()
+    jugador_validar_auto_nivel_up(jugador_segunda_generacion, nivel_a_activar.nivel)
 
     cuenta_tercera_generacion = Cuenta.objects.get(jugador=jugador_tercera_generacion)
     cuenta_tercera_generacion.saldo_activacion = F('saldo_activacion') + porcent_tercera_generacion
@@ -412,7 +412,6 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
     cuenta_tercera_generacion.save()
     cuenta_tercera_generacion.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-    jugador_validar_auto_nivel_up(jugador_tercera_generacion, nivel_a_activar.nivel)
 
     movimiento_tercera_generacion = Movimiento(cuenta=cuenta_tercera_generacion,
                                                billetera='A',
@@ -421,6 +420,7 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
                                                descripcion='Comisión por tercera generación de jugador ' + str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id),
                                                valor=porcent_tercera_generacion)
     movimiento_tercera_generacion.save()
+    jugador_validar_auto_nivel_up(jugador_tercera_generacion, nivel_a_activar.nivel)
 
 @transaction.atomic
 def jugador_validar_auto_nivel_up(jugador, nivel_lista):
@@ -455,6 +455,9 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
             nuevo_movimiento.refresh_from_db()
 
             asignar_jugador(jugador, nivel_jugador.nivel.id)
+            
+            # Reparto las comisiones de cada generación
+            jugador_repartir_pago_comisiones(jugador, nivel_a_activar)
             
             nivel_anterior_id = nivel_jugador.nivel.id - 1
             if nivel_anterior_id > 0:
@@ -1505,7 +1508,7 @@ def activar_nivel(request, jugador_nivel_id):
                 
                 desc_movimiento = 'Pago activacion nivel ' + str(nivel_a_activar.nivel.id)
                 nuevo_movimiento = Movimiento(cuenta=cuenta,
-                                            billetera='S',
+                                            billetera='D',
                                             tipo='S',
                                             concepto='PN', 
                                             descripcion=desc_movimiento,
@@ -1554,8 +1557,8 @@ def activar_nivel(request, jugador_nivel_id):
                 nivel_anterior = Nivel.objects.get(pk=nivel_id_anterior)
                 jugador_nivel_anterior = JugadorNivel.objects.get(jugador=jugador, nivel=nivel_anterior)
                 if jugador_nivel_anterior.bloqueo_x_cobros_nivel == True and jugador_nivel_anterior.color == 'orange':
-                    jugador_nivel_anterior.bloqueo_x_cobros_nivel == False
-                    jugador_nivel_anterior.color == 'green'
+                    jugador_nivel_anterior.bloqueo_x_cobros_nivel = False
+                    jugador_nivel_anterior.color = 'green'
                     jugador_nivel_anterior.save()
             respuesta = 'Nivel activado correctamente'
             asignar_jugador(jugador, nivel_a_activar.nivel.id)
