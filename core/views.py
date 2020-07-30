@@ -1628,7 +1628,7 @@ def lista_canastas(request):
                "estado": jugador_nivel.get_estado_display(),
                "monto": m,
                "ciclajes": '10',
-               "referidos": '12',
+               "referidos": str(jugador_nivel.n_referidos_activados),
                }
 
         lst_jugador_niveles.append(ele)

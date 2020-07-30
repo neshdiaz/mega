@@ -2,3 +2,4 @@ mega/mega/settings.py
 log.txt
 pendientes.txt
 **/*.pyc
+core/__pycache__/views.cpython-36.pyc
