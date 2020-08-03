@@ -125,6 +125,8 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
 
     nueva_ubicacion = buscar_ubicacion(patrocinador, nivel_lista)
 
+    nueva_lista = nueva_ubicacion['lista']
+    nueva_posicion = nueva_ubicacion['posicion']
     if nueva_ubicacion['posicion'] != -1:
 
         # Creamos el juego para enlazar la lista con el nuevo jugador
@@ -244,7 +246,8 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-    return patrocinador, 
+    
+    return patrocinador, nueva_lista, nueva_posicion
 
 
 @transaction.atomic
@@ -1587,8 +1590,8 @@ def activar_nivel(request, jugador_nivel_id):
                     jugador_nivel_anterior.bloqueo_x_cobros_nivel = False
                     jugador_nivel_anterior.color = 'green'
                     jugador_nivel_anterior.save()
-            respuesta = 'Nivel activado correctamente'
-            asignar_jugador(jugador, nivel_a_activar.nivel.id)
+            patrocinador, lista, posicion = asignar_jugador(jugador, nivel_a_activar.nivel.id)
+            respuesta = 'Nivel ' + str(nivel_a_activar.nivel.id) + ' activado correctamente, estás en la lista ' + str(lista) + ' y posición ' + str(posicion + 1)
         else:
             respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
     
