@@ -99,8 +99,13 @@ def signal_cobrador(instance, created, **kwargs):
         jugador_inc_cobros(instance.jugador, instance.nivel)
 
 def jugador_inc_listas_cerradas(jugador, nivel):
-    jugador_nivel=JugadorNivel(jugador=jugador, nivel=nivel)
-    jugador_nivel.n_listas_cerradas = F('n_lista_cerradas') + 1
+    jugador_nivel=JugadorNivel.objects.get(jugador=jugador, nivel=nivel)
+    patrocinador = jugador_nivel.patrocinador
+    if jugador_nivel.ciclo == 0:
+        patrocinador.n_listas_cerradas = F('n_listas_cerradas') + 1
+        patrocinador.save() 
+    
+    jugador_nivel.n_listas_cerradas = F('n_listas_cerradas') + 1
     jugador_nivel.save()
 
 
@@ -155,7 +160,6 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
 
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
-            jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
             lista_nueva(nueva_ubicacion['lista'])
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
@@ -191,7 +195,6 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
 
             if ret_ciclado['posicion'] == 4:
-                jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
                 lista_nueva(ret_ciclado['lista'])
 
             # bloque de multiples asignaciones en posicion de ciclaje
@@ -228,7 +231,6 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                     
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
-                    jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
 
                 if ret_ciclado['posicion'] == 2:
                     jugador_pago(ret_ciclado['jugador_ciclado'], \
@@ -271,7 +273,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='S',
                                             concepto='CI',
-                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
+                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                             valor=(lista.nivel.monto * 50) / 100,
                                         )
 
@@ -279,7 +281,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                             billetera='D',
                                             tipo='E',
                                             concepto='CI',
-                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
+                                            descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                             valor=(lista.nivel.monto * 50) / 100,
                                         )                                    
         nuevo_movimiento_origen.save()
@@ -316,7 +318,7 @@ def jugador_pago(jugador, lista):
                                            billetera='D',
                                            tipo='E',
                                            concepto='PN',
-                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
+                                           descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                            valor=porcent_posicion_cobro)
     movimiento_posicion_cobro.save()
 
@@ -743,7 +745,7 @@ def lista_ciclar(lista):
 
     # jugador cabeza de lista que se va a ciclar
     jugador0 = Jugador.objects.get(juego__lista=lista.id, juego__posicion=0)
-
+    jugador_nivel0 = JugadorNivel.objects.get(jugador=jugador0, nivel=lista.nivel)
     log_registrar('log.txt', 'CICLANDO A: ' + str(jugador0) + ' EN LISTA: ' + str(lista))
 
     patrocinador = JugadorNivel.objects.get(jugador=jugador0, nivel=lista.nivel).patrocinador
@@ -777,8 +779,9 @@ def lista_ciclar(lista):
                       ' en la posicion: ' + str(nueva_ubicacion['posicion']))
 
         lista_inc_item(nueva_ubicacion['lista'])
-        jugador_inc_ciclo(jugador0)
-                
+        jugador_inc_ciclo(jugador_nivel0)
+        jugador_inc_listas_cerradas(jugador0, lista.nivel)
+
         ciclado['lista'] = nueva_ubicacion['lista']
         ciclado['posicion'] = nueva_ubicacion['posicion']
         ciclado['jugador_ciclado'] = jugador0
@@ -1101,10 +1104,10 @@ def lista_validar_pc(lista):
 
 # Fin del bloque de funciones validaciones pc y bloqueo
 
-def jugador_inc_ciclo(jugador):
-    jugador.ciclo = F('ciclo') + 1
-    jugador.save()
-    jugador.refresh_from_db()
+def jugador_inc_ciclo(jugador_nivel):
+    jugador_nivel.ciclo = F('ciclo') + 1
+    jugador_nivel.save()
+    jugador_nivel.refresh_from_db()
     
 
 def jugador_inc_cierre_lista(jugador):
