@@ -93,10 +93,10 @@ def home(request, id_usuario=None, id_lista=None):
 #    if created:
 #        asignar_jugador(instance)
 
-@receiver(post_save, sender=Cobrador)
-def signal_cobrador(instance, created, **kwargs):
-    if created:
-        jugador_inc_cobros(instance.jugador, instance.nivel)
+#@receiver(post_save, sender=Cobrador)
+#def signal_cobrador(instance, created, **kwargs):
+    #if created:
+    # jugador_inc_cobros(instance.jugador, instance.nivel)
 
 def jugador_inc_listas_cerradas(jugador, nivel):
     jugador_nivel=JugadorNivel.objects.get(jugador=jugador, nivel=nivel)
@@ -147,12 +147,12 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         jugador_validar_bloqueos(patrocinador, nueva_ubicacion['lista'].nivel)
         jugador_validar_pcs(patrocinador, nueva_ubicacion['lista'].nivel)
         jugador_inc_activos_abuelo(patrocinador, nueva_ubicacion['lista'].nivel)
-        
-
-            
-        
+              
         if nueva_ubicacion['posicion'] != 3:
             jugador_pago(nuevo_jugador, nueva_ubicacion['lista'])
+            jugador_que_cobra = Juego.objects.get(lista=nueva_ubicacion['lista'], posicion=0).jugador
+            jugador_inc_cobros(jugador_que_cobra, nueva_ubicacion['lista'].nivel)
+
         lista_nuevo_cobrador(nueva_ubicacion['lista'])
 
         respuesta = 'Jugador asignado correctamente'
@@ -193,6 +193,9 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 ultimo_ciclaje_juego.save()
                 ultimo_ciclaje_juego.refresh_from_db()
                 jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
+                # 
+                jugador_que_cobra = Juego.objects.get(lista=ret_ciclado['lista'], posicion=0).jugador
+                jugador_inc_cobros(jugador_que_cobra, ret_ciclado['lista'].nivel)
 
             if ret_ciclado['posicion'] == 4:
                 lista_nueva(ret_ciclado['lista'])
@@ -225,9 +228,10 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                     ultimo_ciclaje_juego.save()
                     ultimo_ciclaje_juego.refresh_from_db()
 
-                    # movimiento entrada salida por pago completo por ciclaje
                     jugador_pago(ret_ciclado['jugador_ciclado'], \
                         ret_ciclado['lista'])
+                    jugador_que_cobra = Juego.objects.get(lista=ret_ciclado['lista'], posicion=0).jugador
+                    jugador_inc_cobros(jugador_que_cobra, ret_ciclado['lista'].nivel)
                     
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
@@ -235,6 +239,8 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 if ret_ciclado['posicion'] == 2:
                     jugador_pago(ret_ciclado['jugador_ciclado'], \
                     ret_ciclado['lista'])
+                    jugador_que_cobra = Juego.objects.get(lista=ret_ciclado['lista'], posicion=0).jugador
+                    jugador_inc_cobros(jugador_que_cobra, ret_ciclado['lista'].nivel)
     else:
         respuesta = 'No se encontraron posiciones disponibles'
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
@@ -575,6 +581,7 @@ def asignar_clon(clon, nivel_lista):
                     ultimo_ciclaje_juego.refresh_from_db()
                     # movimiento entrada salida por pago completo por ciclaje
                     jugador_repartir_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'].nivel, True)
+                    
 
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
