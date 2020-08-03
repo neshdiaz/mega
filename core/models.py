@@ -117,7 +117,7 @@ class Juego(models.Model):
     lista = models.ForeignKey(Lista, on_delete=models.CASCADE)
     jugador = models.ForeignKey('Jugador', on_delete=models.CASCADE)
     posicion = models.SmallIntegerField(default=-1)
-    posicion_cerrado = models.SmallIntegerField(default=-1)
+    posicion_cerrado = models.IntegerField(default=-1)
     color_cerrado = models.CharField(max_length=10, default='red')
     cadena_ciclaje = models.TextField(default='', blank=True, null=True)
 
@@ -181,13 +181,14 @@ class JugadorNivel(models.Model):
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES,
                               default='P')
     
-    n_referidos = models.SmallIntegerField(default=0)
-    n_referidos_activados = models.SmallIntegerField(default=0)
+    n_referidos = models.PositiveIntegerField(default=0)
+    n_referidos_activados = models.PositiveIntegerField(default=0)
     color = models.CharField(max_length=10, default='red')
     ciclo = models.BigIntegerField(default=0)
     cobros = models.BigIntegerField(default=0)
     bloqueo_x_cobros_nivel = models.BooleanField(default=False)
     bloqueo_y_cobros_clon = models.BooleanField(default=False)
+    n_listas_cerradas = models.PositiveIntegerField(default=0)
     
     def __str__(self):
         return "Jugador " + str(self.jugador) + " " + str(self.nivel)

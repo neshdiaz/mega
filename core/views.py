@@ -98,6 +98,11 @@ def signal_cobrador(instance, created, **kwargs):
     if created:
         jugador_inc_cobros(instance.jugador, instance.nivel)
 
+def jugador_inc_listas_cerradas(jugador, nivel):
+    jugador_nivel=JugadorNivel(jugador=jugador, nivel=nivel)
+    jugador_nivel.n_listas_cerradas = F('n_lista_cerradas') + 1
+    jugador_nivel.save()
+
 
 @transaction.atomic
 def asignar_jugador(nuevo_jugador, nivel_lista):
@@ -116,6 +121,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
     nueva_ubicacion = buscar_ubicacion(patrocinador, nivel_lista)
 
     if nueva_ubicacion['posicion'] != -1:
+
         # Creamos el juego para enlazar la lista con el nuevo jugador
         juego = Juego(lista=nueva_ubicacion['lista'],
                       jugador=nuevo_jugador,
@@ -136,6 +142,10 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         jugador_validar_bloqueos(patrocinador, nueva_ubicacion['lista'].nivel)
         jugador_validar_pcs(patrocinador, nueva_ubicacion['lista'].nivel)
         jugador_inc_activos_abuelo(patrocinador, nueva_ubicacion['lista'].nivel)
+        
+
+            
+        
         if nueva_ubicacion['posicion'] != 3:
             jugador_pago(nuevo_jugador, nueva_ubicacion['lista'])
         lista_nuevo_cobrador(nueva_ubicacion['lista'])
@@ -145,6 +155,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
 
         # Creacion de lista nueva
         if nueva_ubicacion['posicion'] == 4:
+            jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
             lista_nueva(nueva_ubicacion['lista'])
         # bloque de ciclaje de jugadores
         elif nueva_ubicacion['posicion'] == 3:
@@ -180,6 +191,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
 
             if ret_ciclado['posicion'] == 4:
+                jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
                 lista_nueva(ret_ciclado['lista'])
 
             # bloque de multiples asignaciones en posicion de ciclaje
@@ -216,6 +228,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                     
                 if ret_ciclado['posicion'] == 4:
                     lista_nueva(ret_ciclado['lista'])
+                    jugador_inc_listas_cerradas(patrocinador, nueva_ubicacion['lista'].nivel)
 
                 if ret_ciclado['posicion'] == 2:
                     jugador_pago(ret_ciclado['jugador_ciclado'], \
@@ -754,6 +767,8 @@ def lista_ciclar(lista):
         nuevo_juego.save()
         nuevo_juego.refresh_from_db()
 
+        
+
  
 
         notificar_asignacion()
@@ -762,7 +777,8 @@ def lista_ciclar(lista):
                       ' en la posicion: ' + str(nueva_ubicacion['posicion']))
 
         lista_inc_item(nueva_ubicacion['lista'])
-        jugador_inc_ciclo(jugador0) 
+        jugador_inc_ciclo(jugador0)
+                
         ciclado['lista'] = nueva_ubicacion['lista']
         ciclado['posicion'] = nueva_ubicacion['posicion']
         ciclado['jugador_ciclado'] = jugador0
@@ -857,6 +873,7 @@ def lista_inc_item(lista):
         lista.save()
         lista.refresh_from_db()
         lista_guardar_cierre(lista)
+        
 
 def lista_guardar_cierre(lista):
     juegos_lista = Juego.objects.select_related('jugador').filter(lista=lista)
@@ -1301,7 +1318,7 @@ def listas(request, usr=None):
         
         if filtro_nivel != 'Todos':
             print(filtro_nivel)
-            lista_listas = lista_listas.filter(nivel=int(filtro_nivel))
+            lista_listas = lista_listas.filter(nivel=int(filtro_nivel)) 
         
         
         lst_listas = []
@@ -1627,7 +1644,7 @@ def lista_canastas(request):
                "jugador_nivel_id": str(jugador_nivel.id),
                "estado": jugador_nivel.get_estado_display(),
                "monto": m,
-               "ciclajes": '10',
+               "ciclajes": str(jugador_nivel.n_listas_cerradas),
                "referidos": str(jugador_nivel.n_referidos),
                }
 
