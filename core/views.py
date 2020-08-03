@@ -251,7 +251,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='E',
                                         concepto='CI',
-                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
+                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                         valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
@@ -260,7 +260,7 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         billetera='D',
                                         tipo='S',
                                         concepto='CI',
-                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + lista.id,
+                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                         valor=(lista.nivel.monto * 50) / 100,
                                         )
         nuevo_movimiento_destino.save()
