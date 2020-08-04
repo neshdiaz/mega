@@ -3,7 +3,7 @@
 function get_lista_canastas(url_request){
     if ($('#lista-canastas').length > 0){
         var templateCanastaActiva = ''
-        templateCanastaActiva += '<button class = "canasta-activa">'
+        templateCanastaActiva += '<button class = "canasta-activa btn btn-primary" data-toggle="modal" data-target="#showNivelTreeModal" data-nivel-a-activar="{{jugador_nivel_id}}" data-nivel="{{id}}">'
         templateCanastaActiva += '  <div class="container-fluid">'
         templateCanastaActiva += '    <div class = "row no-gutters">'
         templateCanastaActiva += '        <div class = "col-4 col-xs-4 col-md-4 col-lg-4"><span class="badge badge-pill badge-primary">{{id}}</span></div>'
@@ -21,10 +21,10 @@ function get_lista_canastas(url_request){
         templateCanastaActiva += '        <div class = "col-4 col-xs-4 col-md-4 col-lg-4 text-right ciclajes" data-toggle="tooltip" title="Referidos CICLADOS en este nivel"><i class="fas fa-recycle"></i>{{ciclajes}}</div>'
         templateCanastaActiva += '    </div>'
         templateCanastaActiva += '  </div>'
-        templateCanastaActiva += '</div>'
+        templateCanastaActiva += '</button>'
 
         var templateCanastaInactiva = ''
-        templateCanastaInactiva += '<button class="canasta-inactiva btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-nivel-a-activar="{{jugador_nivel_id}}" data-nivel="{{id}}" >'
+        templateCanastaInactiva += '<button class="canasta-inactiva btn btn-primary" data-toggle="modal" data-target="#confirmActivateModal" data-nivel-a-activar="{{jugador_nivel_id}}" data-nivel="{{id}}" >'
         templateCanastaInactiva += '  <div class="container-fluid">'
         templateCanastaInactiva += '    <div class = "row no-gutters">'
         templateCanastaInactiva += '      <div class = "col-4 col-xs-4 col-md-4 col-lg-4"><span class="badge badge-pill badge-primary">{{id}}</span></div>'
@@ -44,7 +44,7 @@ function get_lista_canastas(url_request){
         templateCanastaInactiva += '      <div class = "col-4 col-xs-4 col-md-4 col-lg-4 text-right ciclajes" data-toggle="tooltip" title="Referidos CICLADOS en este nivel"><i class="fas fa-recycle"></i>{{ciclajes}}</div>'
         templateCanastaInactiva += '    </div>'
         templateCanastaInactiva += '  </div>  '
-        templateCanastaInactiva += '</div>'
+        templateCanastaInactiva += '</button>'
         
         $.ajax({
             url: url_request,
@@ -78,7 +78,7 @@ function get_lista_canastas(url_request){
 
 // Funcion para variar el contenido del cuadro de dialogo de confirmación para activar nivel
 
-$('#exampleModal').on('show.bs.modal', function (event) {
+$('#confirmActivateModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
     var nivel_a_activar = button.data('nivel-a-activar') // Extract info from data-* attributes
     var nivel = button.data('nivel') // Extract info from data-* attributes
@@ -89,4 +89,16 @@ $('#exampleModal').on('show.bs.modal', function (event) {
     modal.find('.modal-title').text('Se descontará de sus saldos para activar el nivel ' + nivel + ', esta seguro?')
     modal.find('.modal-body input').val(nivel)
     modal.find('.modal-footer .confirm-link').attr('href', url_activar_nivel  + nivel_a_activar)
+  })
+
+$('#showNivelTreeModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget) // Button that triggered the modal
+    var nivel_a_activar = button.data('nivel-a-activar') // Extract info from data-* attributes
+    var nivel = button.data('nivel') // Extract info from data-* attributes
+
+    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+    var modal = $(this)
+    modal.find('.modal-title').text('Esta es la estructura del nivel ' + nivel)
+
   })
