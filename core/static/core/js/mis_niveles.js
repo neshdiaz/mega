@@ -1,6 +1,7 @@
 
 
 function get_lista_canastas(url_request){
+    //plantilla html con tags
     if ($('#lista-canastas').length > 0){
         var templateCanastaActiva = ''
         templateCanastaActiva += '<button class = "canasta-activa btn btn-primary" data-toggle="modal" data-target="#showNivelTreeModal" data-nivel-a-activar="{{jugador_nivel_id}}" data-nivel="{{id}}">'
@@ -46,6 +47,7 @@ function get_lista_canastas(url_request){
         templateCanastaInactiva += '  </div>  '
         templateCanastaInactiva += '</button>'
         
+        //ajax para traer los datos
         $.ajax({
             url: url_request,
             method: "post",
@@ -76,8 +78,11 @@ function get_lista_canastas(url_request){
     }    
 } 
 
-// Funcion para variar el contenido del cuadro de dialogo de confirmación para activar nivel
 
+
+
+// Funcion para variar el contenido del cuadro de dialogo de confirmación para activar nivel
+// Eventos y actualizacion de modals
 $('#confirmActivateModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
     var nivel_a_activar = button.data('nivel-a-activar') // Extract info from data-* attributes
@@ -89,7 +94,7 @@ $('#confirmActivateModal').on('show.bs.modal', function (event) {
     modal.find('.modal-title').text('Se descontará de sus saldos para activar el nivel ' + nivel + ', esta seguro?')
     modal.find('.modal-body input').val(nivel)
     modal.find('.modal-footer .confirm-link').attr('href', url_activar_nivel  + nivel_a_activar)
-  })
+})
 
 $('#showNivelTreeModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
@@ -100,5 +105,8 @@ $('#showNivelTreeModal').on('show.bs.modal', function (event) {
     // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
     var modal = $(this)
     modal.find('.modal-title').text('Esta es la estructura del nivel ' + nivel)
+    modal.find('.modal-body').html('<div id="listasContainer"></div> <div id="lista_content">contenido</div>' )   
+    get_listas()
+    get_lista_content()
 
-  })
+})

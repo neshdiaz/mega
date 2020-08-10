@@ -481,7 +481,7 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
             asignar_jugador(jugador, nivel_jugador.nivel.id)
             
             # Reparto las comisiones de cada generación
-            jugador_repartir_pago_comisiones(jugador, nivel_a_activar)
+            jugador_repartir_pago_comisiones(jugador, nivel_jugador)
             
             nivel_anterior_id = nivel_jugador.nivel.id - 1
             if nivel_anterior_id > 0:
@@ -1664,4 +1664,27 @@ def lista_canastas(request):
         lst_jugador_niveles.append(ele)
 
     json_response = json.dumps(lst_jugador_niveles)
+    return HttpResponse(json_response)
+
+# Peticiones tipo WebService
+
+@requires_csrf_token
+def ws_list_box(request):
+    usuario = User.objects.get(username=request.user.username)
+        
+    lista_listas = Lista.objects\
+        .filter(jugador__usuario__username=usuario.username)\
+        .order_by('nivel', 'id')\
+        .distinct()
+   
+    lst_listas = []
+    for lista in lista_listas:
+        ele = {"id": lista.id, 
+                "nivel": str(lista.nivel), 
+                "nivel_id": str(lista.nivel.id), 
+                "estado":str(lista.get_estado_display()), 
+                "usuario":str(usuario.username)}
+        lst_listas.append(ele)
+
+    json_response = json.dumps(lst_listas)
     return HttpResponse(json_response)

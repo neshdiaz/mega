@@ -7,7 +7,6 @@ urlpatterns = [
 
     # Peticiones Django
 
-    
     path('home/', views.home, name='home'),
     path('referidos/', views.mis_referidos, name='mis_referidos'),
     path('clones/', views.mis_clones, name='mis_clones'),
@@ -22,7 +21,10 @@ urlpatterns = [
     path('home/cargar_saldo/', views.cargar_saldo, name='cargar_saldo'),
 
 
-# Peticiones AJAX
+# Peticiones AJAX tipo WS
+    path('ajax/list_box/', views.ws_list_box, name='ws_list_box'),
+    
+    
     path('ajax/lista_content/', views.lista_content, name='lista_content'),
     path('ajax/lista_content/<int:id_lista>/', views.lista_content,
          name='lista_content'),
