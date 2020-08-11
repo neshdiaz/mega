@@ -98,17 +98,6 @@ def home(request, id_usuario=None, id_lista=None):
     #if created:
     # jugador_inc_cobros(instance.jugador, instance.nivel)
 
-def jugador_inc_listas_cerradas(jugador, nivel):
-    jugador_nivel=JugadorNivel.objects.get(jugador=jugador, nivel=nivel)
-    patrocinador = jugador_nivel.patrocinador
-    if jugador_nivel.ciclo == 0:
-        patrocinador.n_listas_cerradas = F('n_listas_cerradas') + 1
-        patrocinador.save() 
-    
-    jugador_nivel.n_listas_cerradas = F('n_listas_cerradas') + 1
-    jugador_nivel.save()
-
-
 @transaction.atomic
 def asignar_jugador(nuevo_jugador, nivel_lista):
     jugador_nivel = JugadorNivel.objects.get(jugador=nuevo_jugador, \
@@ -248,6 +237,108 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         log_registrar('log.txt', 'No se encontraron posiciones disponibles')
     
     return patrocinador, nueva_lista, nueva_posicion
+
+@transaction.atomic
+def asignar_clon(clon, nivel_lista):
+    log_registrar('log.txt', 'asignando clon de ' + str(clon.jugador))
+    nueva_ubicacion = {'lista': None,
+                       'posicion': -1,
+                       'patrocinador': None}
+
+    nueva_ubicacion = lista_buscar_mas_antigua(nivel_lista)
+
+
+    if nueva_ubicacion['posicion'] != -1:
+        # Creamos el juego para enlazar la lista con el nuevo jugador
+        juego = Juego(lista=nueva_ubicacion['lista'],
+                      jugador=clon.jugador,
+                      posicion=nueva_ubicacion['posicion'])
+        juego.save()
+        juego.refresh_from_db()
+
+        
+        log_registrar('log.txt', 'Clon ' + str(clon.jugador) +
+                      ' agregado a lista ' + str(nueva_ubicacion['lista']) +
+                      ' en posicion: ' +
+                      str(nueva_ubicacion['posicion']))
+
+        # procesos post asignacion directa
+        lista_inc_item(nueva_ubicacion['lista'])
+
+        lista_nuevo_cobrador(nueva_ubicacion['lista'])
+
+        respuesta = 'Clon asignado correctamente'
+        notificar_asignacion()
+
+        # Creacion de lista nueva
+        if nueva_ubicacion['posicion'] == 4:
+            lista_nueva(nueva_ubicacion['lista'])   
+        # bloque de ciclaje de jugadores
+        elif nueva_ubicacion['posicion'] == 3:
+            # ciclo la lista en la nueva ubicacion
+            # empieza el ciclaje
+            usuario_que_paga = '(' + str(clon.jugador) + '-> '
+            # ciclo la lista donde se ubico la posicion libre
+            ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
+            usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
+            ret_id = ret_ciclado['juego'].id
+            # guardo en BD
+            ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+            ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+            ultimo_ciclaje_juego.save()
+            ultimo_ciclaje_juego.refresh_from_db()
+
+
+            lista_nuevo_cobrador(ret_ciclado['lista'])
+            ret_id = ret_ciclado['juego'].id
+
+            # si cae en 3 y despues en posicion diferente de ciclaje
+            # guardo y cierro la cadena con )
+            if ret_ciclado['posicion'] != 3:
+                usuario_que_paga += ')'
+                # guardo en BD
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
+
+            if ret_ciclado['posicion'] == 4:
+                lista_nueva(ret_ciclado['lista'])
+
+            # bloque de multiples asignaciones en posicion de ciclaje
+            # 2 o mas ciclajes
+            while ret_ciclado['posicion'] == 3:
+                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
+                usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
+                lista_nuevo_cobrador(ret_ciclado['lista'])
+                ret_id = ret_ciclado['juego'].id
+
+                # guardo en BD
+                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                ultimo_ciclaje_juego.save()
+                ultimo_ciclaje_juego.refresh_from_db()
+
+                # si cae en 3 y despues en posicion diferente de ciclaje
+                # guardo y cierro la cadena con )            
+                if ret_ciclado['posicion'] != 3:
+                    usuario_que_paga += ')'
+                    # guardo en BD
+                    ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
+                    ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
+                    ultimo_ciclaje_juego.save()
+                    ultimo_ciclaje_juego.refresh_from_db()
+                    # movimiento entrada salida por pago completo por ciclaje
+                    jugador_repartir_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'].nivel, True)
+                    
+
+                if ret_ciclado['posicion'] == 4:
+                    lista_nueva(ret_ciclado['lista'])
+    else:
+        respuesta = 'No se encontraron posiciones disponibles'
+        log_registrar('log.txt', 'No se encontraron posiciones disponibles')
+
+    return HttpResponse(reverse('core:mis_clones'))
 
 
 @transaction.atomic
@@ -492,107 +583,6 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
                     nivel_anterior_jugador.bloqueo_x_cobros_nivel = False
                     nivel_anterior_jugador.color = 'green'
 
-@transaction.atomic
-def asignar_clon(clon, nivel_lista):
-    log_registrar('log.txt', 'asignando clon de ' + str(clon.jugador))
-    nueva_ubicacion = {'lista': None,
-                       'posicion': -1,
-                       'patrocinador': None}
-
-    nueva_ubicacion = lista_buscar_mas_antigua(nivel_lista)
-
-
-    if nueva_ubicacion['posicion'] != -1:
-        # Creamos el juego para enlazar la lista con el nuevo jugador
-        juego = Juego(lista=nueva_ubicacion['lista'],
-                      jugador=clon.jugador,
-                      posicion=nueva_ubicacion['posicion'])
-        juego.save()
-        juego.refresh_from_db()
-
-        
-        log_registrar('log.txt', 'Clon ' + str(clon.jugador) +
-                      ' agregado a lista ' + str(nueva_ubicacion['lista']) +
-                      ' en posicion: ' +
-                      str(nueva_ubicacion['posicion']))
-
-        # procesos post asignacion directa
-        lista_inc_item(nueva_ubicacion['lista'])
-
-        lista_nuevo_cobrador(nueva_ubicacion['lista'])
-
-        respuesta = 'Clon asignado correctamente'
-        notificar_asignacion()
-
-        # Creacion de lista nueva
-        if nueva_ubicacion['posicion'] == 4:
-            lista_nueva(nueva_ubicacion['lista'])   
-        # bloque de ciclaje de jugadores
-        elif nueva_ubicacion['posicion'] == 3:
-            # ciclo la lista en la nueva ubicacion
-            # empieza el ciclaje
-            usuario_que_paga = '(' + str(clon.jugador) + '-> '
-            # ciclo la lista donde se ubico la posicion libre
-            ret_ciclado = lista_ciclar(nueva_ubicacion['lista'])
-            usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
-            ret_id = ret_ciclado['juego'].id
-            # guardo en BD
-            ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
-            ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
-            ultimo_ciclaje_juego.save()
-            ultimo_ciclaje_juego.refresh_from_db()
-
-
-            lista_nuevo_cobrador(ret_ciclado['lista'])
-            ret_id = ret_ciclado['juego'].id
-
-            # si cae en 3 y despues en posicion diferente de ciclaje
-            # guardo y cierro la cadena con )
-            if ret_ciclado['posicion'] != 3:
-                usuario_que_paga += ')'
-                # guardo en BD
-                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
-                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
-                ultimo_ciclaje_juego.save()
-                ultimo_ciclaje_juego.refresh_from_db()
-
-            if ret_ciclado['posicion'] == 4:
-                lista_nueva(ret_ciclado['lista'])
-
-            # bloque de multiples asignaciones en posicion de ciclaje
-            # 2 o mas ciclajes
-            while ret_ciclado['posicion'] == 3:
-                ret_ciclado = lista_ciclar(ret_ciclado['lista'])
-                usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
-                lista_nuevo_cobrador(ret_ciclado['lista'])
-                ret_id = ret_ciclado['juego'].id
-
-                # guardo en BD
-                ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
-                ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
-                ultimo_ciclaje_juego.save()
-                ultimo_ciclaje_juego.refresh_from_db()
-
-                # si cae en 3 y despues en posicion diferente de ciclaje
-                # guardo y cierro la cadena con )            
-                if ret_ciclado['posicion'] != 3:
-                    usuario_que_paga += ')'
-                    # guardo en BD
-                    ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
-                    ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
-                    ultimo_ciclaje_juego.save()
-                    ultimo_ciclaje_juego.refresh_from_db()
-                    # movimiento entrada salida por pago completo por ciclaje
-                    jugador_repartir_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'].nivel, True)
-                    
-
-                if ret_ciclado['posicion'] == 4:
-                    lista_nueva(ret_ciclado['lista'])
-    else:
-        respuesta = 'No se encontraron posiciones disponibles'
-        log_registrar('log.txt', 'No se encontraron posiciones disponibles')
-
-    return HttpResponse(reverse('core:mis_clones'))
 
 def buscar_ubicacion(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
@@ -612,6 +602,11 @@ def buscar_ubicacion(patrocinador, nivel_lista):
             log_registrar('log.txt', 'BUSCANDO EN LISTA MAS ANTIGUA')
             ubicacion = lista_buscar_mas_antigua(nivel_lista)
     return ubicacion
+
+
+
+
+
 
 # Busquedas de posicion sobre las listas
 def lista_buscar_padre(patrocinador, nivel_lista):
@@ -904,6 +899,17 @@ def lista_inc_ciclo(lista):
     lista.refresh_from_db()
 
 
+
+def jugador_inc_listas_cerradas(jugador, nivel):
+    jugador_nivel=JugadorNivel.objects.get(jugador=jugador, nivel=nivel)
+    patrocinador = jugador_nivel.patrocinador
+    if jugador_nivel.ciclo == 0:
+        patrocinador.n_listas_cerradas = F('n_listas_cerradas') + 1
+        patrocinador.save() 
+    
+    jugador_nivel.n_listas_cerradas = F('n_listas_cerradas') + 1
+    jugador_nivel.save()
+
 def jugador_inc_referidos(patrocinador, nivel_lista):
     jugador_nivel = JugadorNivel.objects.get(jugador=patrocinador, nivel=nivel_lista)
     if jugador_nivel is not None:
@@ -966,6 +972,18 @@ def jugador_inc_cobros(jugador, nivel_lista):
         # Generamos el nuevo clon especial
         nuevo_clon_especial = Clon(jugador=jugador, estado='P', tipo='C', nivel=nivel_lista)
         nuevo_clon_especial.save()
+
+
+def jugador_inc_ciclo(jugador_nivel):
+    jugador_nivel.ciclo = F('ciclo') + 1
+    jugador_nivel.save()
+    jugador_nivel.refresh_from_db()
+    
+
+def jugador_inc_cierre_lista(jugador):
+    jugador.cierre_lista = F('cierre_lista') + 1
+    jugador.save()
+    jugador.refresh_from_db()
 
 
 @transaction.atomic
@@ -1113,18 +1131,6 @@ def lista_validar_pc(lista):
 
 
 # Fin del bloque de funciones validaciones pc y bloqueo
-
-def jugador_inc_ciclo(jugador_nivel):
-    jugador_nivel.ciclo = F('ciclo') + 1
-    jugador_nivel.save()
-    jugador_nivel.refresh_from_db()
-    
-
-def jugador_inc_cierre_lista(jugador):
-    jugador.cierre_lista = F('cierre_lista') + 1
-    jugador.save()
-    jugador.refresh_from_db()
-
 
 def log_registrar(nombre_archivo, texto):
     archivo = open(str(nombre_archivo), "a")
