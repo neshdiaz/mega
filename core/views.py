@@ -358,16 +358,6 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
                                         )
         nuevo_movimiento_destino.save()
 
-        nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
-                                        billetera='D',
-                                        tipo='S',
-                                        concepto='CI',
-                                        descripcion='Reintegro a favor en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
-                                        valor=(lista.nivel.monto * 50) / 100,
-                                        )
-        nuevo_movimiento_destino.save()
-
-
     else:
         nuevo_movimiento_origen = Movimiento(cuenta=cuenta_jugador_origen,
                                             billetera='D',
@@ -387,8 +377,6 @@ def jugador_repartir_pago_ciclaje(jugador_origen, lista, primer_ciclaje):
         nuevo_movimiento_origen.save()
         nuevo_movimiento_destino.save()
 
-
-
 @transaction.atomic
 def jugador_pago(jugador, lista):
     # se consulta los datos de division de pagos en la bd
@@ -403,8 +391,6 @@ def jugador_pago(jugador, lista):
     jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador
 
     # Actualizamos cuentas y movimientos de cada jugador
-   
-
     # Movimientos de entrada de el cobrador de la lista
     cuenta_posicion_cobro = Cuenta.objects.get(jugador=jugador_posicion_cobro)
     cuenta_posicion_cobro.saldo_disponible = F('saldo_disponible') + porcent_posicion_cobro
@@ -421,7 +407,6 @@ def jugador_pago(jugador, lista):
                                            descripcion='Pago de jugador ' + str(jugador) + ' en nivel ' + str(lista.nivel.id) + ' lista ' + str(lista.id),
                                            valor=porcent_posicion_cobro)
     movimiento_posicion_cobro.save()
-
 
 @transaction.atomic
 def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
@@ -583,7 +568,6 @@ def jugador_validar_auto_nivel_up(jugador, nivel_lista):
                     nivel_anterior_jugador.bloqueo_x_cobros_nivel = False
                     nivel_anterior_jugador.color = 'green'
 
-
 def buscar_ubicacion(patrocinador, nivel_lista):
     ubicacion = {'lista': None,
                  'posicion': -1,
@@ -602,11 +586,6 @@ def buscar_ubicacion(patrocinador, nivel_lista):
             log_registrar('log.txt', 'BUSCANDO EN LISTA MAS ANTIGUA')
             ubicacion = lista_buscar_mas_antigua(nivel_lista)
     return ubicacion
-
-
-
-
-
 
 # Busquedas de posicion sobre las listas
 def lista_buscar_padre(patrocinador, nivel_lista):
