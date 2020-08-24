@@ -167,8 +167,8 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
             
             # se realiza el pago teniendo en cuenta que es el primer ciclaje
             # y no debo descontar del jugador origen
-            jugador_repartir_pago_ciclaje(nuevo_jugador, nueva_ubicacion['lista'], True)
-            
+            jugador_pago(nuevo_jugador, nueva_ubicacion['lista'])
+            jugador_reinvierte_ciclaje(nuevo_jugador, nueva_ubicacion['lista'])
             lista_nuevo_cobrador(ret_ciclado['lista'])
             ret_id = ret_ciclado['juego'].id
 
@@ -196,10 +196,10 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
                 usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
 
+                jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
+                jugador_reinvierte_ciclaje(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
                 lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
-
-                jugador_repartir_pago_ciclaje(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'], False)
 
                 # guardo en BD
                 ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
@@ -340,40 +340,25 @@ def asignar_clon(clon, nivel_lista):
 
 
 @transaction.atomic
-def jugador_repartir_pago_ciclaje(jugador_origen, lista_origen_ciclaje, primer_ciclaje):
-    jugador_destino = Jugador.objects.get(juego__lista=lista_origen_ciclaje.id, juego__posicion=0)
-     
-    cuenta_jugador_origen = Cuenta.objects.get(jugador=jugador_origen)
-    cuenta_jugador_destino = Cuenta.objects.get(jugador=jugador_destino)
+def jugador_reinvierte_ciclaje(jugador, lista):
+    
+    jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador   
+    cuenta_jugador = Cuenta.objects.get(jugador=jugador_posicion_cobro)
 
+    cuenta_jugador.saldo_disponible = F('saldo_disponible') - (lista.nivel.monto / 2)
+    cuenta_jugador.saldo_total = F('saldo_total') - (lista.nivel.monto / 2)
+    cuenta_jugador.save()
 
-    if primer_ciclaje:
-        nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
-                                        billetera='D',
-                                        tipo='E',
-                                        concepto='CI',
-                                        descripcion='Saldo a favor en ciclaje de usuario ' + str(cuenta_jugador_origen.jugador) + ' en nivel ' + str(lista_origen_ciclaje.nivel.id) + ' lista ' + str(lista_origen_ciclaje.id),
-                                        valor=(lista_origen_ciclaje.nivel.monto * 50) / 100,
-                                        )
-        nuevo_movimiento_destino.save()
+    nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador,
+                                billetera='D',
+                                tipo='S',
+                                concepto='CI',
+                                descripcion='Se reinvierte por ciclaje automático en nivel ' + str(lista.nivel.id) +
+                                    ' lista ' + str(lista.id),
+                                valor=lista.nivel.monto / 2
+                               )
+    nuevo_movimiento_destino.save()
         
-        nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_destino,
-                                        billetera='D',
-                                        tipo='S',
-                                        concepto='CI',
-                                        descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista_origen_ciclaje.nivel.id) + ' lista ' + str(lista_origen_ciclaje.id),
-                                        valor=(lista_origen_ciclaje.nivel.monto * 50) / 100,
-                                        )
-        nuevo_movimiento_destino.save()
-
-    else:
-        nuevo_movimiento_origen = Movimiento(cuenta=cuenta_jugador_origen,
-                                            billetera='D',
-                                            tipo='S',
-                                            concepto='CI',
-                                            descripcion='Reintegro en ciclaje a usuario ' + str(cuenta_jugador_destino.jugador) + ' en nivel ' + str(lista_origen_ciclaje.nivel.id) + ' lista ' + str(lista_origen_ciclaje.id),
-                                            valor=(lista_origen_ciclaje.nivel.monto * 50) / 100,
-                                        )
 
 @transaction.atomic
 def jugador_pago(jugador, lista):
@@ -510,7 +495,6 @@ def jugador_repartir_pago_comisiones(jugador, nivel_a_activar):
     cuenta_tercera_generacion.save()
     cuenta_tercera_generacion.refresh_from_db()
     # Validamos si tiene saldo de comisiones suficiente para activar niveles pendientes
-
     movimiento_tercera_generacion = Movimiento(cuenta=cuenta_tercera_generacion,
                                                billetera='A',
                                                tipo='E',
