@@ -150,7 +150,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
         notificar_asignacion()
 
         # bloque de ciclaje de jugadores
-        if nueva_ubicacion['posicion'] == 3:
+        if nueva_ubicacion['posicion'] == 3:    
             # ciclo la lista en la nueva ubicacion
             # empieza el ciclaje
             usuario_que_paga = '(' + str(nuevo_jugador) + '-> '
@@ -159,7 +159,6 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
             
             usuario_que_paga += str(ret_ciclado['jugador_ciclado'])
             ret_id = ret_ciclado['juego'].id
-            # guardo en BD
             ultimo_ciclaje_juego = Juego.objects.get(pk=ret_id)
             ultimo_ciclaje_juego.cadena_ciclaje = str(usuario_que_paga)
             ultimo_ciclaje_juego.save()
@@ -168,7 +167,7 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
             # se realiza el pago teniendo en cuenta que es el primer ciclaje
             # y no debo descontar del jugador origen
             jugador_pago(nuevo_jugador, nueva_ubicacion['lista'])
-            jugador_reinvierte_ciclaje(nuevo_jugador, nueva_ubicacion['lista'])
+            jugador_reinvierte_ciclaje(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
             lista_nuevo_cobrador(ret_ciclado['lista'])
             ret_id = ret_ciclado['juego'].id
 
@@ -193,11 +192,15 @@ def asignar_jugador(nuevo_jugador, nivel_lista):
             # 2 o mas ciclajes
             while ret_ciclado['posicion'] == 3:
                 # cayendo en posicion de ciclaje
+                nueva_lista_origen=ret_ciclado['lista']
                 ret_ciclado = lista_ciclar(ret_ciclado['lista'])
+                nueva_lista_destino = ret_ciclado['lista']
+                                
                 usuario_que_paga += '-> ' + str(ret_ciclado['jugador_ciclado'])
-
+                
                 jugador_pago(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
-                jugador_reinvierte_ciclaje(ret_ciclado['jugador_ciclado'], ret_ciclado['lista'])
+                jugador_reinvierte_ciclaje(ret_ciclado['jugador_ciclado'], nueva_lista_destino)
+                
                 lista_nuevo_cobrador(ret_ciclado['lista'])
                 ret_id = ret_ciclado['juego'].id
 
@@ -340,22 +343,20 @@ def asignar_clon(clon, nivel_lista):
 
 
 @transaction.atomic
-def jugador_reinvierte_ciclaje(jugador, lista):
+def jugador_reinvierte_ciclaje(jugador_paga, lista_destino):
+    cuenta_jugador_paga = Cuenta.objects.get(jugador=jugador_paga)
+
+    cuenta_jugador_paga.saldo_disponible = F('saldo_disponible') - (lista_destino.nivel.monto / 2)
+    cuenta_jugador_paga.saldo_total = F('saldo_total') - (lista_destino.nivel.monto / 2)
+    cuenta_jugador_paga.save()
     
-    jugador_posicion_cobro = Juego.objects.get(lista=lista, posicion=0).jugador   
-    cuenta_jugador = Cuenta.objects.get(jugador=jugador_posicion_cobro)
-
-    cuenta_jugador.saldo_disponible = F('saldo_disponible') - (lista.nivel.monto / 2)
-    cuenta_jugador.saldo_total = F('saldo_total') - (lista.nivel.monto / 2)
-    cuenta_jugador.save()
-
-    nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador,
+    nuevo_movimiento_destino = Movimiento(cuenta=cuenta_jugador_paga,
                                 billetera='D',
                                 tipo='S',
-                                concepto='CI',
-                                descripcion='Se reinvierte por ciclaje automático en nivel ' + str(lista.nivel.id) +
-                                    ' lista ' + str(lista.id),
-                                valor=lista.nivel.monto / 2
+                                concepto='CI', 
+                                descripcion='Se reinvierte por ciclaje automático en nivel ' + str(lista_destino.nivel.id) +
+                                    ' lista ' + str(lista_destino.id),
+                                valor=lista_destino.nivel.monto / 2
                                )
     nuevo_movimiento_destino.save()
         
@@ -1478,14 +1479,25 @@ def activar_clon(request, clon_id=None, nivel_lista=None):
 def activar_nivel(request, jugador_nivel_id):
     jugador = Jugador.objects.get(usuario__username=request.user.username)
     cuenta = Cuenta.objects.get(jugador=jugador)
+
     niveles = ""
-    
     nivel_a_activar = JugadorNivel.objects.get(pk=jugador_nivel_id)
+    
     if nivel_a_activar.estado == 'P':
         # si el saldo de activacion me alcanza o si sumando el saldo disponible me alcanza
         if cuenta.saldo_activacion >= nivel_a_activar.nivel.monto or cuenta.saldo_activacion\
             + cuenta.saldo_disponible >= nivel_a_activar.nivel.monto:
-
+    
+            # valido donde va a caer para definir cobrador
+            jugador_nivel = JugadorNivel.objects.get(jugador=jugador, \
+                nivel=nivel_a_activar.nivel.id)
+            patrocinador = jugador_nivel.patrocinador
+            nueva_ubicacion = buscar_ubicacion(patrocinador, nivel_a_activar.nivel.id)
+            
+            # defino cobrador y cuenta
+            cobrador = Juego.objects.get(lista=nueva_ubicacion['lista'], posicion=0).jugador
+            cuenta_cobrador = Cuenta.objects.get(jugador=cobrador)
+            
             nivel_a_activar.estado = 'A'
             nivel_a_activar.save()
             nivel_a_activar.refresh_from_db()
@@ -1499,19 +1511,39 @@ def activar_nivel(request, jugador_nivel_id):
                 cuenta.saldo_disponible = F('saldo_disponible') - nivel_a_activar.nivel.monto
                 cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
                 cuenta.save()
+
+                cuenta_cobrador.saldo_disponible = F('saldo_disponible') + nivel_a_activar.nivel.monto
+                cuenta_cobrador.saldo_total = F('saldo_total') + nivel_a_activar.nivel.monto
+                cuenta_cobrador.save()
                 
-                desc_movimiento = 'Pago activacion nivel ' + str(nivel_a_activar.nivel.id)
+                
+                # desc_movimiento = 'Pago activacion nivel ' + str(nivel_a_activar.nivel.id)
+                desc_movimiento = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' + str(nivel_a_activar.nivel.monto/2) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
+
                 nuevo_movimiento = Movimiento(cuenta=cuenta,
                                             billetera='D',
                                             tipo='S',
                                             concepto='PN', 
                                             descripcion=desc_movimiento,
-                                            valor=nivel_a_activar.nivel.monto)
+                                            valor=nivel_a_activar.nivel.monto/2)
                 nuevo_movimiento.save()
+                nuevo_movimiento.refresh_from_db()
+                
+                desc_movimiento = 'Recepcion de pago de jugador ' + str(jugador) + ' en nivel ' + str(nivel_a_activar.nivel.id) + ' lista ' + str(lista.id)
+                nuevo_movimiento = Movimiento(cuenta=cuenta_cobrador,
+                                            billetera='D',
+                                            tipo='E',
+                                            concepto='PN', 
+                                            descripcion=desc_movimiento,
+                                            valor=nivel_a_activar.nivel.monto/2)
+                nuevo_movimiento.save()
+                nuevo_movimiento.refresh_from_db()
+
                 
             # si no me alcanza el saldo de activacion pero tengo saldo disponible para debitar
             elif cuenta.saldo_activacion < nivel_a_activar.nivel.monto and \
                     nivel_a_activar.nivel.monto <= (cuenta.saldo_activacion + cuenta.saldo_disponible):
+                
                 restante = nivel_a_activar.nivel.monto - cuenta.saldo_activacion
                 descuento_activacion = cuenta.saldo_activacion
                 descuento_disponible = restante
@@ -1520,28 +1552,34 @@ def activar_nivel(request, jugador_nivel_id):
                 cuenta.saldo_total = F('saldo_total') - nivel_a_activar.nivel.monto
                 cuenta.save()
                 
+            
                 if descuento_activacion > 0:
-                    desc_movimiento = 'Descuento saldo activacion para activar nivel ' + str(nivel_a_activar.nivel.id)
-                    nuevo_movimiento = Movimiento(cuenta=cuenta,
+                    desc_movimiento_1 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' \
+                        + str(descuento_activacion) + ' US$ de su billetera ACTIVACIÓN para pagar a ' \
+                        + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
+                    
+                    nuevo_movimiento1 = Movimiento(cuenta=cuenta,
                                                 billetera='A',
                                                 tipo='S',
                                                 concepto='PN',  
-                                                descripcion=desc_movimiento,
+                                                descripcion=desc_movimiento_1,
                                                 valor=descuento_activacion)
-                    nuevo_movimiento.save()
-                    nuevo_movimiento.refresh_from_db()
+                    nuevo_movimiento1.save()
+                    nuevo_movimiento1.refresh_from_db()
 
+                # desc_movimiento2 = 'Se retendrá ' + str(descuento_disponible) + ' US$ de su billetera disponible para activar el nivel' + str(nivel_a_activar.nivel.id) + ' y pagar al cobrador'
+                desc_movimiento_2 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' \
+                    + str(nivel_a_activar.nivel.monto) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
                 
-                desc_movimiento = 'Descuento saldo disponible para activar nivel ' + str(nivel_a_activar.nivel.id)
-                nuevo_movimiento = Movimiento(cuenta=cuenta,
-                                                billetera='D',
-                                                tipo='S',
-                                                concepto='PN',  
-                                                descripcion=desc_movimiento,
-                                                valor=descuento_disponible)
-                nuevo_movimiento.save()
-                nuevo_movimiento.refresh_from_db()
-            
+                nuevo_movimiento2 = Movimiento(cuenta=cuenta,
+                                            billetera='D',
+                                            tipo='S',
+                                            concepto='PN',  
+                                            descripcion=desc_movimiento_2,
+                                            valor=descuento_disponible)
+                nuevo_movimiento2.save()
+                nuevo_movimiento2.refresh_from_db()
+                
             # Reparto las comisiones de cada generación
             jugador_repartir_pago_comisiones(jugador, nivel_a_activar)
 
@@ -1554,8 +1592,8 @@ def activar_nivel(request, jugador_nivel_id):
                     jugador_nivel_anterior.bloqueo_x_cobros_nivel = False
                     jugador_nivel_anterior.color = 'green'
                     jugador_nivel_anterior.save()
-            patrocinador, lista, posicion = asignar_jugador(jugador, nivel_a_activar.nivel.id)
-            respuesta = 'Nivel ' + str(nivel_a_activar.nivel.id) + ' activado correctamente, estás en la lista ' + str(lista) + ' y posición ' + str(posicion + 1)
+            respuesta = 'Nivel ' + str(nivel_a_activar.nivel.id) + ' activado correctamente, estás en la lista ' + str(nueva_ubicacion['lista']) + ' y posición ' + str(nueva_ubicacion['posicion'] + 1)
+            asignar_jugador(jugador, nivel_a_activar.nivel.id)
         else:
             respuesta = 'No tienes saldo suficiente para activar el nivel ' + str(nivel_a_activar.nivel.id)
     

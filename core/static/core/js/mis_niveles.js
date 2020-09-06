@@ -105,7 +105,7 @@ $('#showNivelTreeModal').on('show.bs.modal', function (event) {
     // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
     var modal = $(this)
     modal.find('.modal-title').text('Esta es la estructura del nivel ' + nivel)
-    modal.find('.modal-body').html('<div id="listasContainer"></div> <div id="lista_content">contenido</div>' )   
+    modal.find('.modal-body').html('<div id="listasContainer"></div> <div id="lista_content">contenido</div>' )
     get_listas()
     get_lista_content()
 
