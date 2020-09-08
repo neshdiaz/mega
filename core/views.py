@@ -979,10 +979,9 @@ def lista_validar_bloqueo(lista):
     color0 = jugador_nivel_0.color
     color1 = jugador_nivel_1.color
     
-    if color0 != 'blue' and color0 != 'orange': #Si no tiene bloqueo por cobros
-        if color0 == 'green' or\
-            color1 == 'green':
-            lista_desbloquear(lista)
+    if color0 == 'green' or\
+        color1 == 'green':
+        lista_desbloquear(lista)
 
 # Validamos todas las listas del patrocinador bloqueadas para activarlas
 def jugador_validar_bloqueos(patrocinador, nivel_lista):
@@ -998,10 +997,9 @@ def jugador_validar_bloqueos(patrocinador, nivel_lista):
             jugador_nivel_0 = JugadorNivel.objects.get(jugador=juegos[0].jugador, nivel=lista.nivel)
             jugador_nivel_1 = JugadorNivel.objects.get(jugador=juegos[1].jugador, nivel=lista.nivel)
 
-            if jugador_nivel_0.color != 'blue' and jugador_nivel_0.color != 'orange': #Si no tiene bloqueo por cobros
-                if jugador_nivel_0.color == 'green' or \
-                    jugador_nivel_1.color == 'green':
-                    lista_desbloquear(lista)
+            if jugador_nivel_0.color == 'green' or \
+                jugador_nivel_1.color == 'green':
+                lista_desbloquear(lista)
 
 
 # Buscamos todas las listas del patrocinador para generar el premio castigo
@@ -1009,52 +1007,53 @@ def jugador_validar_pcs(patrocinador, nivel_lista):
     if patrocinador is not None:
         listas_patrocinador = Lista.objects \
                                    .filter(jugador=patrocinador)\
-                                   .exclude(estado='C')\
-                                   .filter(pc=False, nivel=nivel_lista)
+                                   .exclude(estado='C')
+                                   #.filter(pc=False, nivel=nivel_lista)
 
         for lista in listas_patrocinador:
-            
-            juegos = Juego.objects.select_related('jugador', 'lista')\
-                                  .filter(lista=lista)
-            
-            # filtramos los juegos de la lista posiciones 0 y 1
-            juego_posicion_0 = juegos.filter(posicion=0)
-            juego_posicion_1 = juegos.filter(posicion=1)
-            
-            # Traigo los datos de jugadorNivel para verificar el color
-            jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_posicion_0[0].jugador, nivel=lista.nivel)
-            jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_posicion_1[0].jugador, nivel=lista.nivel)
-            
-            # traigo los objetos que se van a modificar
-            objPosicion0 = Juego.objects.get(pk=juego_posicion_0[0].id)
-            objPosicion1 = Juego.objects.get(pk=juego_posicion_1[0].id)
+            # solo si tiene dos jugadores
+            if lista.items <=2:
+                juegos = Juego.objects.select_related('jugador', 'lista')\
+                                    .filter(lista=lista)
+                
+                # filtramos los juegos de la lista posiciones 0 y 1
+                juego_posicion_0 = juegos.filter(posicion=0)
+                juego_posicion_1 = juegos.filter(posicion=1)
+                
+                # Traigo los datos de jugadorNivel para verificar el color
+                jugador_nivel_0 = JugadorNivel.objects.get(jugador=juego_posicion_0[0].jugador, nivel=lista.nivel)
+                jugador_nivel_1 = JugadorNivel.objects.get(jugador=juego_posicion_1[0].jugador, nivel=lista.nivel)
+                
+                # traigo los objetos que se van a modificar
+                objPosicion0 = Juego.objects.get(pk=juego_posicion_0[0].id)
+                objPosicion1 = Juego.objects.get(pk=juego_posicion_1[0].id)
 
-            if jugador_nivel_0.color == 'red' or jugador_nivel_0.color == '#d6d007':
-                # recorremos la lista para buscar algun verde que suba de posicion
-                # en caso de que la cabeza no este en verde
-                if jugador_nivel_1.color == 'green':
-                    objPosicion1.posicion = 0
-                    objPosicion1.save()
-                    objPosicion1.refresh_from_db()
+                if jugador_nivel_0.color == 'red' or jugador_nivel_0.color == '#d6d007':
+                    # recorremos la lista para buscar algun verde que suba de posicion
+                    # en caso de que la cabeza no este en verde
+                    if jugador_nivel_1.color == 'green':
+                        objPosicion1.posicion = 0
+                        objPosicion1.save()
+                        objPosicion1.refresh_from_db()
 
-                    objPosicion0.posicion = 1
-                    objPosicion0.save()
-                    objPosicion0.refresh_from_db()
+                        objPosicion0.posicion = 1
+                        objPosicion0.save()
+                        objPosicion0.refresh_from_db()
 
-                    lista.pc = True
-                    lista.save()
-                    lista.refresh_from_db()
-                    log_registrar('log.txt', 'jugador ' +
-                                    str(objPosicion1.jugador.usuario) +
-                                    ' en posicion 2 se activa en verde ')
+                        # lista.pc = True
+                        #lista.save()
+                        #lista.refresh_from_db()
+                        log_registrar('log.txt', 'jugador ' +
+                                        str(objPosicion1.jugador.usuario) +
+                                        ' en posicion 2 se activa en verde ')
 
 #  Validamos lista para generar el premio castigo
 def lista_validar_pc(lista):
     
     #juegos de la lista (jugador-lista)
     juegos = Juego.objects.filter(lista=lista)\
-                          .exclude(lista__estado='C')\
-                          .filter(lista__pc=False)
+                          .exclude(lista__estado='C')
+                          #.filter(lista__pc=False)
                           
     if juegos.exists():
         # Posiciones 0 y 1
@@ -1081,9 +1080,9 @@ def lista_validar_pc(lista):
                 posicion0.save()
                 posicion0.refresh_from_db()
 
-                lista.pc = True
-                lista.save()
-                lista.refresh_from_db()
+                #lista.pc = True
+                #lista.save()
+                #lista.refresh_from_db()
                 log_registrar('log.txt', 'Premio castigo en lista ' +
                             str(lista))
             
