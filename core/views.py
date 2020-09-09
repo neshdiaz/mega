@@ -1517,7 +1517,7 @@ def activar_nivel(request, jugador_nivel_id):
                 
                 
                 # desc_movimiento = 'Pago activacion nivel ' + str(nivel_a_activar.nivel.id)
-                desc_movimiento = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' + str(nivel_a_activar.nivel.monto/2) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
+                desc_movimiento = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se descuenta ' + str(nivel_a_activar.nivel.monto) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y comisiones a generaciones.'
 
                 nuevo_movimiento = Movimiento(cuenta=cuenta,
                                             billetera='D',
@@ -1553,9 +1553,9 @@ def activar_nivel(request, jugador_nivel_id):
                 
             
                 if descuento_activacion > 0:
-                    desc_movimiento_1 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' \
+                    desc_movimiento_1 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se descuenta ' \
                         + str(descuento_activacion) + ' US$ de su billetera ACTIVACIÓN para pagar a ' \
-                        + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
+                        + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y comisiones a generaciones.'
                     
                     nuevo_movimiento1 = Movimiento(cuenta=cuenta,
                                                 billetera='A',
@@ -1567,8 +1567,8 @@ def activar_nivel(request, jugador_nivel_id):
                     nuevo_movimiento1.refresh_from_db()
 
                 # desc_movimiento2 = 'Se retendrá ' + str(descuento_disponible) + ' US$ de su billetera disponible para activar el nivel' + str(nivel_a_activar.nivel.id) + ' y pagar al cobrador'
-                desc_movimiento_2 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se transfieren ' \
-                    + str(nivel_a_activar.nivel.monto) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y otras comisiones.'
+                desc_movimiento_2 = 'Se activa nivel ' + str(nivel_a_activar.nivel.id) + ' y se descuenta ' \
+                    + str(descuento_disponible) + ' US$ de su billetera DISPONIBLE para pagar a ' + str(cobrador) + ' en lista ' + str(nueva_ubicacion['lista']) + ' y comisiones a generaciones.'
                 
                 nuevo_movimiento2 = Movimiento(cuenta=cuenta,
                                             billetera='D',
