@@ -107,6 +107,10 @@ function displaySaldos(saldos_json){
         htmlSaldos += "        <th>Activación:</th>"
         htmlSaldos += "        <td>" + saldos_json.saldo_activacion + " US$</td>"
         htmlSaldos += "    </tr>"
+        htmlSaldos += "    <tr>"
+        htmlSaldos += "        <th>Beneficios Totales:</th>"
+        htmlSaldos += "        <td>" + saldos_json.beneficios_totales + " US$</td>"
+        htmlSaldos += "    </tr>"
         htmlSaldos += "    </tbody>"
         htmlSaldos += "</table>"
         $('#saldosContainer').html(htmlSaldos)

@@ -1125,6 +1125,7 @@ def consulta_saldos_usuario(request):
     saldos = {'saldo_activacion': str(cuenta.saldo_activacion),
               'saldo_disponible': str(cuenta.saldo_disponible),
               'saldo_total': str(cuenta.saldo_total),
+              'beneficios_totales': str(cuenta.beneficios_totales),
     }
     json_response = json.dumps(saldos)
     return HttpResponse(json_response)
