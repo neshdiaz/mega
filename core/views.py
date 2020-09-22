@@ -1188,8 +1188,7 @@ def lista_content(request, id_lista=None, n_usuario=None):
                     juego.cadena_ciclaje
                 if jugador_nivel.patrocinador is not None:
                     dict_list[juego.posicion]['patrocinador'] = \
-                        jugador_nivel.patrocinador.usuario.username 
-
+                        jugador_nivel.patrocinador.usuario.username
 
         # posicion 5 para el encabezado de la lista
         dict_list[5]['lista_id'] = mi_lista.id
@@ -1678,8 +1677,8 @@ def ws_list_box(request):
         .filter(jugador__usuario__username=usuario.username)\
         .order_by('nivel', 'id')\
         .distinct()
-   
     lst_listas = []
+    
     for lista in lista_listas:
         ele = {"id": lista.id, 
                 "nivel": str(lista.nivel), 

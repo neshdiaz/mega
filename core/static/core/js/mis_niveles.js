@@ -99,14 +99,19 @@ $('#confirmActivateModal').on('show.bs.modal', function (event) {
 $('#showNivelTreeModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
     var nivel_a_activar = button.data('nivel-a-activar') // Extract info from data-* attributes
-    var nivel = button.data('nivel') // Extract info from data-* attributes
+    var nivel_id = button.data('nivel') // Extract info from data-* attributes
 
     // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
     // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
     var modal = $(this)
-    modal.find('.modal-title').text('Esta es la estructura del nivel ' + nivel)
-    modal.find('.modal-body').html('<div id="listasContainer"></div> <div id="lista_content">contenido</div>' )
-    get_listas()
-    get_lista_content()
+    modal.find('.modal-title').text('Esta es la estructura del nivel ' + nivel_id)
+    modal.find('.modal-body').html('<div id="listBox"></div>')
+})
 
+$('#showNivelTreeModal').on('shown.bs.modal', function (event) {
+    var button = $(event.relatedTarget) // Button that triggered the modal
+    var nivel_a_activar = button.data('nivel-a-activar') // Extract info from data-* attributes
+    var nivel_id = button.data('nivel') // Extract info from data-* attributes
+
+    listBox(url_listBox, { nivel: nivel_id, estado: 'A' }, 'listBox');
 })

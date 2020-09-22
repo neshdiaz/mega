@@ -1,4 +1,6 @@
 
+/**************************    FUNCIONES GLOBALES  ***************************/
+
 function getData(urlRequest, params){
     //Enviar solicitud ajax y recibir datos con ajax
     $.ajax({
@@ -16,13 +18,16 @@ function getData(urlRequest, params){
             }
         },   
         success: function(response){
+            alert(response)
             return response
         }        
     });
 }
 
-function listBox(url, params, objetoRender){
-    // Template mustage
+/**************************    FUNCIONES COMPONENTES  ************************/
+
+function listBox(url, params, target){
+    //variables
     var templateListboxButton = '<button type="button" class="btn btn-secondary">Lista <span class = "{{id}}"> <i class="{{iconEstado}}"></button>'
     
     var templateListbox = ''
@@ -30,21 +35,33 @@ function listBox(url, params, objetoRender){
         templateListbox += templateListboxButton
         templateListbox += '<button type="button" class="btn btn-secondary">2</button>'
         
-        templateListbox += '</div>' 
+        templateListbox += '</div>'
     
-
-    // Solicitar datos con get_data y mostrarlo en objetoRender
+    //metodos...
     data = getData(url, params)
+    alert("datos" + data)
+    render(data);
     
     // Render data con plantilla sobre mustage con jquery
-    
-}
+    // meter aqui la plantilla mustage y rellenar con data
+    // incrustar logica
 
-function listContentBox(url, params, objetoRender){
+    function render(data){
+        htmlTempl = '<h1> Datos obtenidos y mostrados por el componente </h1>'
+        data.forEach(function(item, index){
+            htmlTempl += "<h2>" + item.estado + "</h2>"
+        })
+
+        // Volcado de datos en el contenedor
+        objTarget = $("#" + target)
+        $(htmlTempl).appendTo(objTarget)
+    }
+}   
+
+function listContentBox(url, params, target){
     //template mustage
 
     // Solicitar datos con get_data y mostrarlo en objetoRender
     data = getData(url, params)
 }
 
-listBox()
